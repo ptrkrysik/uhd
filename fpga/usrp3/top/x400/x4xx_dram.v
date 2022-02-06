@@ -38,15 +38,17 @@ module x4xx_dram #(
   // Base clocks for the DRAM IP
   input wire dram0_sys_clk_p,
   input wire dram0_sys_clk_n,
+`ifndef X411
   input wire dram1_sys_clk_p,
   input wire dram1_sys_clk_n,
-
+`endif
   // DRAM interface output clocks (synchronous to the DRAM PHY)
   output wire dram0_ui_clk,
   output wire dram0_ui_clk_sync_rst,
+`ifndef X411
   output wire dram1_ui_clk,
   output wire dram1_ui_clk_sync_rst,
-
+`endif
   //-------------------------------------------------------------------------
   // DRAM Bank 0 Chip Interface
   //-------------------------------------------------------------------------
@@ -69,7 +71,7 @@ module x4xx_dram #(
   //-------------------------------------------------------------------------
   // DRAM Bank 1 Chip Interface
   //-------------------------------------------------------------------------
-
+`ifndef X411
   output wire         dram1_ck_t,
   output wire         dram1_ck_c,
   output wire         dram1_cs_n,
@@ -84,7 +86,7 @@ module x4xx_dram #(
   inout  wire [ 63:0] dram1_dq,
   inout  wire [  7:0] dram1_dqs_t,
   inout  wire [  7:0] dram1_dqs_c,
-
+`endif
   //-------------------------------------------------------------------------
   // DRAM User Interfaces (Synchronous to dram_clk)
   //-------------------------------------------------------------------------
@@ -152,15 +154,19 @@ module x4xx_dram #(
   //---------------------------------------------------------------------------
 
   wire dram0_init_calib_complete_d;
+`ifndef X411
   wire dram1_init_calib_complete_d;
-
+`endif
   // Combine the signals from both banks into a single "complete" signal.
   always @(posedge dram_clk) begin
     if (dram_rst) begin
       dram_init_calib_complete <= 1'b0;
     end else begin
-      dram_init_calib_complete <= dram0_init_calib_complete_d &
-                                  dram1_init_calib_complete_d;
+      dram_init_calib_complete <= dram0_init_calib_complete_d
+`ifndef X411
+                                  & dram1_init_calib_complete_d
+`endif
+                                  ;
     end
   end
 

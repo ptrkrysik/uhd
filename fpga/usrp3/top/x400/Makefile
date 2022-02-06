@@ -52,6 +52,7 @@ X410_C1_200:  DEFS += $(QSFP0_100GBE)                  RFBW_200M=1 DRAM_CH=4*$(D
 X410_X1_200:  DEFS += $(QSFP0_10GBE)                   RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_XG_200:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_X4_200:  DEFS += $(QSFP0_4X10GBE)                 RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
+X411_X4_200:  DEFS += $(QSFP0_4X10GBE)                 RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_X4C_200: DEFS += $(QSFP0_4X10GBE) $(QSFP1_100GBE) RFBW_200M=1 DRAM_CH=0
 X410_X1_400:  DEFS += $(QSFP0_10GBE)                   RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_XG_400:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
@@ -68,6 +69,8 @@ DEFS += $(OPTIONS)
 # Defaults specific to the various targets:
 X410_100_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_100_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_100_static_router.hex)
 X410_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_200_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_200_static_router.hex)
+X410_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_200_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_200_static_router.hex)
+X411_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x411_200_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x411_200_static_router.hex)
 X410_400_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_400_static_router.hex)
 X410_400_128_DEFAULTS := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_128_rfnoc_image_core.v DEFAULT_EDGE_FILE=$(abspath x410_400_128_static_router.hex)
 
@@ -112,6 +115,7 @@ endif
 ##X410_X1_200 | 200 MHz   | 10 GbE (Lane 0) | None            | 64b x 4 Ch
 ##X410_XG_200 | 200 MHz   | 10 GbE (Lane 0) | 10 GbE (Lane 0) | 64b x 4 Ch
 ##X410_X4_200 | 200 MHz   | 4 x 10 GbE      | None            | 64b x 4 Ch
+##X411_X4_200 | 200 MHz   | 4 x 10 GbE      | None            | 64b x 4 Ch
 ##X410_X1_400 | 400 MHz   | 10 GbE (Lane 0) | None            | 128b x 4 Ch
 ##X410_XG_400 | 400 MHz   | 10 GbE (Lane 0) | 10 GbE (Lane 0) | 128b x 4 ch
 ##X410_X4_400 | 400 MHz   | 4 x 10 GbE      | None            | 128b x 4 Ch
@@ -142,6 +146,10 @@ X410_XG_200: X410_IP build/usrp_x410_fpga_XG_200.dts
 X410_X4_200: X410_IP build/usrp_x410_fpga_X4_200.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_200_DEFAULTS))
 	$(call post_build,X410,X4_200)
+
+X411_X4_200: X411_IP build/usrp_x411_fpga_X4_200.dts
+	$(call vivado_build,X411,$(DEFS) X411=1,$(X411_200_DEFAULTS))
+	$(call post_build,X411,X4_200)
 
 X410_X1_400: X410_IP build/usrp_x410_fpga_X1_400.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_400_128_DEFAULTS))
@@ -199,6 +207,9 @@ all:          X410_X4_200 X410_CG_400 ##(Default targets)
 
 X410_IP:      ##Build IP only.
 	+$(call vivado_ip,X410,$(DEFS) X410=1)
+
+X411_IP:      ##Build IP only.
+	+$(call vivado_ip,X411,$(DEFS) X411=1)
 
 build/%.dts: dts/*.dts dts/*.dtsi
 	-mkdir -p build
