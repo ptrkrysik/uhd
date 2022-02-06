@@ -1,11 +1,12 @@
 //
 // Copyright 2021 Ettus Research, A National Instruments Brand
+// Copyright 2022 Piotr Krysik >ptrkrysik@gmail.com>
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 //
 // Module: x4xx
 //
-// Description: Top-level module for X410 devices.
+// Description: Top-level module for X410 and X411 devices.
 //
 
 `default_nettype none
@@ -131,13 +132,16 @@ module x4xx (
   // HD banks
   //-----------------------------------
 
+`ifndef X411
   inout  wire [19:0] DB0_GPIO,
   output wire        DB0_SYNTH_SYNC,
   inout  wire [19:0] DB1_GPIO,
   output wire        DB1_SYNTH_SYNC,
 
   output wire        LMK_SYNC,
+`endif
   input  wire        PPS_IN,
+`ifndef X411
   output wire        PL_CPLD_SCLK,    // Dual-purpose CPLD JTAG TCK
   output wire        PL_CPLD_MOSI,    // Dual-purpose CPLD JTAG TDI
   input  wire        PL_CPLD_MISO,    // Dual-purpose CPLD JTAG TDO
@@ -156,7 +160,7 @@ module x4xx (
 
   output wire        FABRIC_CLK_OUT_P,
   output wire        FABRIC_CLK_OUT_N,
-
+`endif
 
   //-----------------------------------
   // Misc HP banks
@@ -170,6 +174,7 @@ module x4xx (
   input  wire        SYSREF_FABRIC_P,
   input  wire        SYSREF_FABRIC_N,
 
+`ifndef X411
   input  wire        QSFP0_MODPRS_n,
   output wire        QSFP0_RESET_n,
   output wire        QSFP0_LPMODE_n,
@@ -181,13 +186,15 @@ module x4xx (
   inout  wire [11:0] DIOB_FPGA,
 
   output wire        CPLD_JTAG_OE_n,
+`endif
 
   output wire        PPS_LED,
+`ifndef X411
   inout  wire        TRIG_IO,
   output wire        PL_CPLD_JTAGEN,
   output wire        PL_CPLD_CS0_n,    // Dual-purpose CPLD JTAG TMS
   output wire        PL_CPLD_CS1_n,
-
+`endif
 
   //-----------------------------------
   // DRAM
@@ -211,6 +218,7 @@ module x4xx (
   inout  wire [ 7:0] DRAM0_DQS_p,
   inout  wire [ 7:0] DRAM0_DQS_n,
 
+`ifndef X411
   // DRAM Bank 1
   input  wire        DRAM1_REFCLK_P,
   input  wire        DRAM1_REFCLK_N,
@@ -228,6 +236,7 @@ module x4xx (
   inout  wire [63:0] DRAM1_DQ,
   inout  wire [ 7:0] DRAM1_DQS_p,
   inout  wire [ 7:0] DRAM1_DQS_n
+`endif
 
 
   //-----------------------------------
@@ -240,7 +249,9 @@ module x4xx (
   // output wire       FPGA_TEST,
   // output wire       TDC_SPARE_0,
   // output wire       TDC_SPARE_1
-
+`ifdef X411
+  output wire [3:0] QSFP0_TX_ENABLE
+`endif
 );
 
   `include "regmap/global_regs_regmap_utils.vh"
@@ -295,6 +306,42 @@ module x4xx (
   //---------------------------------------------------------------------------
   // Clocks and Resets
   //---------------------------------------------------------------------------
+
+ `ifdef X411
+  // Stubbed IO pins for ZCU111 port
+  wire FPGA_AUX_REF; //FPGA_AUX_REF
+  assign FPGA_AUX_REF = 1'b0;
+  wire CPLD_JTAG_OE_n;
+  wire PL_CPLD_SCLK;    // Dual-purpose CPLD JTAG TCK
+  wire PL_CPLD_MOSI;    // Dual-purpose CPLD JTAG TDI
+  wire PL_CPLD_MISO;    // Dual-purpose CPLD JTAG TDO
+  assign PL_CPLD_MISO = 1'b0;
+  wire PL_CPLD_JTAGEN;
+  wire PL_CPLD_CS0_n;    // Dual-purpose CPLD JTAG TMS
+  wire PL_CPLD_CS1_n;
+  wire [19:0] DB1_GPIO;
+  wire [19:0] DB0_GPIO;
+  wire DB0_SYNTH_SYNC;
+  wire DB1_SYNTH_SYNC;
+
+  wire [11:0] DIOA_FPGA;
+  wire [11:0] DIOB_FPGA;
+
+  wire LMK_SYNC;
+  wire TRIG_IO;
+
+  wire QSFP0_MODPRS_n;
+  wire QSFP1_MODPRS_n;
+  assign QSFP0_MODPRS_n = 1'b0; //PK: module present lines are not connected on ZCU111
+  assign QSFP1_MODPRS_n = 1'b0;
+  wire QSFP0_RESET_n;   // Module reset
+  wire QSFP0_LPMODE_n;   // Low-power Mode
+  wire QSFP1_RESET_n;   // Module reset
+  wire QSFP1_LPMODE_n;   // Low-power Mode
+
+  //turn on tx on SFP+ modules in associated with QSFP0 port
+  assign QSFP0_TX_ENABLE = 4'b1111;
+`endif
 
   // Clocking and sync signals for RFDC
   wire pll_ref_clk_in, pll_ref_clk;
@@ -426,8 +473,10 @@ module x4xx (
   //
   // SW must ensure that any downstream device receiving TRIG_IO ignores or
   // re-synchronizes after enabling this port.
+`ifndef X411
   wire [1:0] trig_io_select;
   assign TRIG_IO = (trig_io_select == TRIG_IO_PPS_OUTPUT) ? pps_refclk : 1'bz;
+`endif
   assign PPS_LED = pps_refclk;
 
 
@@ -1271,7 +1320,7 @@ module x4xx (
   wire [RADIO_SPC*32-1:0] dac_data_in_tdata   [0:3]; // 32-bit samples (I + Q)
   wire [3:0]              dac_data_in_tready;
   wire [3:0]              dac_data_in_tvalid;
-
+`ifndef X411
   // GPIO ctrlport interface
   wire        db_ctrlport_req_rd       [0:1];
   wire        db_ctrlport_req_wr       [0:1];
@@ -1290,17 +1339,18 @@ module x4xx (
   wire [19:0] db_gpio_out_en_int[0:1];
   wire [19:0] db_gpio_out_ext   [0:1];
   wire [19:0] db_gpio_out_en_ext[0:1];
-
+`endif
   // GPIO states
   wire [ 3:0] rx_running;
   wire [ 3:0] tx_running;
+`ifndef X411
   wire [ 3:0] db_state [0:1];
 
   assign db_state[0] = { tx_running[1], rx_running[1],
                          tx_running[0], rx_running[0] };
   assign db_state[1] = { tx_running[3], rx_running[3],
                          tx_running[2], rx_running[2] };
-
+`endif
   // Version info
   // These wires only convey constant data.
   wire [COMPONENT_VERSIONS_SIZE-1:0] rf_core_version     [0:1];
@@ -1461,7 +1511,7 @@ module x4xx (
         );
       end // gen_rf_core_400m
     end // gen_rf_cores
-
+`ifndef X411
     for (dboard_num=0; dboard_num < (NUM_DBOARDS); dboard_num = dboard_num + 1) begin : db_gpio_gen
       db_gpio_interface db_gpio_interface_i (
         .radio_clk               (radio_clk),
@@ -1481,8 +1531,9 @@ module x4xx (
         .version_info            (db_gpio_ifc_version[dboard_num])
       );
     end
+`endif
   endgenerate
-
+`ifndef X411
   db_gpio_reordering db_gpio_reordering_i (
     .db0_gpio_in_int     (db_gpio_in_int[0]),
     .db0_gpio_out_int    (db_gpio_out_int[0]),
@@ -1504,7 +1555,7 @@ module x4xx (
     assign DB0_GPIO[j] = (db_gpio_out_en_ext[0][j]) ? db_gpio_out_ext[0][j] : 1'bz;
     assign DB1_GPIO[j] = (db_gpio_out_en_ext[1][j]) ? db_gpio_out_ext[1][j] : 1'bz;
   end endgenerate
-
+`endif
 
   //---------------------------------------------------------------------------
   // QSFP Interfaces
@@ -1914,6 +1965,7 @@ module x4xx (
 
   // Because time increments by SPC, we can ignore the least-significant bits
   // that don't change in the radio's timestamp.
+`ifndef X411
   assign time_ignore_bits = $clog2(RADIO_SPC);
 
   cpld_interface cpld_interface_i (
@@ -1963,7 +2015,7 @@ module x4xx (
     .ipass_present_n         (2'b11),
     .version_info            (cpld_ifc_version)
   );
-
+`endif
 
   //---------------------------------------------------------------------------
   // X4XX Core
@@ -2078,6 +2130,7 @@ module x4xx (
     .dram0_dq                      (DRAM0_DQ),
     .dram0_dqs_t                   (DRAM0_DQS_p),
     .dram0_dqs_c                   (DRAM0_DQS_n),
+`ifndef X411
     .dram1_sys_clk_p               (DRAM1_REFCLK_P),
     .dram1_sys_clk_n               (DRAM1_REFCLK_N),
     .dram1_ck_t                    (DRAM1_CLK_P),
@@ -2094,6 +2147,7 @@ module x4xx (
     .dram1_dq                      (DRAM1_DQ),
     .dram1_dqs_t                   (DRAM1_DQS_p),
     .dram1_dqs_c                   (DRAM1_DQS_n),
+`endif
     .s_axi_aclk                    (clk40),
     .s_axi_aresetn                 (clk40_rstn),
     .s_axi_awaddr                  (axi_core_awaddr[REG_AWIDTH-1:0]),
@@ -2115,7 +2169,9 @@ module x4xx (
     .s_axi_rready                  (axi_core_rready),
     .pps_radioclk                  (pps_radioclk),
     .pps_select                    (pps_select),
+`ifndef X411
     .trig_io_select                (trig_io_select),
+`endif
     .pll_sync_trigger              (pll_sync_trigger),
     .pll_sync_delay                (pll_sync_delay),
     .pll_sync_done                 (pll_sync_done),
@@ -2171,6 +2227,7 @@ module x4xx (
     .mfg_test_en_fabric_clk        (mfg_test_en_fabric_clk),
     .mfg_test_en_gty_rcv_clk       (mfg_test_en_gty_rcv_clk),
     .fpga_aux_ref                  (FPGA_AUX_REF),
+`ifndef X411
     .m_ctrlport_radio_req_wr       ({ db_ctrlport_req_wr       [1], db_ctrlport_req_wr       [0] }),
     .m_ctrlport_radio_req_rd       ({ db_ctrlport_req_rd       [1], db_ctrlport_req_rd       [0] }),
     .m_ctrlport_radio_req_addr     ({ db_ctrlport_req_addr     [1], db_ctrlport_req_addr     [0] }),
@@ -2178,6 +2235,7 @@ module x4xx (
     .m_ctrlport_radio_resp_ack     ({ db_ctrlport_resp_ack     [1], db_ctrlport_resp_ack     [0] }),
     .m_ctrlport_radio_resp_status  ({ db_ctrlport_resp_status  [1], db_ctrlport_resp_status  [0] }),
     .m_ctrlport_radio_resp_data    ({ db_ctrlport_resp_data    [1], db_ctrlport_resp_data    [0] }),
+`endif
     .start_nco_reset               (start_nco_reset),
     .nco_reset_done                (nco_reset_done),
     .adc_reset_pulse               (adc_reset_pulse),
@@ -2189,7 +2247,7 @@ module x4xx (
   //---------------------------------------------------------------------------
   // eCPRI Clock Output Test
   //---------------------------------------------------------------------------
-
+`ifndef X411
   wire fabric_clk_oddr;
 
   wire mfg_test_en_fabric_clk_dc;
@@ -2247,7 +2305,7 @@ module x4xx (
     .CEB (!mfg_test_en_gty_rcv_clk_dc)  // 1-bit input: Clock Enable
   );
   `endif
-
+`endif
 endmodule
 
 
