@@ -11,11 +11,11 @@
 # Pin constraints for the MGTs (QSFP28 ports)
 ###############################################################################
 
-# Bank 131 (Quad X0Y4, Lanes X0Y16-X0Y19)
-# Lane 1 (X0Y17)
+# Bank 128 (Quad X0Y1, Lanes X0Y4-X0Y7)
+# Lane 1 (X0Y5)
 
-set_property PACKAGE_PIN D36  [get_ports {QSFP0_1_RX_P}]
-set_property PACKAGE_PIN D37  [get_ports {QSFP0_1_RX_N}]
+set_property PACKAGE_PIN W38  [get_ports {QSFP0_1_RX_P}]
+set_property PACKAGE_PIN W39  [get_ports {QSFP0_1_RX_N}]
 
-set_property PACKAGE_PIN C33  [get_ports {QSFP0_1_TX_P}]
-set_property PACKAGE_PIN C34  [get_ports {QSFP0_1_TX_N}]
+set_property PACKAGE_PIN V35  [get_ports {QSFP0_1_TX_P}]
+set_property PACKAGE_PIN V36  [get_ports {QSFP0_1_TX_N}]

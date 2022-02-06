@@ -14,7 +14,7 @@
 # 10/25 MHz reference clock from rear panel connector.
 # Constrain to the fastest possible clock rate.
 set ref_clk_period 40.00
-create_clock -name ref_clk     -period $ref_clk_period     [get_ports BASE_REFCLK_FPGA_P]
+# create_clock -name ref_clk     -period $ref_clk_period     [get_ports BASE_REFCLK_FPGA_P]
 
 # PLL Reference Clock. Used to derive data clocks.
 # Constrain to the fastest possible clock rate supported in the driver.
@@ -75,38 +75,38 @@ set_output_delay -clock [get_clocks pll_ref_clk] -max $synth_sync_setup_requirem
 #   This interface is defined as system synchronous to pll_ref_clk.
 ###############################################################################
 
-# The output delays are chosen to allow a large time window of valid data for
-# the MB CPLD logic.
-set spi_min_out_delay  0.000
-set spi_max_out_delay 11.000
+# # The output delays are chosen to allow a large time window of valid data for
+# # the MB CPLD logic.
+# set spi_min_out_delay  0.000
+# set spi_max_out_delay 11.000
 
-# Set output constraints for all ports.
-set spi_out_ports [get_ports {PL_CPLD_SCLK PL_CPLD_MOSI PL_CPLD_CS0_n PL_CPLD_CS1_n}]
-set_output_delay -clock [get_clocks pll_ref_clk] -min $spi_min_out_delay $spi_out_ports
-set_output_delay -clock [get_clocks pll_ref_clk] -max $spi_max_out_delay $spi_out_ports
+# # Set output constraints for all ports.
+# set spi_out_ports [get_ports {PL_CPLD_SCLK PL_CPLD_MOSI PL_CPLD_CS0_n PL_CPLD_CS1_n}]
+# set_output_delay -clock [get_clocks pll_ref_clk] -min $spi_min_out_delay $spi_out_ports
+# set_output_delay -clock [get_clocks pll_ref_clk] -max $spi_max_out_delay $spi_out_ports
 
-# Both CPLD and FPGA use PLL reference clock from a common clock chip.
-# The traces from that clock chip to the ICs are not length matched. Assume a
-# worst case clock difference of 0.5 ns at the IC inputs. There is no direction
-# defined. The clock can arrive faster or slower at one IC.
-set pl_clock_diff 0.500
+# # Both CPLD and FPGA use PLL reference clock from a common clock chip.
+# # The traces from that clock chip to the ICs are not length matched. Assume a
+# # worst case clock difference of 0.5 ns at the IC inputs. There is no direction
+# # defined. The clock can arrive faster or slower at one IC.
+# set pl_clock_diff 0.500
 
-# The longest trace on the PL SPI interface is (assuming 170.0 ps/in)
-#   Longest trace | Trace length | Trace delay
-#   PL_CPLD_MISO  |   3.863 in   |   0.657 ns
-set pl_spi_board_delay 0.657
+# # The longest trace on the PL SPI interface is (assuming 170.0 ps/in)
+# #   Longest trace | Trace length | Trace delay
+# #   PL_CPLD_MISO  |   3.863 in   |   0.657 ns
+# set pl_spi_board_delay 0.657
 
-# Output delay timings of the MB CPLD design, which still meet timing
-set pl_spi_cpld_min_out -1.000
-set pl_spi_cpld_max_out  8.000
+# # Output delay timings of the MB CPLD design, which still meet timing
+# set pl_spi_cpld_min_out -1.000
+# set pl_spi_cpld_max_out  8.000
 
-set spi_in_port [get_ports {PL_CPLD_MISO}]
-set_input_delay -clock [get_clocks pll_ref_clk] \
-  -min [expr {- $pl_spi_cpld_min_out - $pl_clock_diff}] \
-  $spi_in_port
-set_input_delay -clock [get_clocks pll_ref_clk] \
-  -max [expr {$pll_ref_clk_period - $pl_spi_cpld_max_out + $pl_spi_board_delay + $pl_clock_diff}] \
-  $spi_in_port
+# set spi_in_port [get_ports {PL_CPLD_MISO}]
+# set_input_delay -clock [get_clocks pll_ref_clk] \
+#   -min [expr {- $pl_spi_cpld_min_out - $pl_clock_diff}] \
+#   $spi_in_port
+# set_input_delay -clock [get_clocks pll_ref_clk] \
+#   -max [expr {$pll_ref_clk_period - $pl_spi_cpld_max_out + $pl_spi_board_delay + $pl_clock_diff}] \
+#   $spi_in_port
 
 
 ###############################################################################
@@ -133,10 +133,10 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 ###############################################################################
 
 # Ignore paths from "slow" PS interface to not interfere with user constraints.
-set dio_ports     [get_ports {DIOA_FPGA[*] DIOB_FPGA[*]}]
-set dio_registers [get_cells -hierarchical -filter {NAME =~ *x4xx_dio_i* && IS_SEQUENTIAL && IS_PRIMITIVE}]
-set_false_path -from $dio_registers -to $dio_ports
-set_false_path -from $dio_ports     -to $dio_registers
+#set dio_ports     [get_ports {DIOA_FPGA[*] DIOB_FPGA[*]}]
+#set dio_registers [get_cells -hierarchical -filter {NAME =~ *x4xx_dio_i* && IS_SEQUENTIAL && IS_PRIMITIVE}]
+#set_false_path -from $dio_registers -to $dio_ports
+#set_false_path -from $dio_ports     -to $dio_registers
 
 
 ###############################################################################
@@ -160,33 +160,33 @@ set_false_path -from $dio_ports     -to $dio_registers
 
 # 1) Creating copy of ref_clk to only analyze timing to TRIG_IO port (output)
 # when output is driven by ref_clk (PPS generation in ref_clk domain).
-create_clock -name virtual_ref_clk -period $ref_clk_period
+# create_clock -name virtual_ref_clk -period $ref_clk_period
 
 # Trigger IO port is used as output for the PPS signal
 # TRIG_IO_1V8 trace length MB = 4.050 + 1.190 inch = 5.240 inch
 # TRIG_IO_1V8 trace length DB = 2.401 + 0.120 + 0.457 + 0.261 inch = 3.239 inch
 # TRIG_IO buffer max switching time = 3.3
-set trig_max_out_delay [expr {8.479 * 0.17 + 3.3}]
+#set trig_max_out_delay [expr {8.479 * 0.17 + 3.3}]
 
 # Set minimum output delay hold time to a small amount to grant external
 # devices some hold time. Delay should be simple to achieve as there is no PLL
 # in the clocking path and some combinatorial logic.
-set trig_min_out_delay 2.000
+#set trig_min_out_delay 2.000
 
 # 2) set_output_delay for assigning clocks to TRIG_IO. Use zero for delay to
 # avoid adding extra delay requirements on top of the set_max|min_delay
 # constraints below.
-set_output_delay -clock [get_clocks virtual_ref_clk] 0.0 [get_ports {TRIG_IO}]
+#set_output_delay -clock [get_clocks virtual_ref_clk] 0.0 [get_ports {TRIG_IO}]
 
 # 3) Min and max delays make constraining driver agnostic. We just make sure
 # the critical timing for PPS export is met though.
-set_max_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
-  [expr {$ref_clk_period - $trig_max_out_delay}]
-set_min_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
-  $trig_min_out_delay
+#set_max_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
+#  [expr {$ref_clk_period - $trig_max_out_delay}]
+#set_min_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
+#  $trig_min_out_delay
 
 # Treat TRIG_IO input as asynchronous.
-set_false_path -from [get_ports {TRIG_IO}]
+# set_false_path -from [get_ports {TRIG_IO}]
 # For documentation purposes, these are the input max/min delays for TRIG_IO:
 #   - Input delay assuming zero trace delay and TRIG_IO buffer min switching
 #     time (B->A) = 0.1 ns.
@@ -197,7 +197,7 @@ set_false_path -from [get_ports {TRIG_IO}]
 
 # Account for the PPS min output delay only (for the case two X410 are directly
 # connected to each other).
-set pps_min_in_delay $trig_min_out_delay
+#set pps_min_in_delay $trig_min_out_delay
 
 # PPS_IN trace length DB = 0.535 + 0.133 + 0.117 + 0.061 + 2.745 inch = 3.591 inch
 # PPS_IN trace length MB = 5.726 inch
@@ -206,17 +206,17 @@ set pps_min_in_delay $trig_min_out_delay
 # Assume 50% of the clock period is used for external PPS clock distribution as
 # the PPS out is used to synchronize one X410 (master) with another X410
 # (slave) the PPS out (trig_io) delay is added to the PPS input.
-set pps_max_in_delay [expr {9.317 * 0.17 + 3.6 + 0.5 * $ref_clk_period + $trig_max_out_delay}]
+#set pps_max_in_delay [expr {9.317 * 0.17 + 3.6 + 0.5 * $ref_clk_period + $trig_max_out_delay}]
 
 # Apply PPS input constraints.
-set_input_delay -clock [get_clocks ref_clk] -min $pps_min_in_delay [get_ports {PPS_IN}]
-set_input_delay -clock [get_clocks ref_clk] -max $pps_max_in_delay [get_ports {PPS_IN}]
+# set_input_delay -clock [get_clocks ref_clk] -min $pps_min_in_delay [get_ports {PPS_IN}]
+# set_input_delay -clock [get_clocks ref_clk] -max $pps_max_in_delay [get_ports {PPS_IN}]
 
 # PPS clock domain crossing BRC -> PRC on the aligned edge.
 # Use a data path of half PLL reference clock period to make sure the value is
 # captured without metastability.
-set_max_delay -from [get_cells -hierarchical pps_delayed_brc_reg] \
-  -to [get_clocks pll_ref_clk*] [expr {$pll_ref_clk_period/2}]
+#set_max_delay -from [get_cells -hierarchical pps_delayed_brc_reg] \
+#  -to [get_clocks pll_ref_clk*] [expr {$pll_ref_clk_period/2}]
 
 
 ###############################################################################
@@ -226,27 +226,27 @@ set_max_delay -from [get_cells -hierarchical pps_delayed_brc_reg] \
 # The timings are derived from simulation.
 
 # Clock Buffer ADCLK944 -> FPGA.
-set buffer_to_fpga_min_clk_delay 0.997
-set buffer_to_fpga_max_clk_delay 1.154
+# set buffer_to_fpga_min_clk_delay 0.997
+# set buffer_to_fpga_max_clk_delay 1.154
 
-# Clock Buffer ADCLK944 -> Sample clock PLL (LMK04832).
-set buffer_to_spll_min_clk_delay 0.000
-set buffer_to_spll_max_clk_delay 0.014
+# # Clock Buffer ADCLK944 -> Sample clock PLL (LMK04832).
+# set buffer_to_spll_min_clk_delay 0.000
+# set buffer_to_spll_max_clk_delay 0.014
 
-# FPGA -> Sample clock PLL SYNC input.
-set fpga_to_spll_min_clk_delay   0.381
-set fpga_to_spll_max_clk_delay   0.460
+# # FPGA -> Sample clock PLL SYNC input.
+# set fpga_to_spll_min_clk_delay   0.381
+# set fpga_to_spll_max_clk_delay   0.460
 
-# Sample clock PLL requirements.
-set lmk_sync_input_hold          4.000
-set lmk_sync_input_setup         4.000
+# # Sample clock PLL requirements.
+# set lmk_sync_input_hold          4.000
+# set lmk_sync_input_setup         4.000
 
-set lmk_sync_output_max_delay [expr {$fpga_to_spll_max_clk_delay + $buffer_to_fpga_max_clk_delay + \
-                                $lmk_sync_input_setup - $buffer_to_spll_min_clk_delay}]
-set lmk_sync_output_min_delay [expr {$fpga_to_spll_min_clk_delay + $buffer_to_fpga_min_clk_delay - \
-                                $buffer_to_spll_max_clk_delay - $lmk_sync_input_hold}]
-set_output_delay -clock ref_clk -max $lmk_sync_output_max_delay [get_ports {LMK_SYNC}]
-set_output_delay -clock ref_clk -min $lmk_sync_output_min_delay [get_ports {LMK_SYNC}]
+# set lmk_sync_output_max_delay [expr {$fpga_to_spll_max_clk_delay + $buffer_to_fpga_max_clk_delay + \
+#                                 $lmk_sync_input_setup - $buffer_to_spll_min_clk_delay}]
+# set lmk_sync_output_min_delay [expr {$fpga_to_spll_min_clk_delay + $buffer_to_fpga_min_clk_delay - \
+#                                 $buffer_to_spll_max_clk_delay - $lmk_sync_input_hold}]
+# set_output_delay -clock ref_clk -max $lmk_sync_output_max_delay [get_ports {LMK_SYNC}]
+# set_output_delay -clock ref_clk -min $lmk_sync_output_min_delay [get_ports {LMK_SYNC}]
 
 
 ###############################################################################
@@ -300,16 +300,16 @@ set_input_delay -clock pll_ref_clk -min $sysref_min_input_delay [get_ports {SYSR
 ###############################################################################
 
 # Set output constraints for all ports.
-set db_gpio_ports [get_ports {DB0_GPIO[*] DB1_GPIO[*]}]
-set_output_delay -clock [get_clocks pll_ref_clk] -min $db_gpio_fpga_min_out $db_gpio_ports
-set_output_delay -clock [get_clocks pll_ref_clk] -max $db_gpio_fpga_max_out $db_gpio_ports
+#set db_gpio_ports [get_ports {DB0_GPIO[*] DB1_GPIO[*]}]
+#set_output_delay -clock [get_clocks pll_ref_clk] -min $db_gpio_fpga_min_out $db_gpio_ports
+#set_output_delay -clock [get_clocks pll_ref_clk] -max $db_gpio_fpga_max_out $db_gpio_ports
 
 # Output enable signal is available one clock cycle ahead of valid data, this
 # enables the use of multi-cycle paths.
-set db_gpio_out_en_regs [get_cells -hierarchical -filter \
-  {PRIMITIVE_TYPE =~ REGISTER.*.* && NAME =~ "*bytestream_output_enable*"}]
-set_multicycle_path 2 -setup -from $db_gpio_out_en_regs -to $db_gpio_ports
-set_multicycle_path 1 -hold  -from $db_gpio_out_en_regs -to $db_gpio_ports
+#set db_gpio_out_en_regs [get_cells -hierarchical -filter \
+#  {PRIMITIVE_TYPE =~ REGISTER.*.* && NAME =~ "*bytestream_output_enable*"}]
+#set_multicycle_path 2 -setup -from $db_gpio_out_en_regs -to $db_gpio_ports
+#set_multicycle_path 1 -hold  -from $db_gpio_out_en_regs -to $db_gpio_ports
 
 # Calculate output delays back from capturing edge, add board delay and clock
 # difference.
@@ -318,10 +318,10 @@ set_multicycle_path 1 -hold  -from $db_gpio_out_en_regs -to $db_gpio_ports
 #  - Max data propagation delay
 #  - Max CPLD clock propagation delay and minimum FPGA clock propagation delay
 #  - Maximum delay from MC100EPT23 clock buffer
-set_input_delay -clock pll_ref_clk \
-  -max [expr {$pll_ref_clk_period - $db_gpio_cpld_max_out + $db_gpio_board_max_delay \
-              + $db_cpld_prc_clock_prop_max - $fpga_prc_clock_prop_min + $clock_translate_max}] \
-  $db_gpio_ports
+#set_input_delay -clock pll_ref_clk \
+#  -max [expr {$pll_ref_clk_period - $db_gpio_cpld_max_out + $db_gpio_board_max_delay \
+#              + $db_cpld_prc_clock_prop_max - $fpga_prc_clock_prop_min + $clock_translate_max}] \
+#  $db_gpio_ports
 
 # Negate minimum output delay as it is defined from the change to the start
 # clock edge.
@@ -329,11 +329,11 @@ set_input_delay -clock pll_ref_clk \
 #  - Min CPLD TCO
 #  - Min data propagation delay (0)
 #  - Min CPLD clock propagation delay and max FPGA clock propagation delay
-set_input_delay -clock pll_ref_clk \
-  -min [expr {- $db_gpio_cpld_min_out                                    \
-              - $db_gpio_board_min_delay                                 \
-              - $db_cpld_prc_clock_prop_min + $fpga_prc_clock_prop_max}] \
-  $db_gpio_ports
+#set_input_delay -clock pll_ref_clk \
+#  -min [expr {- $db_gpio_cpld_min_out                                    \
+#              - $db_gpio_board_min_delay                                 \
+#              - $db_cpld_prc_clock_prop_min + $fpga_prc_clock_prop_max}] \
+#  $db_gpio_ports
 
 
 ###############################################################################
@@ -390,8 +390,8 @@ set_false_path -to [get_pins -hierarchical -filter {NAME =~ */rfdc/rf_nco_reset_
 # clock-enable pin.
 # By experimentation, it was observed that explicitly setting a false_path to
 # this pin improved timing.
-set gty_rcv_clk_buff_ceb [get_pins -of_objects [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports {GTY_RCV_CLK_P}]]] -filter {NAME=~ "*CEB"}]
-set_false_path -from [get_clocks {clk40}] -through $gty_rcv_clk_buff_ceb
+# set gty_rcv_clk_buff_ceb [get_pins -of_objects [get_cells -of_objects [all_fanin -flat -startpoints_only [get_ports {GTY_RCV_CLK_P}]]] -filter {NAME=~ "*CEB"}]
+# set_false_path -from [get_clocks {clk40}] -through $gty_rcv_clk_buff_ceb
 
 
 ###############################################################################
@@ -401,15 +401,16 @@ set_false_path -from [get_clocks {clk40}] -through $gty_rcv_clk_buff_ceb
 #   set_(min|max)_delay overwrites the setup/hold analysis values.
 ###############################################################################
 
-set async_inputs [get_ports {FPGA_AUX_REF}]
+#set async_inputs [get_ports {FPGA_AUX_REF}]
 
-set_input_delay -clock [get_clocks async_in_clk] 0.000 $async_inputs
-set_max_delay -from $async_inputs 50.000
-set_min_delay -from $async_inputs 0.000
+#set_input_delay -clock [get_clocks async_in_clk] 0.000 $async_inputs
+#set_max_delay -from $async_inputs 50.000
+#set_min_delay -from $async_inputs 0.000
 
 
-set async_outputs [get_ports {FABRIC_CLK_OUT_P PPS_LED}]
+#set async_outputs [get_ports {FABRIC_CLK_OUT_P PPS_LED}]
+# set async_outputs [get_ports {PPS_LED}]
 
-set_output_delay -clock [get_clocks async_out_clk] 0.000 $async_outputs
-set_max_delay -to $async_outputs 50.000
-set_min_delay -to $async_outputs 0.000
+# set_output_delay -clock [get_clocks async_out_clk] 0.000 $async_outputs
+# set_max_delay -to $async_outputs 50.000
+# set_min_delay -to $async_outputs 0.000
