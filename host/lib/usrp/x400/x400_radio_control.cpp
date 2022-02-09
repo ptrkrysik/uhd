@@ -155,8 +155,7 @@ x400_radio_control_impl::x400_radio_control_impl(make_args_ptr make_args)
         _daughterboard = std::make_shared<empty_slot_dboard_impl>();
         set_num_output_ports(0);
         set_num_input_ports(0);
-    } else {
-        RFNOC_LOG_WARNING("Couldn't detect Daughterboard PID. Initializing ThinBX.");
+    } else if (std::stol(pid) == uhd::usrp::thinbx::THINBX_PID) {
         auto thinbx_rpc_sptr =
             _mb_control->dynamic_cast_rpc_as<uhd::usrp::thinbx_rpc_iface>();
         if (!thinbx_rpc_sptr) {
@@ -175,6 +174,11 @@ x400_radio_control_impl::x400_radio_control_impl(make_args_ptr make_args)
             thinbx_rpc_sptr,
             _rfdcc,
             get_tree());
+    } else {
+        RFNOC_LOG_WARNING("Skipping Daughterboard initialization for unsupported PID "
+                          << "0x" << std::hex << std::stol(pid));
+        _daughterboard = std::make_shared<null_dboard_impl>();
+        return;
     }
 
     _init_prop_tree();

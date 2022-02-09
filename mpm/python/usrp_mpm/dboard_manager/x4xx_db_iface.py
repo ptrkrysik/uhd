@@ -23,16 +23,20 @@ class X4xxDboardIface(DboardIface):
 
     def __init__(self, slot_idx, motherboard):
         super().__init__(slot_idx, motherboard)
-        self.db_cpld_iface = motherboard.ctrlport_regs.get_db_cpld_iface(self.slot_idx)
-        self._power_enable = Gpio('DB{}_PWR_EN'.format(slot_idx), Gpio.OUTPUT)
-        self._power_status = Gpio('DB{}_PWR_STATUS'.format(slot_idx), Gpio.INPUT)
-
-        self.db_flash = DBFlash(slot_idx, log=self.log)
+        self._power_enable = False
+        if self.mboard.mboard_info.get('product') != 'x411':
+            self.db_cpld_iface = motherboard.ctrlport_regs.get_db_cpld_iface(self.slot_idx)
+            self._power_enable = Gpio('DB{}_PWR_EN'.format(slot_idx), Gpio.OUTPUT)
+            self._power_status = Gpio('DB{}_PWR_STATUS'.format(slot_idx), Gpio.INPUT)
+            self.db_flash = DBFlash(slot_idx, log=self.log)
+        else:
+            self._power_enable = False
 
     def tear_down(self):
         self.log.trace("Tearing down X4xx daughterboard...")
-        if self.db_flash:
-            self.db_flash.deinit()
+        if self.mboard.mboard_info.get('product') != 'x411':
+            if self.db_flash:
+                self.db_flash.deinit()
         super().tear_down()
 
     ####################################################################
@@ -43,28 +47,37 @@ class X4xxDboardIface(DboardIface):
         """
         Enable or disable the daughterboard.
         """
-        if self.db_flash and not enable:
-            self.db_flash.deinit()
+        if self.mboard.mboard_info.get('product') != 'x411':
+            if self.db_flash and not enable:
+                self.db_flash.deinit()
         self._power_enable.set(enable)
-        self.mboard.cpld_control.enable_daughterboard(self.slot_idx, enable)
-        if self.db_flash and enable:
-            self.db_flash.init()
+        if self.mboard.mboard_info.get('product') != 'x411':
+            self.mboard.cpld_control.enable_daughterboard(self.slot_idx, enable)
+            if self.db_flash and enable:
+                self.db_flash.init()
 
     def check_enable_daughterboard(self):
         """
         Return the enable state of the daughterboard.
         """
-        return self._power_status.get()
+        if self.mboard.mboard_info.get('product') != 'x411':
+            return self._power_status.get()
+        else:
+            return self._power_enable
 
     ####################################################################
     # CTRL SPI
     #   CTRL SPI lines are connected to the CPLD of the DB if it exists
     ####################################################################
     def peek_db_cpld(self, addr):
-        return self.db_cpld_iface.peek32(addr)
+        if self.mboard.mboard_info.get('product') != 'x411':
+            return self.db_cpld_iface.peek32(addr)
+        else:
+            return 0
 
     def poke_db_cpld(self, addr, val):
-        self.db_cpld_iface.poke32(addr, val)
+        if self.mboard.mboard_info.get('product') != 'x411':
+            self.db_cpld_iface.poke32(addr, val)
 
     ####################################################################
     # Management Bus
