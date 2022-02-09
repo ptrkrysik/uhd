@@ -63,7 +63,7 @@ class X4xxRfdcCtrl:
     })
 
 
-    def __init__(self, get_spll_freq, log):
+    def __init__(self, get_spll_freq, log, mboard_type="x410"):
         self.log = log.getChild('RFDC')
         self._get_spll_freq = get_spll_freq
         self._rfdc_regs = RfdcRegsControl(self.rfdc_regs_label, self.log)
@@ -87,6 +87,18 @@ class X4xxRfdcCtrl:
         ]
 
         self._cal_freeze_cache = {}
+
+        if mboard_type == "x411":
+            self.RFDC_DB_MAP = [
+                {
+                    'adc': [(0, 0), (0, 1)],
+                    'dac': [(0, 0), (0, 1)],
+                },
+                {
+                    'adc': [(2, 0), (2, 1)],
+                    'dac': [(1, 0), (1, 1)],
+                },
+            ]
 
     @no_rpc
     def tear_down(self):

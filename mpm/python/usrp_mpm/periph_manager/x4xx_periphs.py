@@ -579,7 +579,7 @@ class QSFPModule:
     SFF-8486 rev 4.9 specification.
     """
 
-    def __init__(self, gpio_modprs, gpio_modsel, devsymbol, log):
+    def __init__(self, gpio_modprs, gpio_modsel, devsymbol, log, has_gpios):
         """
         modprs: Name of the GPIO pin that reports module presence
         modsel: Name of the GPIO pin that controls ModSel of QSFP module
@@ -587,15 +587,17 @@ class QSFPModule:
         """
 
         self.log = log.getChild('QSFP')
+        self.has_gpios = has_gpios
 
-        # Hold the ModSelL GPIO low for communication over I2C. Because X4xx
-        # uses a I2C switch to communicate with the QSFP modules we can keep
-        # ModSelL low all the way long, because each QSFP module has
-        # its own I2C address (see SFF-8486 rev 4.9, chapter 4.1.1.1).
-        self.modsel = Gpio(gpio_modsel, Gpio.OUTPUT, 0)
+        if self.has_gpios:
+            # Hold the ModSelL GPIO low for communication over I2C. Because X4xx
+            # uses a I2C switch to communicate with the QSFP modules we can keep
+            # ModSelL low all the way long, because each QSFP module has
+            # its own I2C address (see SFF-8486 rev 4.9, chapter 4.1.1.1).
+            self.modsel = Gpio(gpio_modsel, Gpio.OUTPUT, 0)
 
-        # ModPrs pin read pin MODPRESL from QSFP connector
-        self.modprs = Gpio(gpio_modprs, Gpio.INPUT, 0)
+            # ModPrs pin read pin MODPRESL from QSFP connector
+            self.modprs = Gpio(gpio_modprs, Gpio.INPUT, 0)
 
         # resolve device node name for I2C communication
         devname = i2c_dev.dt_symbol_get_i2c_bus(devsymbol)
@@ -637,7 +639,11 @@ class QSFPModule:
         """
         Checks whether QSFP adapter is available by checking modprs pin
         """
-        return self.modprs.get() == 0 #modprs is active low
+
+        if self.has_gpios:
+            return self.modprs.get() == 0 #modprs is active low
+        else:
+            return True
 
     def enable_i2c(self, enable):
         """
