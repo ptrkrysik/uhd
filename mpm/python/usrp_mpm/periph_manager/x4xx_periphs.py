@@ -1427,10 +1427,10 @@ class QSFPModule:
         # uses a I2C switch to communicate with the QSFP modules we can keep
         # ModSelL low all the way long, because each QSFP module has
         # its own I2C address (see SFF-8486 rev 4.9, chapter 4.1.1.1).
-        self.modsel = Gpio(gpio_modsel, Gpio.OUTPUT, 0)
+        # self.modsel = Gpio(gpio_modsel, Gpio.OUTPUT, 0)
 
         # ModPrs pin read pin MODPRESL from QSFP connector
-        self.modprs = Gpio(gpio_modprs, Gpio.INPUT, 0)
+        # self.modprs = Gpio(gpio_modprs, Gpio.INPUT, 0)
 
         # resolve device node name for I2C communication
         devname = i2c_dev.dt_symbol_get_i2c_bus(devsymbol)
@@ -1472,7 +1472,8 @@ class QSFPModule:
         """
         Checks whether QSFP adapter is available by checking modprs pin
         """
-        return self.modprs.get() == 0 #modprs is active low
+        # return self.modprs.get() == 0 #modprs is active low
+        return True
 
     def enable_i2c(self, enable):
         """
