@@ -133,11 +133,11 @@ def get_iface_addrs(mac_addr):
     mac_addr -- A MAC address as a string, input format: "aa:bb:cc:dd:ee:ff"
     """
     with IPRoute() as ip2:
-        [link_index] = ip2.link_lookup(address=mac_addr)
+        link_index = ip2.link_lookup(address=mac_addr)
         # Only get v4 addresses
         addresses = [addr.get_attrs('IFA_ADDRESS')
                      for addr in ip2.get_addr(family=socket.AF_INET)
-                     if addr.get('index', None) == link_index]
+                     if addr.get('index', None) in link_index]
         # flatten possibly nested list
         return list(itertools.chain.from_iterable(addresses))
 
