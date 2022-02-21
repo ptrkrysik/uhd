@@ -50,7 +50,7 @@ def get_dboard_class_from_pid(pid):
 # pylint: disable=too-many-public-methods
 # pylint: disable=too-many-instance-attributes
 class PeriphManagerBase:
-    """"
+    """
     Base class for all motherboards. Common function and API calls should
     be implemented here. Motherboard specific information can be stored in
     separate motherboard classes derived from this class
