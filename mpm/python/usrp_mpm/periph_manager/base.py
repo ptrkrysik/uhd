@@ -542,7 +542,17 @@ class PeriphManagerBase(object):
         """
         Read back EEPROM info from the daughterboards
         """
-        dboard_info = self._get_board_info_by_symbol(self.dboard_eeprom_symbols)
+        dboard_info = {'db0': {
+                        'eeprom_md': {'serial': 'deadbee', 'pid': 0x4006},
+                        'eeprom_raw': [],
+                        'pid': 0x4006
+                    },
+                    'db1': {
+                        'eeprom_md': {'serial': 'deadbef', 'pid': 0x4006},
+                        'eeprom_raw': [],
+                        'pid': 0x4006
+                    }}
+        # dboard_info = self._get_board_info_by_symbol(self.dboard_eeprom_symbols)
         if len(dboard_info) > self.max_num_dboards:
             self.log.warning("Found more EEPROM paths than daughterboards. "
                              "Ignoring some of them.")
