@@ -168,7 +168,7 @@ module x4xx (
 //  input  wire        BASE_REFCLK_FPGA_N,
 
   input  wire        SYSREF_FABRIC_P,
-  input  wire        SYSREF_FABRIC_N
+  input  wire        SYSREF_FABRIC_N,
 
 //  input  wire        QSFP0_MODPRS_n,
 //  output wire        QSFP0_RESET_n,
@@ -236,6 +236,7 @@ module x4xx (
   // output wire       TDC_SPARE_0,
   // output wire       TDC_SPARE_1
 
+  output wire [3:0] qsfp0_tx_enable
 );
 
   `include "regmap/global_regs_regmap_utils.vh"
@@ -320,7 +321,10 @@ module x4xx (
   wire pll_ref_clk_in, pll_ref_clk;
   wire sysref_pl;
   wire base_ref_clk;
-  assign base_ref_clk = 0; //PK: disconnected the reference clock for now
+  assign base_ref_clk = 1'b0; //PK: disconnected the reference clock for now
+
+  //turn on tx on SFP+ modules in associated with QSFP0 port
+  assign qsfp0_tx_enable = 4'b1111;
 
   // Buffer the incoming RFDC PLL clock
   IBUFGDS ibufgds_pll_ref_clk (

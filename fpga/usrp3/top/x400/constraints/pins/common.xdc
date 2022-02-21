@@ -210,4 +210,15 @@ set_property IOSTANDARD DIFF_SSTL12 [get_ports {SYSREF_FABRIC_*}]
 # set_property PACKAGE_PIN AN16     [get_ports { gpio_leds_o[3] }] ;
 # set_property IOSTANDARD  LVCMOS18 [get_ports { gpio_leds_o[3] }] ;
 
+###############################################################################
+# SFP Disable pins
+###############################################################################
 
+set_property PACKAGE_PIN G12      [get_ports { qsfp0_tx_enable[0] }] ;
+set_property IOSTANDARD  LVCMOS12 [get_ports { qsfp0_tx_enable[0] }] ;
+set_property PACKAGE_PIN G10      [get_ports { qsfp0_tx_enable[1] }] ;
+set_property IOSTANDARD  LVCMOS12 [get_ports { qsfp0_tx_enable[1] }] ;
+set_property PACKAGE_PIN K12      [get_ports { qsfp0_tx_enable[2] }] ;
+set_property IOSTANDARD  LVCMOS12 [get_ports { qsfp0_tx_enable[2] }] ;
+set_property PACKAGE_PIN J7       [get_ports { qsfp0_tx_enable[3] }] ;
+set_property IOSTANDARD  LVCMOS12 [get_ports { qsfp0_tx_enable[3] }] ;
