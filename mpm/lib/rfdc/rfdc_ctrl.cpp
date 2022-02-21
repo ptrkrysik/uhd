@@ -82,14 +82,19 @@ void rfdc_ctrl::init(uint16_t rfdc_device_id)
 
     /* Set all gain threshold stickies to manual clear mode */
     for (int tile_id = 0; tile_id <= XRFDC_TILE_ID_MAX; tile_id++) {
-        for (int block_id = 0; block_id <= XRFDC_BLOCK_ID_MAX; block_id++) {
-            for (int threshold_id = 0; threshold_id < THRESHOLDS_PER_BLOCK;
-                 threshold_id++) {
-                threshold_clr_modes[tile_id][block_id][threshold_id] =
-                    THRESHOLD_CLRMD_UNKNOWN;
+        for (int block_id = 0; block_id < config_ptr->ADCTile_Config[tile_id].NumSlices;
+             block_id++) {
+            if (config_ptr->ADCTile_Config[tile_id]
+                    .ADCBlock_Analog_Config[block_id]
+                    .BlockAvailable) {
+                for (int threshold_id = 0; threshold_id < THRESHOLDS_PER_BLOCK;
+                     threshold_id++) {
+                    threshold_clr_modes[tile_id][block_id][threshold_id] =
+                        THRESHOLD_CLRMD_UNKNOWN;
+                }
+                set_threshold_clr_mode(
+                    tile_id, block_id, THRESHOLD_BOTH, THRESHOLD_CLRMD_MANUAL);
             }
-            set_threshold_clr_mode(
-                tile_id, block_id, THRESHOLD_BOTH, THRESHOLD_CLRMD_MANUAL);
         }
     }
 }
