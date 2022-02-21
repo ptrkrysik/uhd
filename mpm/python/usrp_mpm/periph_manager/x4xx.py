@@ -38,7 +38,7 @@ from usrp_mpm.periph_manager.x4xx_gps_mgr import X4xxGPSMgr
 from usrp_mpm.periph_manager.x4xx_rfdc_ctrl import X4xxRfdcCtrl
 from usrp_mpm.dboard_manager.x4xx_db_iface import X4xxDboardIface
 from usrp_mpm.dboard_manager.zbx import ZBX
-
+from usrp_mpm.dboard_manager.x4xx_debug_db import X4xxDebugDboard
 
 X400_DEFAULT_EXT_CLOCK_FREQ = 10e6
 X400_DEFAULT_MASTER_CLOCK_RATE = 122.88e6
@@ -784,8 +784,9 @@ class x4xx(ZynqComponents, PeriphManagerBase):
         """
         Return if daughterboard GPIO interface at 'slot_id' is present in the FPGA
         """
-        db_gpio_version = self.mboard_regs_control.get_db_gpio_ifc_version(slot_id)
-        return db_gpio_version[0] > 0
+        #db_gpio_version = self.mboard_regs_control.get_db_gpio_ifc_version(slot_id)
+        #return db_gpio_version[0] > 0
+        return True
 
     ###########################################################################
     # Clock/Time API
@@ -795,6 +796,9 @@ class x4xx(ZynqComponents, PeriphManagerBase):
         Lists all available clock sources.
         """
         return ['internal'] #self._clk_mgr.get_clock_sources()
+
+    def get_clock_source(self):
+        return 'internal'
 
     def set_clock_source(self, *args):
         """
