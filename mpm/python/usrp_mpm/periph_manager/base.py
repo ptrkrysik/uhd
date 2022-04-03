@@ -507,14 +507,15 @@ class PeriphManagerBase:
             self.log.debug("Reading EEPROM info for %s...", name)
             if not path:
                 if "db" in name:
-                    # In order to support having a single dboard in slot 1
-                    # with slot 0 empty on a x4xx, we pretend that there is
-                    # a dummy "EmptyDaughterboard" here.
-                    self.log.debug("Not present. Inserting dummy DB info")
+                    # When dboard's EEPROM is not found use ThinBX which
+                    # controls NCO provided by RFSoC to deliver frequency
+                    # tuning and phase synchronization without additional
+                    # analog front-end
+                    self.log.debug("Not present. Inserting dummy ThinBX info")
                     result[name] = {
-                        'eeprom_md': {'serial': 'deadbee', 'pid': 0x0},
+                        'eeprom_md': {'serial': 'deadbee', 'pid': 0x4012},
                         'eeprom_raw': [],
-                        'pid': 0x0
+                        'pid': 0x4012
                     }
                 else:
                     self.log.debug("Not present. Skipping board")

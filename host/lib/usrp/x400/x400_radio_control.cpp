@@ -15,6 +15,7 @@
 #include <uhdlib/usrp/cores/spi_core_4000.hpp>
 #include <uhdlib/usrp/dboard/debug_dboard.hpp>
 #include <uhdlib/usrp/dboard/null_dboard.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_dboard.hpp>
 #include <uhdlib/usrp/dboard/zbx/zbx_dboard.hpp>
 
 namespace uhd { namespace rfnoc {
@@ -155,10 +156,25 @@ x400_radio_control_impl::x400_radio_control_impl(make_args_ptr make_args)
         set_num_output_ports(0);
         set_num_input_ports(0);
     } else {
-        RFNOC_LOG_WARNING("Skipping Daughterboard initialization for unsupported PID "
-                          << "0x" << std::hex << std::stol(pid));
-        _daughterboard = std::make_shared<null_dboard_impl>();
-        return;
+        RFNOC_LOG_WARNING("Couldn't detect Daughterboard PID. Initializing ThinBX.");
+        auto thinbx_rpc_sptr =
+            _mb_control->dynamic_cast_rpc_as<uhd::usrp::thinbx_rpc_iface>();
+        if (!thinbx_rpc_sptr) {
+            thinbx_rpc_sptr = std::make_shared<uhd::usrp::thinbx_rpc>(
+                _mb_control->get_rpc_client(), _rpc_prefix);
+        }
+        _daughterboard = std::make_shared<uhd::usrp::thinbx::thinbx_dboard_impl>(
+            regs(),
+            regmap::PERIPH_BASE,
+            [this](const size_t instance) { return get_command_time(instance); },
+            get_block_id().get_block_count(),
+            _radio_slot,
+            _rpc_prefix,
+            get_unique_id(),
+            _rpcc,
+            thinbx_rpc_sptr,
+            _rfdcc,
+            get_tree());
     }
 
     _init_prop_tree();

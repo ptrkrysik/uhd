@@ -16,6 +16,7 @@ static struct pid_info pid_list[] = {
   { 0x4004, NULL, "Clocking Aux Board with GPSDO", 0},
   { 0x4005, NULL, "Clocking Aux Board (no GPSDO)", 0},
   { 0x4006, NULL, "IF Test Manufacturing CCA", 0},
+  { 0x4012, "thinbx", "ThinBX RF DB", 0},
 };
 
 #define ARRAY_SIZE(x) (sizeof((x)) / sizeof((*x)))
