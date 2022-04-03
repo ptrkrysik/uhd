@@ -83,12 +83,13 @@ public:
         return true;
     }
 
-    uhd::usrp::x400::adc_self_cal_params_t get_adc_self_cal_params(const double tone_freq) override
+    uhd::usrp::x400::adc_self_cal_params_t get_adc_self_cal_params(
+        const double tone_freq) override
     {
         // This is chosen such that the IF2 frequency is 1.06G
-        const double rx_freq = 4.7e9 - 5.12e6;
+        const double rx_freq  = 4.7e9 - 5.12e6;
         const double if2_freq = 1.06e9;
-        const double offset = tone_freq - if2_freq;
+        const double offset   = tone_freq - if2_freq;
 
         // Minus because this zone is inverted
         const double tx_freq = rx_freq - offset;
@@ -223,8 +224,7 @@ public:
 
     void set_rx_lo_export_enabled(
         const bool enabled, const std::string& name, const size_t chan) override;
-    bool get_rx_lo_export_enabled(
-        const std::string& name, const size_t chan) override;
+    bool get_rx_lo_export_enabled(const std::string& name, const size_t chan) override;
     void set_tx_lo_export_enabled(
         const bool enabled, const std::string& name, const size_t chan) override;
     bool get_tx_lo_export_enabled(const std::string& name, const size_t chan) override;

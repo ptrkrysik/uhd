@@ -98,48 +98,53 @@ public:
     zbx_freq_fe_expert(const uhd::experts::node_retriever_t& db,
         const uhd::fs_path fe_path,
         const uhd::direction_t trx,
-        const size_t chan,
-        const double rfdc_rate,
-        const double lo_step_size)
+        const double rfdc_rate)
+        // const double lo_step_size)
+        // const size_t chan,
         : experts::worker_node_t(fe_path / "zbx_freq_fe_expert")
         , _desired_frequency(db, fe_path / "freq" / "desired")
-        , _desired_lo1_frequency(db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "desired")
-        , _desired_lo2_frequency(db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "desired")
-        , _lo1_enabled(db, fe_path / ZBX_LO1 / "enabled")
-        , _lo2_enabled(db, fe_path / ZBX_LO2 / "enabled")
-        , _desired_if2_frequency(db, fe_path / "if_freq" / "desired")
+        // , _desired_lo1_frequency(
+        //       db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "desired")
+        // , _desired_lo2_frequency(
+        //       db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "desired")
+        // , _lo1_enabled(db, fe_path / ZBX_LO1 / "enabled")
+        // , _lo2_enabled(db, fe_path / ZBX_LO2 / "enabled")
+        // , _desired_if2_frequency(db, fe_path / "if_freq" / "desired")
         , _band_inverted(db, fe_path / "band_inverted")
-        , _is_highband(db, fe_path / "is_highband")
-        , _mixer1_m(db, fe_path / "mixer1_m")
-        , _mixer1_n(db, fe_path / "mixer1_n")
-        , _mixer2_m(db, fe_path / "mixer2_m")
-        , _mixer2_n(db, fe_path / "mixer2_n")
-        , _rf_filter(db, fe_path / "rf" / "filter")
-        , _if1_filter(db, fe_path / "if1" / "filter")
-        , _if2_filter(db, fe_path / "if2" / "filter")
+        // , _is_highband(db, fe_path / "is_highband")
+        // , _mixer1_m(db, fe_path / "mixer1_m")
+        // , _mixer1_n(db, fe_path / "mixer1_n")
+        // , _mixer2_m(db, fe_path / "mixer2_m")
+        // , _mixer2_n(db, fe_path / "mixer2_n")
+        // , _rf_filter(db, fe_path / "rf" / "filter")
+        // , _if1_filter(db, fe_path / "if1" / "filter")
+        // , _if2_filter(db, fe_path / "if2" / "filter")
         , _rfdc_rate(rfdc_rate)
-        , _lo_freq_range(_get_quantized_lo_range(lo_step_size))
+        // , _lo_freq_range(_get_quantized_lo_range(lo_step_size))
         , _trx(trx)
-        , _chan(chan)
+        // , _chan(chan)
+        , _rfdc_freq_desired(
+              db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
     {
         //  Inputs
         bind_accessor(_desired_frequency);
 
         //  Outputs
-        bind_accessor(_desired_lo1_frequency);
-        bind_accessor(_desired_lo2_frequency);
-        bind_accessor(_lo1_enabled);
-        bind_accessor(_lo2_enabled);
-        bind_accessor(_desired_if2_frequency);
+        bind_accessor(_rfdc_freq_desired);
+        // bind_accessor(_desired_lo1_frequency);
+        // bind_accessor(_desired_lo2_frequency);
+        // bind_accessor(_lo1_enabled);
+        // bind_accessor(_lo2_enabled);
+        // bind_accessor(_desired_if2_frequency);
         bind_accessor(_band_inverted);
-        bind_accessor(_is_highband);
-        bind_accessor(_mixer1_m);
-        bind_accessor(_mixer1_n);
-        bind_accessor(_mixer2_m);
-        bind_accessor(_mixer2_n);
-        bind_accessor(_rf_filter);
-        bind_accessor(_if1_filter);
-        bind_accessor(_if2_filter);
+        // bind_accessor(_is_highband);
+        // bind_accessor(_mixer1_m);
+        // bind_accessor(_mixer1_n);
+        // bind_accessor(_mixer2_m);
+        // bind_accessor(_mixer2_n);
+        // bind_accessor(_rf_filter);
+        // bind_accessor(_if1_filter);
+        // bind_accessor(_if2_filter);
     }
 
 private:
@@ -150,30 +155,31 @@ private:
 
     // Outputs
     // From calculation, to LO expert
-    uhd::experts::data_writer_t<double> _desired_lo1_frequency;
-    uhd::experts::data_writer_t<double> _desired_lo2_frequency;
-    uhd::experts::data_writer_t<bool> _lo1_enabled;
-    uhd::experts::data_writer_t<bool> _lo2_enabled;
-    // From calculation, to MPM/RPC expert
-    uhd::experts::data_writer_t<double> _desired_if2_frequency;
+    uhd::experts::data_writer_t<double> _rfdc_freq_desired;
+    // uhd::experts::data_writer_t<double> _desired_lo1_frequency;
+    // uhd::experts::data_writer_t<double> _desired_lo2_frequency;
+    // uhd::experts::data_writer_t<bool> _lo1_enabled;
+    // uhd::experts::data_writer_t<bool> _lo2_enabled;
+    // // From calculation, to MPM/RPC expert
+    // uhd::experts::data_writer_t<double> _desired_if2_frequency;
     uhd::experts::data_writer_t<bool> _band_inverted;
-    // From calculation, to Frequency Backend expert
-    uhd::experts::data_writer_t<bool> _is_highband;
-    uhd::experts::data_writer_t<int> _mixer1_m;
-    uhd::experts::data_writer_t<int> _mixer1_n;
-    uhd::experts::data_writer_t<int> _mixer2_m;
-    uhd::experts::data_writer_t<int> _mixer2_n;
-    // From calculation, to CPLD Programming expert
-    uhd::experts::data_writer_t<int> _rf_filter;
-    uhd::experts::data_writer_t<int> _if1_filter;
-    uhd::experts::data_writer_t<int> _if2_filter;
+    // // From calculation, to Frequency Backend expert
+    // uhd::experts::data_writer_t<bool> _is_highband;
+    // uhd::experts::data_writer_t<int> _mixer1_m;
+    // uhd::experts::data_writer_t<int> _mixer1_n;
+    // uhd::experts::data_writer_t<int> _mixer2_m;
+    // uhd::experts::data_writer_t<int> _mixer2_n;
+    // // From calculation, to CPLD Programming expert
+    // uhd::experts::data_writer_t<int> _rf_filter;
+    // uhd::experts::data_writer_t<int> _if1_filter;
+    // uhd::experts::data_writer_t<int> _if2_filter;
 
     const double _rfdc_rate;
-    const uhd::freq_range_t _lo_freq_range;
-    tune_map_item_t _tune_settings;
+    // const uhd::freq_range_t _lo_freq_range;
+    // tune_map_item_t _tune_settings;
     // Channel properties
     const uhd::direction_t _trx;
-    const size_t _chan;
+    // const size_t _chan;
 };
 
 /*!---------------------------------------------------------
@@ -195,27 +201,30 @@ public:
     zbx_freq_be_expert(
         const uhd::experts::node_retriever_t& db, const uhd::fs_path fe_path)
         : uhd::experts::worker_node_t(fe_path / "zbx_freq_be_expert")
-        , _coerced_lo1_frequency(
-              db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "coerced")
-        , _coerced_lo2_frequency(
-              db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "coerced")
-        , _coerced_if2_frequency(db, fe_path / "if_freq" / "coerced")
-        , _is_highband(db, fe_path / "is_highband")
-        , _mixer1_m(db, fe_path / "mixer1_m")
-        , _mixer1_n(db, fe_path / "mixer1_n")
-        , _mixer2_m(db, fe_path / "mixer2_m")
-        , _mixer2_n(db, fe_path / "mixer2_n")
+        , _rfdc_freq_coerced(
+              db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "coerced")
+        // , _coerced_lo1_frequency(
+        //       db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "coerced")
+        // , _coerced_lo2_frequency(
+        //       db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "coerced")
+        // , _coerced_if2_frequency(db, fe_path / "if_freq" / "coerced")
+        // , _is_highband(db, fe_path / "is_highband")
+        // , _mixer1_m(db, fe_path / "mixer1_m")
+        // , _mixer1_n(db, fe_path / "mixer1_n")
+        // , _mixer2_m(db, fe_path / "mixer2_m")
+        // , _mixer2_n(db, fe_path / "mixer2_n")
         , _coerced_frequency(db, fe_path / "freq" / "coerced")
     {
         //  Inputs
-        bind_accessor(_coerced_lo1_frequency);
-        bind_accessor(_coerced_lo2_frequency);
-        bind_accessor(_coerced_if2_frequency);
-        bind_accessor(_is_highband);
-        bind_accessor(_mixer1_m);
-        bind_accessor(_mixer1_n);
-        bind_accessor(_mixer2_m);
-        bind_accessor(_mixer2_n);
+        bind_accessor(_rfdc_freq_coerced);
+        // bind_accessor(_coerced_lo1_frequency);
+        // bind_accessor(_coerced_lo2_frequency);
+        // bind_accessor(_coerced_if2_frequency);
+        // bind_accessor(_is_highband);
+        // bind_accessor(_mixer1_m);
+        // bind_accessor(_mixer1_n);
+        // bind_accessor(_mixer2_m);
+        // bind_accessor(_mixer2_n);
 
         //  Outputs
         bind_accessor(_coerced_frequency);
@@ -225,16 +234,17 @@ private:
     void resolve() override;
 
     // Inputs from LO expert(s)
-    uhd::experts::data_reader_t<double> _coerced_lo1_frequency;
-    uhd::experts::data_reader_t<double> _coerced_lo2_frequency;
-    // Input from MPM/RPC expert
-    uhd::experts::data_reader_t<double> _coerced_if2_frequency;
-    uhd::experts::data_reader_t<bool> _is_highband;
-    // Input from Frequency FE
-    uhd::experts::data_reader_t<int> _mixer1_m;
-    uhd::experts::data_reader_t<int> _mixer1_n;
-    uhd::experts::data_reader_t<int> _mixer2_m;
-    uhd::experts::data_reader_t<int> _mixer2_n;
+    uhd::experts::data_reader_t<double> _rfdc_freq_coerced;
+    // uhd::experts::data_reader_t<double> _coerced_lo1_frequency;
+    // uhd::experts::data_reader_t<double> _coerced_lo2_frequency;
+    // // Input from MPM/RPC expert
+    // uhd::experts::data_reader_t<double> _coerced_if2_frequency;
+    // uhd::experts::data_reader_t<bool> _is_highband;
+    // // Input from Frequency FE
+    // uhd::experts::data_reader_t<int> _mixer1_m;
+    // uhd::experts::data_reader_t<int> _mixer1_n;
+    // uhd::experts::data_reader_t<int> _mixer2_m;
+    // uhd::experts::data_reader_t<int> _mixer2_n;
 
     // Output to user/API
     uhd::experts::data_writer_t<double> _coerced_frequency;
@@ -693,8 +703,8 @@ public:
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
         , _rfdc_freq_coerced(
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "coerced")
-        , _if2_frequency_desired(db, fe_path / "if_freq" / "desired")
-        , _if2_frequency_coerced(db, fe_path / "if_freq" / "coerced")
+        // , _if2_frequency_desired(db, fe_path / "if_freq" / "desired")
+        // , _if2_frequency_coerced(db, fe_path / "if_freq" / "coerced")
         , _rpc_prefix(rpc_prefix)
         , _db_idx(db_idx)
         , _rpcc(rpcc)
@@ -703,8 +713,8 @@ public:
     {
         bind_accessor(_rfdc_freq_desired);
         bind_accessor(_rfdc_freq_coerced);
-        bind_accessor(_if2_frequency_desired);
-        bind_accessor(_if2_frequency_coerced);
+        // bind_accessor(_if2_frequency_desired);
+        // bind_accessor(_if2_frequency_coerced);
     }
 
 private:
@@ -717,11 +727,11 @@ private:
     uhd::experts::data_writer_t<double> _rfdc_freq_coerced;
 
 
-    // Inputs from Frequency FE expert
-    uhd::experts::data_reader_t<double> _if2_frequency_desired;
+    // // Inputs from Frequency FE expert
+    // uhd::experts::data_reader_t<double> _if2_frequency_desired;
 
-    // Outputs to Frequency BE expert
-    uhd::experts::data_writer_t<double> _if2_frequency_coerced;
+    // // Outputs to Frequency BE expert
+    // uhd::experts::data_writer_t<double> _if2_frequency_coerced;
 
 
     const std::string _rpc_prefix;
@@ -748,43 +758,53 @@ public:
     zbx_sync_expert(const uhd::experts::node_retriever_t& db,
         const uhd::fs_path tx_fe_path,
         const uhd::fs_path rx_fe_path,
-        rfdc_control::sptr rfdcc,
-        std::shared_ptr<zbx_cpld_ctrl> cpld)
+        rfdc_control::sptr rfdcc)
+        // std::shared_ptr<zbx_cpld_ctrl> cpld)
         : uhd::experts::worker_node_t("zbx_sync_expert")
         , _fe_time{{db, rx_fe_path / 0 / "time/fe"}, {db, rx_fe_path / 1 / "time/fe"}}
-        , _lo_freqs{{zbx_lo_t::RX0_LO1,
-                        {db, rx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::RX0_LO2,
-                  {db, rx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::TX0_LO1,
-                  {db, tx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::TX0_LO2,
-                  {db, tx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::RX1_LO1,
-                  {db, rx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::RX1_LO2,
-                  {db, rx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::TX1_LO1,
-                  {db, tx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" / "coerced"}},
-              {zbx_lo_t::TX1_LO2,
-                  {db, tx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" / "coerced"}}}
+        // , _lo_freqs{{zbx_lo_t::RX0_LO1,
+        //                 {db,
+        //                     rx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value"
+        //                         / "coerced"}},
+        //       {zbx_lo_t::RX0_LO2,
+        //           {db, rx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::TX0_LO1,
+        //           {db, tx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::TX0_LO2,
+        //           {db, tx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::RX1_LO1,
+        //           {db, rx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::RX1_LO2,
+        //           {db, rx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::TX1_LO1,
+        //           {db, tx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" /
+        //           "coerced"}},
+        //       {zbx_lo_t::TX1_LO2,
+        //           {db, tx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" /
+        //           "coerced"}}}
         , _nco_freqs{{rfdc_control::rfdc_type::RX0,
                          {db, rx_fe_path / 0 / "if_freq" / "coerced"}},
               {rfdc_control::rfdc_type::RX1,
-                  {db, rx_fe_path / 1 / "if_freq" / "coerced"}},
+                  {db, rx_fe_path / 1 / "los" / RFDC_NCO / "freq" / "value" / "coerced"}},
               {rfdc_control::rfdc_type::TX0,
-                  {db, tx_fe_path / 0 / "if_freq" / "coerced"}},
+                  {db, tx_fe_path / 0 / "los" / RFDC_NCO / "freq" / "value" / "coerced"}},
               {rfdc_control::rfdc_type::TX1,
-                  {db, tx_fe_path / 1 / "if_freq" / "coerced"}}}
+                  {db, tx_fe_path / 1 / "los" / RFDC_NCO / "freq" / "value" / "coerced"}}}
+
         , _rfdcc(rfdcc)
-        , _cpld(cpld)
+    // , _cpld(cpld)
     {
         for (auto& fe_time : _fe_time) {
             bind_accessor(fe_time);
         }
-        for (auto& lo_freq : _lo_freqs) {
-            bind_accessor(lo_freq.second);
-        }
+        // for (auto& lo_freq : _lo_freqs) {
+        //     bind_accessor(lo_freq.second);
+        // }
         for (auto& nco_freq : _nco_freqs) {
             bind_accessor(nco_freq.second);
         }
@@ -797,7 +817,7 @@ private:
     // Command time: We have 2 channels, one time spec per channel
     std::vector<uhd::experts::data_reader_t<time_spec_t>> _fe_time;
     // We have 8 LOs:
-    std::map<zbx_lo_t, uhd::experts::data_reader_t<double>> _lo_freqs;
+    // std::map<zbx_lo_t, uhd::experts::data_reader_t<double>> _lo_freqs;
     // We have 4 NCOs
     std::map<rfdc_control::rfdc_type, uhd::experts::data_reader_t<double>> _nco_freqs;
 
@@ -805,7 +825,7 @@ private:
 
     // Attributes
     rfdc_control::sptr _rfdcc;
-    std::shared_ptr<zbx_cpld_ctrl> _cpld;
+    // std::shared_ptr<zbx_cpld_ctrl> _cpld;
     //! Store the sync state of the ADC gearboxes. If false, we assume they're
     // out of sync. This could also be a vector of booleans if we want to be
     // able to sync ADC gearboxes individually.

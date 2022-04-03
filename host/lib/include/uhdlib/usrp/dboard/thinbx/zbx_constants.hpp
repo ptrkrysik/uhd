@@ -73,26 +73,27 @@ static constexpr uint32_t ZBX_LO_LOCK_TIMEOUT_MS = 20; // milliseconds
 // This is the step size for the LO tuning relative to the PRC rate:
 static constexpr int ZBX_RELATIVE_LO_STEP_SIZE = 6;
 
-static constexpr double ZBX_MIN_FREQ           = 1e6; // Hz
-static constexpr double ZBX_MAX_FREQ           = 8e9; // Hz
-static constexpr double ZBX_DEFAULT_FREQ       = 1e9; // Hz
+static constexpr double ZBX_MIN_FREQ = 1e6; // Hz
+static constexpr double ZBX_MAX_FREQ =
+    3e9; // Hz to powinno nie byc ustawiane stala tylko odczytywane
+static constexpr double ZBX_DEFAULT_FREQ = 1.1e9; // Hz
 static const uhd::freq_range_t ZBX_FREQ_RANGE(ZBX_MIN_FREQ, ZBX_MAX_FREQ);
-static constexpr double ZBX_LOWBAND_FREQ       = 3e9; // Hz
+static constexpr double ZBX_LOWBAND_FREQ = 3e9; // Hz
 
 constexpr char HW_GAIN_STAGE[] = "hw";
 
 static constexpr double RX_MIN_GAIN         = 0;
-static constexpr double RX_MAX_GAIN         = 60;
+static constexpr double RX_MAX_GAIN         = 0;
 static constexpr double RX_GAIN_STEP        = 1;
 static constexpr double ZBX_DEFAULT_RX_GAIN = RX_MIN_GAIN;
 static const uhd::gain_range_t ZBX_RX_GAIN_RANGE(RX_MIN_GAIN, RX_MAX_GAIN, RX_GAIN_STEP);
 // Rx gain is limited to [0, 38] for frequency <= 500 MHz
-static constexpr double RX_LOW_FREQ_MAX_GAIN        = 38;
+static constexpr double RX_LOW_FREQ_MAX_GAIN        = 0;
 static constexpr double RX_LOW_FREQ_MAX_GAIN_CUTOFF = 500e6; // Hz
 static const uhd::gain_range_t ZBX_RX_LOW_FREQ_GAIN_RANGE(
     RX_MIN_GAIN, RX_LOW_FREQ_MAX_GAIN, RX_GAIN_STEP);
 static constexpr double TX_MIN_GAIN         = 0;
-static constexpr double TX_MAX_GAIN         = 60;
+static constexpr double TX_MAX_GAIN         = 0;
 static constexpr double TX_GAIN_STEP        = 1;
 static constexpr double ZBX_DEFAULT_TX_GAIN = TX_MIN_GAIN;
 static const uhd::gain_range_t ZBX_TX_GAIN_RANGE(TX_MIN_GAIN, TX_MAX_GAIN, TX_GAIN_STEP);
@@ -147,8 +148,8 @@ static const std::map<double, tx_amp> ZBX_TX_GAIN_AMP_MAP = {
 
 /*** Antenna-related constants ***********************************************/
 // TX and RX SMA connectors on the front panel
-constexpr char ANTENNA_TXRX[] = "TX/RX0";
-constexpr char ANTENNA_RX[]   = "RX1";
+constexpr char ANTENNA_TXRX[] = "TX";
+constexpr char ANTENNA_RX[]   = "RX";
 // Internal "antenna" ports
 constexpr char ANTENNA_CAL_LOOPBACK[] = "CAL_LOOPBACK";
 constexpr char ANTENNA_TERMINATION[]  = "TERMINATION"; // Only RX path
@@ -156,15 +157,16 @@ constexpr char ANTENNA_TERMINATION[]  = "TERMINATION"; // Only RX path
 constexpr auto DEFAULT_TX_ANTENNA = ANTENNA_TXRX;
 constexpr auto DEFAULT_RX_ANTENNA = ANTENNA_RX;
 // Helper lists
-static const std::vector<std::string> RX_ANTENNAS = {
-    ANTENNA_TXRX, ANTENNA_RX, ANTENNA_CAL_LOOPBACK, ANTENNA_TERMINATION};
-static const std::vector<std::string> TX_ANTENNAS = {ANTENNA_TXRX, ANTENNA_CAL_LOOPBACK};
+static const std::vector<std::string> RX_ANTENNAS = {ANTENNA_RX};
+// ANTENNA_TXRX, ANTENNA_RX, ANTENNA_CAL_LOOPBACK, ANTENNA_TERMINATION};
+static const std::vector<std::string> TX_ANTENNAS = {ANTENNA_TXRX};
+//, ANTENNA_CAL_LOOPBACK};
 // For branding purposes, ZBX changed the antenna names around. For existing
 // software, we still accept the old antenna names, but map them to the new ones
 static const std::unordered_map<std::string, std::string> TX_ANTENNA_NAME_COMPAT_MAP{
     {"TX/RX", ANTENNA_TXRX}};
 static const std::unordered_map<std::string, std::string> RX_ANTENNA_NAME_COMPAT_MAP{
-    {"TX/RX", ANTENNA_TXRX}, {"RX2", ANTENNA_RX}};
+    {"RX2", ANTENNA_RX}};
 
 /*** LO-related constants ****************************************************/
 //! Low-band LO
@@ -174,7 +176,8 @@ static constexpr char ZBX_LO2[] = "LO2";
 
 static constexpr char RFDC_NCO[] = "rfdc";
 
-static const std::vector<std::string> ZBX_LOS = {ZBX_LO1, ZBX_LO2, RFDC_NCO};
+static const std::vector<std::string> ZBX_LOS = {
+    RFDC_NCO}; //{ZBX_LO1, ZBX_LO2, RFDC_NCO};
 
 static constexpr size_t ZBX_NUM_CHANS = 2;
 static constexpr std::array<size_t, 2> ZBX_CHANNELS{0, 1};
