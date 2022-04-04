@@ -204,8 +204,8 @@ double thinbx_dboard_impl::set_tx_gain(
     //     static const uhd::meta_range_t table_range(0, 255, 1);
     //     const uint8_t table_idx = uhd::narrow<uint8_t>(table_range.clip(gain, true));
     //     if (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
-    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
-    //         return static_cast<double>(table_idx);
+    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA,
+    //         table_idx); return static_cast<double>(table_idx);
     //     }
     //     if (gain_profile == ZBX_GAIN_PROFILE_MANUAL
     //         || gain_profile == ZBX_GAIN_PROFILE_CPLD) {
@@ -258,8 +258,8 @@ double thinbx_dboard_impl::set_rx_gain(
     //     static const uhd::meta_range_t table_range(0, 255, 1);
     //     const uint8_t table_idx = uhd::narrow<uint8_t>(table_range.clip(gain, true));
     //     if (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
-    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
-    //         return static_cast<double>(table_idx);
+    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA,
+    //         table_idx); return static_cast<double>(table_idx);
     //     }
     //     if (gain_profile == ZBX_GAIN_PROFILE_MANUAL
     //         || gain_profile == ZBX_GAIN_PROFILE_CPLD) {
@@ -379,11 +379,13 @@ double thinbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t ch
     //         || gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)) {
     //     const uint8_t idx =
     //         (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)
-    //             ? _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA)
-    //             : ATR_ADDR_TX;
+    //             ? _cpld->get_current_config(chan,
+    //             thinbx_cpld_ctrl::atr_mode_target::DSA) : ATR_ADDR_TX;
     //     constexpr bool update_cache = true; // Make sure to peek the actual value
-    //     const auto dsa = (name == ZBX_GAIN_STAGE_DSA1) ? thinbx_cpld_ctrl::dsa_type::DSA1
-    //                                                    : thinbx_cpld_ctrl::dsa_type::DSA2;
+    //     const auto dsa = (name == ZBX_GAIN_STAGE_DSA1) ?
+    //     thinbx_cpld_ctrl::dsa_type::DSA1
+    //                                                    :
+    //                                                    thinbx_cpld_ctrl::dsa_type::DSA2;
     //     const uint8_t dsa_val = _cpld->get_tx_dsa(chan, idx, dsa, update_cache);
     //     // Update the tree because we're good citizens, and if we switch the
     //     // gain profile from 'table' to 'manual', we want everything to be
@@ -435,8 +437,8 @@ double thinbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t ch
     //     || gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
     //     const uint8_t idx =
     //         (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)
-    //             ? _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA)
-    //             : ATR_ADDR_RX;
+    //             ? _cpld->get_current_config(chan,
+    //             thinbx_cpld_ctrl::atr_mode_target::DSA) : ATR_ADDR_RX;
     //     constexpr bool update_cache = true; // Make sure to peek the actual value
     //     static const std::map<std::string, thinbx_cpld_ctrl::dsa_type> dsa_map{
     //         {ZBX_GAIN_STAGE_DSA1, thinbx_cpld_ctrl::dsa_type::DSA1},
@@ -735,25 +737,27 @@ std::string thinbx_dboard_impl::get_dboard_fe_from_chan(
  *   Private misc/calculative helper functions
  **********************************************************************/
 
-bool thinbx_dboard_impl::_get_all_los_locked(const direction_t dir, const size_t chan)
-{
-    const fs_path fe_path = _get_frontend_path(dir, chan);
+// bool thinbx_dboard_impl::_get_all_los_locked(const direction_t dir, const size_t chan)
+// {
+//     const fs_path fe_path = _get_frontend_path(dir, chan);
 
-    const bool is_lo1_enabled = _tree->access<bool>(fe_path / ZBX_LO1 / "enabled").get();
-    const bool is_lo1_locked =
-        _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO1))
-            ->get_lock_status();
-    // LO2 is always enabled via center frequency tuning, but users may manually disable
-    // it
-    const bool is_lo2_enabled = _tree->access<bool>(fe_path / ZBX_LO2 / "enabled").get();
-    const bool is_lo2_locked =
-        _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO2))
-            ->get_lock_status();
-    // We only care about the lock status if it's enabled (lowband center frequency)
-    // That means we have set it to true if is_lo[1,2]_enabled is *false*, but check for
-    // the lock if is_lo[1,2]_enabled is *true*
-    return (!is_lo1_enabled || is_lo1_locked) && (!is_lo2_enabled || is_lo2_locked);
-}
+//     const bool is_lo1_enabled = _tree->access<bool>(fe_path / ZBX_LO1 /
+//     "enabled").get(); const bool is_lo1_locked =
+//         _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO1))
+//             ->get_lock_status();
+//     // LO2 is always enabled via center frequency tuning, but users may manually
+//     disable
+//     // it
+//     const bool is_lo2_enabled = _tree->access<bool>(fe_path / ZBX_LO2 /
+//     "enabled").get(); const bool is_lo2_locked =
+//         _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO2))
+//             ->get_lock_status();
+//     // We only care about the lock status if it's enabled (lowband center frequency)
+//     // That means we have set it to true if is_lo[1,2]_enabled is *false*, but check
+//     for
+//     // the lock if is_lo[1,2]_enabled is *true*
+//     return (!is_lo1_enabled || is_lo1_locked) && (!is_lo2_enabled || is_lo2_locked);
+// }
 
 fs_path thinbx_dboard_impl::_get_frontend_path(
     const direction_t dir, const size_t chan_idx) const

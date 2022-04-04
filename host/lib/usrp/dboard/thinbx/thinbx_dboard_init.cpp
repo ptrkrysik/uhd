@@ -48,60 +48,64 @@ std::ostream& operator<<(
     }
 }
 
-std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode& atr)
-{
-    switch (atr) {
-        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::SW_DEFINED:
-            os << "SW_DEFINED";
-            return os;
-        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR:
-            os << "CLASSIC ATR";
-            return os;
-        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::FPGA_STATE:
-            os << "FPGA_STATE";
-            return os;
-        default:
-            UHD_THROW_INVALID_CODE_PATH();
-    }
-}
+// std::ostream& operator<<(
+//     std::ostream& os, const ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode& atr)
+// {
+//     switch (atr) {
+//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::SW_DEFINED:
+//             os << "SW_DEFINED";
+//             return os;
+//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR:
+//             os << "CLASSIC ATR";
+//             return os;
+//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::FPGA_STATE:
+//             os << "FPGA_STATE";
+//             return os;
+//         default:
+//             UHD_THROW_INVALID_CODE_PATH();
+//     }
+// }
 
-void thinbx_dboard_impl::_init_cpld()
-{
-    // CPLD
-    RFNOC_LOG_TRACE("Initializing CPLD...");
-    _cpld = std::make_shared<thinbx_cpld_ctrl>(
-        [this](
-            const uint32_t addr, const uint32_t data, const thinbx_cpld_ctrl::chan_t chan) {
-            const auto time_spec = (chan == thinbx_cpld_ctrl::NO_CHAN) ? time_spec_t::ASAP
-                                   : (chan == thinbx_cpld_ctrl::CHAN1) ? _time_accessor(1)
-                                                                    : _time_accessor(0);
-            _regs.poke32(_reg_base_address + addr, data, time_spec);
-        },
-        [this](const uint32_t addr) {
-            // We don't do timed peeks, so no chan parameter here.
-            return _regs.peek32(_reg_base_address + addr);
-        },
-        [this](const uhd::time_spec_t& sleep_time) { _regs.sleep(sleep_time); },
-        get_unique_id() + "::CPLD");
-    UHD_ASSERT_THROW(_cpld);
-    // We don't have access to the scratch register, so we use the config
-    // registers to test communication. This also does some basic sanity check
-    // of the CPLDs logic.
-    RFNOC_LOG_TRACE("Testing CPLD communication...");
-    const uint32_t random_value = static_cast<uint32_t>(time(NULL));
-    _cpld->set_scratch(random_value);
-    UHD_ASSERT_THROW(_cpld->get_scratch() == random_value);
-    // Now go to classic ATR mode
-    RFNOC_LOG_TRACE("CPLD communication good. Switching to classic ATR mode.");
-    for (size_t i = 0; i < ZBX_NUM_CHANS; ++i) {
-        _cpld->set_atr_mode(
-            i, thinbx_cpld_ctrl::atr_mode_target::DSA, thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-        _cpld->set_atr_mode(i,
-            thinbx_cpld_ctrl::atr_mode_target::PATH_LED,
-            thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-    }
-}
+// void thinbx_dboard_impl::_init_cpld()
+// {
+//     // CPLD
+//     RFNOC_LOG_TRACE("Initializing CPLD...");
+//     _cpld = std::make_shared<thinbx_cpld_ctrl>(
+//         [this](const uint32_t addr,
+//             const uint32_t data,
+//             const thinbx_cpld_ctrl::chan_t chan) {
+//             const auto time_spec = (chan == thinbx_cpld_ctrl::NO_CHAN) ?
+//             time_spec_t::ASAP
+//                                    : (chan == thinbx_cpld_ctrl::CHAN1)
+//                                        ? _time_accessor(1)
+//                                        : _time_accessor(0);
+//             _regs.poke32(_reg_base_address + addr, data, time_spec);
+//         },
+//         [this](const uint32_t addr) {
+//             // We don't do timed peeks, so no chan parameter here.
+//             return _regs.peek32(_reg_base_address + addr);
+//         },
+//         [this](const uhd::time_spec_t& sleep_time) { _regs.sleep(sleep_time); },
+//         get_unique_id() + "::CPLD");
+//     UHD_ASSERT_THROW(_cpld);
+//     // We don't have access to the scratch register, so we use the config
+//     // registers to test communication. This also does some basic sanity check
+//     // of the CPLDs logic.
+//     RFNOC_LOG_TRACE("Testing CPLD communication...");
+//     const uint32_t random_value = static_cast<uint32_t>(time(NULL));
+//     _cpld->set_scratch(random_value);
+//     UHD_ASSERT_THROW(_cpld->get_scratch() == random_value);
+//     // Now go to classic ATR mode
+//     RFNOC_LOG_TRACE("CPLD communication good. Switching to classic ATR mode.");
+//     for (size_t i = 0; i < ZBX_NUM_CHANS; ++i) {
+//         _cpld->set_atr_mode(i,
+//             thinbx_cpld_ctrl::atr_mode_target::DSA,
+//             thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+//         _cpld->set_atr_mode(i,
+//             thinbx_cpld_ctrl::atr_mode_target::PATH_LED,
+//             thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+//     }
+// }
 
 void thinbx_dboard_impl::_init_peripherals()
 {
@@ -550,22 +554,22 @@ void thinbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtre
         });
 }
 
-void thinbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtree,
-    expert_container::sptr expert,
-    const fs_path fe_path)
-{
-    expert_factory::add_prop_node<int>(
-        expert, subtree, fe_path / "rf" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-    expert_factory::add_prop_node<int>(
-        expert, subtree, fe_path / "if1" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-    expert_factory::add_prop_node<int>(
-        expert, subtree, fe_path / "if2" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-    expert_factory::add_prop_node<thinbx_cpld_ctrl::atr_mode>(expert,
-        subtree,
-        fe_path / "atr_mode",
-        thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR,
-        AUTO_RESOLVE_ON_WRITE);
-}
+// void thinbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtree,
+//     expert_container::sptr expert,
+//     const fs_path fe_path)
+// {
+//     expert_factory::add_prop_node<int>(
+//         expert, subtree, fe_path / "rf" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
+//     expert_factory::add_prop_node<int>(
+//         expert, subtree, fe_path / "if1" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
+//     expert_factory::add_prop_node<int>(
+//         expert, subtree, fe_path / "if2" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
+//     expert_factory::add_prop_node<thinbx_cpld_ctrl::atr_mode>(expert,
+//         subtree,
+//         fe_path / "atr_mode",
+//         thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR,
+//         AUTO_RESOLVE_ON_WRITE);
+// }
 
 void thinbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,

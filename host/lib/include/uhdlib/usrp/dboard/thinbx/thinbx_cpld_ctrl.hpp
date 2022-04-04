@@ -6,7 +6,7 @@
 #pragma once
 
 #include "thinbx_constants.hpp"
-#include "thinbx_lo_ctrl.hpp"
+//#include "thinbx_lo_ctrl.hpp"
 #include <uhd/types/direction.hpp>
 #include <uhd/types/serial.hpp>
 #include <uhd/types/time_spec.hpp>

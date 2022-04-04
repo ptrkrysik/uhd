@@ -243,22 +243,22 @@ void thinbx_freq_be_expert::resolve()
     }
 }
 
-void thinbx_lo_expert::resolve()
-{
-    if (_test_mode_enabled.is_dirty()) {
-        _lo_ctrl->set_lo_test_mode_enabled(_test_mode_enabled);
-    }
+// void thinbx_lo_expert::resolve()
+// {
+//     if (_test_mode_enabled.is_dirty()) {
+//         _lo_ctrl->set_lo_test_mode_enabled(_test_mode_enabled);
+//     }
 
-    if (_set_is_enabled.is_dirty()) {
-        _lo_ctrl->set_lo_port_enabled(_set_is_enabled);
-    }
+//     if (_set_is_enabled.is_dirty()) {
+//         _lo_ctrl->set_lo_port_enabled(_set_is_enabled);
+//     }
 
-    if (_set_is_enabled && _desired_lo_frequency.is_dirty()) {
-        const double clipped_lo_freq = std::max(
-            LMX2572_MIN_FREQ, std::min(_desired_lo_frequency.get(), LMX2572_MAX_FREQ));
-        _coerced_lo_frequency = _lo_ctrl->set_lo_freq(clipped_lo_freq);
-    }
-}
+//     if (_set_is_enabled && _desired_lo_frequency.is_dirty()) {
+//         const double clipped_lo_freq = std::max(
+//             LMX2572_MIN_FREQ, std::min(_desired_lo_frequency.get(), LMX2572_MAX_FREQ));
+//         _coerced_lo_frequency = _lo_ctrl->set_lo_freq(clipped_lo_freq);
+//     }
+// }
 
 void thinbx_gain_coercer_expert::resolve()
 {
@@ -322,163 +322,165 @@ void thinbx_rx_gain_expert::resolve()
     _dsa3b = ZBX_RX_DSA_MAX_ATT - dsa_settings[3];
 }
 
-void thinbx_tx_programming_expert::resolve()
-{
-    if (_profile.is_dirty()) {
-        if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
-            || _profile == ZBX_GAIN_PROFILE_CPLD) {
-            _cpld->set_atr_mode(_chan,
-                thinbx_cpld_ctrl::atr_mode_target::DSA,
-                thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-        } else {
-            _cpld->set_atr_mode(_chan,
-                thinbx_cpld_ctrl::atr_mode_target::DSA,
-                thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
-        }
-    }
+// void thinbx_tx_programming_expert::resolve()
+// {
+//     if (_profile.is_dirty()) {
+//         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
+//             || _profile == ZBX_GAIN_PROFILE_CPLD) {
+//             _cpld->set_atr_mode(_chan,
+//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
+//                 thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+//         } else {
+//             _cpld->set_atr_mode(_chan,
+//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
+//                 thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
+//         }
+//     }
 
-    // If we're in any of the table modes, then we don't write DSA and amp values
-    // A note on caching: The CPLD object caches state, and only pokes the CPLD
-    // if it's changed. However, all DSAs are on the same register. That means
-    // the DSA register changes, all DSA values written to the CPLD will come
-    // from the input data nodes to this worker node. This can overwrite DSA
-    // values if the cached version and the actual value on the CPLD differ.
-    if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
-        // Convert gains back to attenuation
-        thinbx_cpld_ctrl::tx_dsa_type dsa_settings = {
-            uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa1.get()),
-            uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa2.get())};
-        _cpld->set_tx_gain_switches(_chan, ATR_ADDR_TX, dsa_settings);
-        _cpld->set_tx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
-    }
+//     // If we're in any of the table modes, then we don't write DSA and amp values
+//     // A note on caching: The CPLD object caches state, and only pokes the CPLD
+//     // if it's changed. However, all DSAs are on the same register. That means
+//     // the DSA register changes, all DSA values written to the CPLD will come
+//     // from the input data nodes to this worker node. This can overwrite DSA
+//     // values if the cached version and the actual value on the CPLD differ.
+//     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
+//         // Convert gains back to attenuation
+//         thinbx_cpld_ctrl::tx_dsa_type dsa_settings = {
+//             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa1.get()),
+//             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa2.get())};
+//         _cpld->set_tx_gain_switches(_chan, ATR_ADDR_TX, dsa_settings);
+//         _cpld->set_tx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
+//     }
 
-    // If frequency changed, we might have changed bands and the CPLD dsa tables need to
-    // be reloaded
-    // TODO: This is a major hack, and these tables should be loaded outside of the
-    // tuning call.  This means every tuning request involves a large amount of CPLD
-    // writes.
-    // We only write when we aren't using a command time, otherwise all those CPLD
-    // commands will line up in the CPLD command queue, and diminish any purpose
-    // of timed commands in the first place
-    // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-    // manually configures LO frequencies and causes an illegal overall frequency
-    if (_command_time == 0.0) {
-        _cpld->update_tx_dsa_settings(
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/));
-    }
+//     // If frequency changed, we might have changed bands and the CPLD dsa tables need
+//     to
+//     // be reloaded
+//     // TODO: This is a major hack, and these tables should be loaded outside of the
+//     // tuning call.  This means every tuning request involves a large amount of CPLD
+//     // writes.
+//     // We only write when we aren't using a command time, otherwise all those CPLD
+//     // commands will line up in the CPLD command queue, and diminish any purpose
+//     // of timed commands in the first place
+//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
+//     // manually configures LO frequencies and causes an illegal overall frequency
+//     if (_command_time == 0.0) {
+//         _cpld->update_tx_dsa_settings(
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/));
+//     }
 
-    for (const size_t idx : ATR_ADDRS) {
-        _cpld->set_lo_source(idx,
-            thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO1),
-            _lo1_source);
-        _cpld->set_lo_source(idx,
-            thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO2),
-            _lo2_source);
+//     for (const size_t idx : ATR_ADDRS) {
+//         _cpld->set_lo_source(idx,
+//             thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO1),
+//             _lo1_source);
+//         _cpld->set_lo_source(idx,
+//             thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO2),
+//             _lo2_source);
 
-        _cpld->set_tx_rf_filter(_chan, idx, _rf_filter);
-        _cpld->set_tx_if1_filter(_chan, idx, _if1_filter);
-        _cpld->set_tx_if2_filter(_chan, idx, _if2_filter);
-    }
+//         _cpld->set_tx_rf_filter(_chan, idx, _rf_filter);
+//         _cpld->set_tx_if1_filter(_chan, idx, _if1_filter);
+//         _cpld->set_tx_if2_filter(_chan, idx, _if2_filter);
+//     }
 
-    // Convert amp gain to amp index
-    UHD_ASSERT_THROW(ZBX_TX_GAIN_AMP_MAP.count(_amp_gain.get()));
-    const tx_amp amp = ZBX_TX_GAIN_AMP_MAP.at(_amp_gain.get());
-    _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_0X, _antenna, tx_amp::BYPASS);
-    _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_RX, _antenna, tx_amp::BYPASS);
-    _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_TX, _antenna, amp);
-    _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_XX, _antenna, amp);
+//     // Convert amp gain to amp index
+//     UHD_ASSERT_THROW(ZBX_TX_GAIN_AMP_MAP.count(_amp_gain.get()));
+//     const tx_amp amp = ZBX_TX_GAIN_AMP_MAP.at(_amp_gain.get());
+//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_0X, _antenna, tx_amp::BYPASS);
+//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_RX, _antenna, tx_amp::BYPASS);
+//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_TX, _antenna, amp);
+//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_XX, _antenna, amp);
 
-    // We do not update LEDs on switching TX antenna value by definition
-}
+//     // We do not update LEDs on switching TX antenna value by definition
+// }
 
-void thinbx_rx_programming_expert::resolve()
-{
-    if (_profile.is_dirty()) {
-        if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
-            || _profile == ZBX_GAIN_PROFILE_CPLD) {
-            _cpld->set_atr_mode(_chan,
-                thinbx_cpld_ctrl::atr_mode_target::DSA,
-                thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-        } else {
-            _cpld->set_atr_mode(_chan,
-                thinbx_cpld_ctrl::atr_mode_target::DSA,
-                thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
-        }
-    }
+// void thinbx_rx_programming_expert::resolve()
+// {
+//     if (_profile.is_dirty()) {
+//         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
+//             || _profile == ZBX_GAIN_PROFILE_CPLD) {
+//             _cpld->set_atr_mode(_chan,
+//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
+//                 thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+//         } else {
+//             _cpld->set_atr_mode(_chan,
+//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
+//                 thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
+//         }
+//     }
 
-    // If we're in any of the table modes, then we don't write DSA values
-    // A note on caching: The CPLD object caches state, and only pokes the CPLD
-    // if it's changed. However, all DSAs are on the same register. That means
-    // the DSA register changes, all DSA values written to the CPLD will come
-    // from the input data nodes to this worker node. This can overwrite DSA
-    // values if the cached version and the actual value on the CPLD differ.
-    if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
-        thinbx_cpld_ctrl::rx_dsa_type dsa_settings = {
-            uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa1.get()),
-            uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa2.get()),
-            uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3a.get()),
-            uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3b.get())};
-        _cpld->set_rx_gain_switches(_chan, ATR_ADDR_RX, dsa_settings);
-        _cpld->set_rx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
-    }
+//     // If we're in any of the table modes, then we don't write DSA values
+//     // A note on caching: The CPLD object caches state, and only pokes the CPLD
+//     // if it's changed. However, all DSAs are on the same register. That means
+//     // the DSA register changes, all DSA values written to the CPLD will come
+//     // from the input data nodes to this worker node. This can overwrite DSA
+//     // values if the cached version and the actual value on the CPLD differ.
+//     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
+//         thinbx_cpld_ctrl::rx_dsa_type dsa_settings = {
+//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa1.get()),
+//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa2.get()),
+//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3a.get()),
+//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3b.get())};
+//         _cpld->set_rx_gain_switches(_chan, ATR_ADDR_RX, dsa_settings);
+//         _cpld->set_rx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
+//     }
 
 
-    // If frequency changed, we might have changed bands and the CPLD dsa tables need to
-    // be reloaded
-    // TODO: This is a major hack, and these tables should be loaded outside of the
-    // tuning call.  This means every tuning request involves a large amount of CPLD
-    // writes.
-    // We only write when we aren't using a command time, otherwise all those CPLD
-    // commands will line up in the CPLD command queue, and diminish any purpose
-    // of timed commands in the first place
-    // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-    // manually configures LO frequencies and causes an illegal overall frequency
-    if (_command_time == 0.0) {
-        _cpld->update_rx_dsa_settings(
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/),
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 2 /*dsa3a*/),
-            _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 3 /*dsa3b*/));
-    }
+//     // If frequency changed, we might have changed bands and the CPLD dsa tables need
+//     to
+//     // be reloaded
+//     // TODO: This is a major hack, and these tables should be loaded outside of the
+//     // tuning call.  This means every tuning request involves a large amount of CPLD
+//     // writes.
+//     // We only write when we aren't using a command time, otherwise all those CPLD
+//     // commands will line up in the CPLD command queue, and diminish any purpose
+//     // of timed commands in the first place
+//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
+//     // manually configures LO frequencies and causes an illegal overall frequency
+//     if (_command_time == 0.0) {
+//         _cpld->update_rx_dsa_settings(
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/),
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 2 /*dsa3a*/),
+//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 3 /*dsa3b*/));
+//     }
 
-    for (const size_t idx : ATR_ADDRS) {
-        _cpld->set_lo_source(idx,
-            thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO1),
-            _lo1_source);
-        _cpld->set_lo_source(idx,
-            thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO2),
-            _lo2_source);
+//     for (const size_t idx : ATR_ADDRS) {
+//         _cpld->set_lo_source(idx,
+//             thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO1),
+//             _lo1_source);
+//         _cpld->set_lo_source(idx,
+//             thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO2),
+//             _lo2_source);
 
-        // If using the TX/RX terminal, only configure the ATR RX state since the
-        // state of the switch at other times is controlled by TX
-        if (_antenna != ANTENNA_TXRX || idx == ATR_ADDR_RX) {
-            _cpld->set_rx_antenna_switches(_chan, idx, _antenna);
-        }
+//         // If using the TX/RX terminal, only configure the ATR RX state since the
+//         // state of the switch at other times is controlled by TX
+//         if (_antenna != ANTENNA_TXRX || idx == ATR_ADDR_RX) {
+//             _cpld->set_rx_antenna_switches(_chan, idx, _antenna);
+//         }
 
-        _cpld->set_rx_rf_filter(_chan, idx, _rf_filter);
-        _cpld->set_rx_if1_filter(_chan, idx, _if1_filter);
-        _cpld->set_rx_if2_filter(_chan, idx, _if2_filter);
-    }
+//         _cpld->set_rx_rf_filter(_chan, idx, _rf_filter);
+//         _cpld->set_rx_if1_filter(_chan, idx, _if1_filter);
+//         _cpld->set_rx_if2_filter(_chan, idx, _if2_filter);
+//     }
 
-    _update_leds();
-}
+//     _update_leds();
+// }
 
-void thinbx_rx_programming_expert::_update_leds()
-{
-    if (_atr_mode != thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR) {
-        return;
-    }
-    // We default to the RX1 LED for all RX antenna values that are not TX/RX0
-    const bool rx_on_trx = _antenna == ANTENNA_TXRX;
-    // clang-format off
-    // G==Green, R==Red                RX2         TX/RX-G    TX/RX-R
-    _cpld->set_leds(_chan, ATR_ADDR_0X, false,      false,     false);
-    _cpld->set_leds(_chan, ATR_ADDR_RX, !rx_on_trx, rx_on_trx, false);
-    _cpld->set_leds(_chan, ATR_ADDR_TX, false,      false,     true );
-    _cpld->set_leds(_chan, ATR_ADDR_XX, !rx_on_trx, rx_on_trx, true );
-    // clang-format on
-}
+// void thinbx_rx_programming_expert::_update_leds()
+// {
+//     if (_atr_mode != thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR) {
+//         return;
+//     }
+//     // We default to the RX1 LED for all RX antenna values that are not TX/RX0
+//     const bool rx_on_trx = _antenna == ANTENNA_TXRX;
+//     // clang-format off
+//     // G==Green, R==Red                RX2         TX/RX-G    TX/RX-R
+//     _cpld->set_leds(_chan, ATR_ADDR_0X, false,      false,     false);
+//     _cpld->set_leds(_chan, ATR_ADDR_RX, !rx_on_trx, rx_on_trx, false);
+//     _cpld->set_leds(_chan, ATR_ADDR_TX, false,      false,     true );
+//     _cpld->set_leds(_chan, ATR_ADDR_XX, !rx_on_trx, rx_on_trx, true );
+//     // clang-format on
+// }
 
 void thinbx_band_inversion_expert::resolve()
 {
