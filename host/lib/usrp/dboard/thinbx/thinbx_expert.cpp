@@ -57,10 +57,6 @@ bool _is_band_inverted(
     const int num_inversions =
         // If we're in the second Nyquist zone, we're inverted
         int(is_if2_nyquist2); // +
-    // LO2 mixer may invert
-    // int(tune_setting.mix2_m == -1) +
-    // LO1 mixer can only invert in the lowband
-    // int(!_is_band_highband(tune_setting) && tune_setting.mix1_m == -1);
 
     // In the RX direction, an extra inversion is needed
     // TODO: We don't know where this is coming from
@@ -148,89 +144,14 @@ void thinbx_scheduling_expert::resolve()
 void thinbx_freq_fe_expert::resolve()
 {
     const double tune_freq = ZBX_FREQ_RANGE.clip(_desired_frequency);
-    // _tune_settings         = _get_tune_settings(tune_freq, _trx);
-    _rfdc_freq_desired = tune_freq;
-
-    // Set mixer values so the backend expert knows how to calculate final frequency
-    // _mixer1_m = _tune_settings.mix1_m;
-    // _mixer1_n = _tune_settings.mix1_n;
-    // _mixer2_m = _tune_settings.mix2_m;
-    // _mixer2_n = _tune_settings.mix2_n;
-
-    // _is_highband = _is_band_highband(_tune_settings);
-    // _lo1_enabled = !_is_highband.get();
-
-    // double if1_freq      = tune_freq;
-    // const double lo_step = _lo_freq_range.step();
-    // If we need to apply an offset to avoid injection locking, we need to
-    // offset in different directions for different channels on the same thinbx
-    // const double lo_offset_sign = (_chan == 0) ? -1 : 1;
-    // In high band, LO1 is not needed (the signal is already at a high enough
-    // frequency for the second stage)
-    // if (_lo1_enabled) {
-    //     // Calculate the ideal IF1:
-    //     if1_freq = _calc_if1_freq(tune_freq, _tune_settings);
-    //     // We calculate the LO1 frequency by first shifting the tune frequency to the
-    //     // desired IF, and then applying an offset such that CH0 and CH1 tune to
-    //     distinct
-    //     // LO1 frequencies: This is done to prevent the LO's from interfering with each
-    //     // other in a phenomenon known as injection locking.
-    //     const double lo1_freq =
-    //         if1_freq + (_tune_settings.mix1_n * tune_freq) + (lo_offset_sign *
-    //         lo_step);
-    //     // Now, quantize the LO frequency to the nearest valid value:
-    //     _desired_lo1_frequency = _lo_freq_range.clip(lo1_freq, true);
-    //     // Because LO1 frequency probably changed during quantization, we simply
-    //     // re-calculate the now-valid IF1 (the following equation is the same as
-    //     // the LO1 frequency calculation, but solved for if1_freq):
-    //     if1_freq = _desired_lo1_frequency - (_tune_settings.mix1_n * tune_freq);
-    // }
-
-    // _lo2_enabled = true;
-    // Calculate ideal IF2 frequency:
-    // const double if2_freq = _calc_ideal_if2_freq(tune_freq, _tune_settings);
-    // Calculate LO2 frequency from that:
-    // _desired_lo2_frequency = _calc_lo2_freq(if1_freq, if2_freq, _mixer2_m, _mixer2_n);
-    // Similar to LO1, apply an offset such that CH0 and CH1 tune to distinct LO2
-    // frequencies to prevent potential interference between CH0 and CH1 LO2's from
-    // injection locking: In highband (LO1 disabled), this must explicitly be done below.
-    // In lowband (LO1 enabled), the LO1 will have already been shifted and, as a result,
-    // the LO2's will have already been shifted to compensate for LO1 in previous
-    // function. Note that in lowband, the LO1's and LO2's will be offset between CH0 and
-    // CH1; however, they will be offset in opposite direction such that the NCO frequency
-    // will be the same between CH0 and CH1. This is not the case for highband (only LO2
-    // and they must be offset).
-    // if (!_lo1_enabled) {
-    //     _desired_lo2_frequency = _desired_lo2_frequency + (lo_offset_sign * lo_step);
-    // }
-    // Now, quantize the LO frequency to the nearest valid value:
-    // _desired_lo2_frequency = _lo_freq_range.clip(_desired_lo2_frequency, true);
-    // Calculate actual IF2 frequency from LO2 and IF1 frequencies:
-    // _desired_if2_frequency =
-    //     _calc_if2_freq(if1_freq, _desired_lo2_frequency, _mixer2_m, _mixer2_n);
-
-    // If the frequency is in a different tuning band, we need to switch filters
-    // _rf_filter  = _tune_settings.rf_fir;
-    // _if1_filter = _tune_settings.if1_fir;
-    // _if2_filter = _tune_settings.if2_fir;
-    _band_inverted = _is_band_inverted(_trx, _rfdc_freq_desired, _rfdc_rate);
+    _rfdc_freq_desired     = tune_freq;
+    _band_inverted         = _is_band_inverted(_trx, _rfdc_freq_desired, _rfdc_rate);
 }
 
 
 void thinbx_freq_be_expert::resolve()
 {
     _coerced_frequency = _rfdc_freq_coerced;
-    // if (_is_highband) {
-    //     _coerced_frequency =
-    //         ((_coerced_if2_frequency - (_coerced_lo2_frequency * _mixer2_n)) /
-    //         _mixer2_m);
-    // } else {
-    //     _coerced_frequency =
-    //         (_coerced_lo1_frequency
-    //             + ((_coerced_lo2_frequency * _mixer2_n - _coerced_if2_frequency)
-    //                 / _mixer2_m))
-    //         / _mixer1_n;
-    // }
 
     // Users may change individual settings (LO frequencies, if2 frequencies) and throw
     // the output frequency out of range. We have to stop here so that the gain API
@@ -243,23 +164,6 @@ void thinbx_freq_be_expert::resolve()
                                            << " is out of range!");
     }
 }
-
-// void thinbx_lo_expert::resolve()
-// {
-//     if (_test_mode_enabled.is_dirty()) {
-//         _lo_ctrl->set_lo_test_mode_enabled(_test_mode_enabled);
-//     }
-
-//     if (_set_is_enabled.is_dirty()) {
-//         _lo_ctrl->set_lo_port_enabled(_set_is_enabled);
-//     }
-
-//     if (_set_is_enabled && _desired_lo_frequency.is_dirty()) {
-//         const double clipped_lo_freq = std::max(
-//             LMX2572_MIN_FREQ, std::min(_desired_lo_frequency.get(), LMX2572_MAX_FREQ));
-//         _coerced_lo_frequency = _lo_ctrl->set_lo_freq(clipped_lo_freq);
-//     }
-// }
 
 void thinbx_gain_coercer_expert::resolve()
 {
@@ -323,166 +227,6 @@ void thinbx_rx_gain_expert::resolve()
     _dsa3b = ZBX_RX_DSA_MAX_ATT - dsa_settings[3];
 }
 
-// void thinbx_tx_programming_expert::resolve()
-// {
-//     if (_profile.is_dirty()) {
-//         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
-//             || _profile == ZBX_GAIN_PROFILE_CPLD) {
-//             _cpld->set_atr_mode(_chan,
-//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
-//                 thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-//         } else {
-//             _cpld->set_atr_mode(_chan,
-//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
-//                 thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
-//         }
-//     }
-
-//     // If we're in any of the table modes, then we don't write DSA and amp values
-//     // A note on caching: The CPLD object caches state, and only pokes the CPLD
-//     // if it's changed. However, all DSAs are on the same register. That means
-//     // the DSA register changes, all DSA values written to the CPLD will come
-//     // from the input data nodes to this worker node. This can overwrite DSA
-//     // values if the cached version and the actual value on the CPLD differ.
-//     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
-//         // Convert gains back to attenuation
-//         thinbx_cpld_ctrl::tx_dsa_type dsa_settings = {
-//             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa1.get()),
-//             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa2.get())};
-//         _cpld->set_tx_gain_switches(_chan, ATR_ADDR_TX, dsa_settings);
-//         _cpld->set_tx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
-//     }
-
-//     // If frequency changed, we might have changed bands and the CPLD dsa tables need
-//     to
-//     // be reloaded
-//     // TODO: This is a major hack, and these tables should be loaded outside of the
-//     // tuning call.  This means every tuning request involves a large amount of CPLD
-//     // writes.
-//     // We only write when we aren't using a command time, otherwise all those CPLD
-//     // commands will line up in the CPLD command queue, and diminish any purpose
-//     // of timed commands in the first place
-//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-//     // manually configures LO frequencies and causes an illegal overall frequency
-//     if (_command_time == 0.0) {
-//         _cpld->update_tx_dsa_settings(
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/));
-//     }
-
-//     for (const size_t idx : ATR_ADDRS) {
-//         _cpld->set_lo_source(idx,
-//             thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO1),
-//             _lo1_source);
-//         _cpld->set_lo_source(idx,
-//             thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO2),
-//             _lo2_source);
-
-//         _cpld->set_tx_rf_filter(_chan, idx, _rf_filter);
-//         _cpld->set_tx_if1_filter(_chan, idx, _if1_filter);
-//         _cpld->set_tx_if2_filter(_chan, idx, _if2_filter);
-//     }
-
-//     // Convert amp gain to amp index
-//     UHD_ASSERT_THROW(ZBX_TX_GAIN_AMP_MAP.count(_amp_gain.get()));
-//     const tx_amp amp = ZBX_TX_GAIN_AMP_MAP.at(_amp_gain.get());
-//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_0X, _antenna, tx_amp::BYPASS);
-//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_RX, _antenna, tx_amp::BYPASS);
-//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_TX, _antenna, amp);
-//     _cpld->set_tx_antenna_switches(_chan, ATR_ADDR_XX, _antenna, amp);
-
-//     // We do not update LEDs on switching TX antenna value by definition
-// }
-
-// void thinbx_rx_programming_expert::resolve()
-// {
-//     if (_profile.is_dirty()) {
-//         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
-//             || _profile == ZBX_GAIN_PROFILE_CPLD) {
-//             _cpld->set_atr_mode(_chan,
-//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
-//                 thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-//         } else {
-//             _cpld->set_atr_mode(_chan,
-//                 thinbx_cpld_ctrl::atr_mode_target::DSA,
-//                 thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
-//         }
-//     }
-
-//     // If we're in any of the table modes, then we don't write DSA values
-//     // A note on caching: The CPLD object caches state, and only pokes the CPLD
-//     // if it's changed. However, all DSAs are on the same register. That means
-//     // the DSA register changes, all DSA values written to the CPLD will come
-//     // from the input data nodes to this worker node. This can overwrite DSA
-//     // values if the cached version and the actual value on the CPLD differ.
-//     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
-//         thinbx_cpld_ctrl::rx_dsa_type dsa_settings = {
-//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa1.get()),
-//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa2.get()),
-//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3a.get()),
-//             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3b.get())};
-//         _cpld->set_rx_gain_switches(_chan, ATR_ADDR_RX, dsa_settings);
-//         _cpld->set_rx_gain_switches(_chan, ATR_ADDR_XX, dsa_settings);
-//     }
-
-
-//     // If frequency changed, we might have changed bands and the CPLD dsa tables need
-//     to
-//     // be reloaded
-//     // TODO: This is a major hack, and these tables should be loaded outside of the
-//     // tuning call.  This means every tuning request involves a large amount of CPLD
-//     // writes.
-//     // We only write when we aren't using a command time, otherwise all those CPLD
-//     // commands will line up in the CPLD command queue, and diminish any purpose
-//     // of timed commands in the first place
-//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-//     // manually configures LO frequencies and causes an illegal overall frequency
-//     if (_command_time == 0.0) {
-//         _cpld->update_rx_dsa_settings(
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 0 /*dsa1*/),
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 1 /*dsa2*/),
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 2 /*dsa3a*/),
-//             _dsa_cal->get_band_settings(ZBX_FREQ_RANGE.clip(_frequency), 3 /*dsa3b*/));
-//     }
-
-//     for (const size_t idx : ATR_ADDRS) {
-//         _cpld->set_lo_source(idx,
-//             thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO1),
-//             _lo1_source);
-//         _cpld->set_lo_source(idx,
-//             thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO2),
-//             _lo2_source);
-
-//         // If using the TX/RX terminal, only configure the ATR RX state since the
-//         // state of the switch at other times is controlled by TX
-//         if (_antenna != ANTENNA_TXRX || idx == ATR_ADDR_RX) {
-//             _cpld->set_rx_antenna_switches(_chan, idx, _antenna);
-//         }
-
-//         _cpld->set_rx_rf_filter(_chan, idx, _rf_filter);
-//         _cpld->set_rx_if1_filter(_chan, idx, _if1_filter);
-//         _cpld->set_rx_if2_filter(_chan, idx, _if2_filter);
-//     }
-
-//     _update_leds();
-// }
-
-// void thinbx_rx_programming_expert::_update_leds()
-// {
-//     if (_atr_mode != thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR) {
-//         return;
-//     }
-//     // We default to the RX1 LED for all RX antenna values that are not TX/RX0
-//     const bool rx_on_trx = _antenna == ANTENNA_TXRX;
-//     // clang-format off
-//     // G==Green, R==Red                RX2         TX/RX-G    TX/RX-R
-//     _cpld->set_leds(_chan, ATR_ADDR_0X, false,      false,     false);
-//     _cpld->set_leds(_chan, ATR_ADDR_RX, !rx_on_trx, rx_on_trx, false);
-//     _cpld->set_leds(_chan, ATR_ADDR_TX, false,      false,     true );
-//     _cpld->set_leds(_chan, ATR_ADDR_XX, !rx_on_trx, rx_on_trx, true );
-//     // clang-format on
-// }
-
 void thinbx_band_inversion_expert::resolve()
 {
     _rpcc->enable_iq_swap(_is_band_inverted.get(), _get_trx_string(_trx), _chan);
@@ -490,17 +234,6 @@ void thinbx_band_inversion_expert::resolve()
 
 void thinbx_rfdc_freq_expert::resolve()
 {
-    // Because we can configure both IF2 and the RFDC NCO frequency, these may
-    // come into conflict. We choose IF2 over RFDC in that case. In other words
-    // the only time we choose the desired RFDC frequency over the IF2 (when in
-    // conflict) is when the RFDC freq was changed directly.
-    // const double desired_rfdc_freq = [&]() -> double {
-    //     if (_rfdc_freq_desired.is_dirty() && !_if2_frequency_desired.is_dirty()) {
-    //         return _rfdc_freq_desired;
-    //     }
-    //     return _if2_frequency_desired;
-    // }();
-
     _rfdc_freq_coerced = _rpcc->rfdc_set_nco_freq(
         _get_trx_string(_trx), _db_idx, _chan, _rfdc_freq_desired);
 }
@@ -508,23 +241,9 @@ void thinbx_rfdc_freq_expert::resolve()
 void thinbx_sync_expert::resolve()
 {
     // Some local helper consts
-    // clang-format off
-    // constexpr std::array<std::array<thinbx_lo_t, 4>, 2> los{{{
-    //     thinbx_lo_t::RX0_LO1,
-    //     thinbx_lo_t::RX0_LO2,
-    //     thinbx_lo_t::TX0_LO1,
-    //     thinbx_lo_t::TX0_LO2
-    // }, {
-    //     thinbx_lo_t::RX1_LO1,
-    //     thinbx_lo_t::RX1_LO2,
-    //     thinbx_lo_t::TX1_LO1,
-    //     thinbx_lo_t::TX1_LO2
-    // }}};
-    
-    constexpr std::array<std::array<rfdc_control::rfdc_type, 2>, 2> ncos{{
-        {rfdc_control::rfdc_type::RX0, rfdc_control::rfdc_type::TX0},
-        {rfdc_control::rfdc_type::RX1, rfdc_control::rfdc_type::TX1}
-    }};
+    constexpr std::array<std::array<rfdc_control::rfdc_type, 2>, 2> ncos{
+        {{rfdc_control::rfdc_type::RX0, rfdc_control::rfdc_type::TX0},
+            {rfdc_control::rfdc_type::RX1, rfdc_control::rfdc_type::TX1}}};
     // clang-format on
 
     // Now do some timing checks
@@ -536,19 +255,6 @@ void thinbx_sync_expert::resolve()
         return;
     }
     const bool times_match = _fe_time.at(0) == _fe_time.at(1);
-
-    // ** Find LOs to synchronize *********************************************
-    // Find dirty LOs which need sync'ing
-    // std::set<thinbx_lo_t> los_to_sync;
-    // for (const size_t chan : ZBX_CHANNELS) {
-    //     if (chan_needs_sync[chan]) {
-    //         for (const auto& lo_idx : los[chan]) {
-    //             if (_lo_freqs.at(lo_idx).is_dirty()) {
-    //                 los_to_sync.insert(lo_idx);
-    //             }
-    //         }
-    //     }
-    // }
 
     // ** Find NCOs to synchronize ********************************************
     // Same rules apply as for LOs.
@@ -615,10 +321,6 @@ void thinbx_sync_expert::resolve()
                     gearboxes_to_sync.cbegin(), gearboxes_to_sync.cend()),
                 _fe_time.at(0).get());
         }
-        // if (!los_to_sync.empty()) {
-        //     _cpld->pulse_lo_sync(
-        //         0, std::vector<thinbx_lo_t>(los_to_sync.cbegin(), los_to_sync.cend()));
-        // }
         if (!ncos_to_sync.empty()) {
             _rfdcc->reset_ncos(std::vector<rfdc_control::rfdc_type>(
                                    ncos_to_sync.cbegin(), ncos_to_sync.cend()),
@@ -633,11 +335,6 @@ void thinbx_sync_expert::resolve()
                                                        : std::vector<size_t>{1, 0};
         for (const size_t chan : sync_order) {
             std::vector<thinbx_lo_t> this_chan_los;
-            // for (const thinbx_lo_t lo_idx : los[chan]) {
-            //     if (los_to_sync.count(lo_idx)) {
-            //         this_chan_los.push_back(lo_idx);
-            //     }
-            // }
 
             std::vector<rfdc_control::rfdc_type> this_chan_ncos;
             for (const auto nco_idx : ncos[chan]) {
@@ -660,9 +357,6 @@ void thinbx_sync_expert::resolve()
                     "Resetting " << this_chan_gearboxes.size() << " gearboxes.");
                 _rfdcc->reset_gearboxes(this_chan_gearboxes, _fe_time.at(chan).get());
             }
-            // if (!this_chan_los.empty()) {
-            //     _cpld->pulse_lo_sync(chan, this_chan_los);
-            // }
             if (!this_chan_ncos.empty()) {
                 _rfdcc->reset_ncos(this_chan_ncos, _fe_time.at(chan).get());
             }

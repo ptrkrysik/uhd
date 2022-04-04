@@ -49,65 +49,6 @@ std::ostream& operator<<(
     }
 }
 
-// std::ostream& operator<<(
-//     std::ostream& os, const ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode& atr)
-// {
-//     switch (atr) {
-//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::SW_DEFINED:
-//             os << "SW_DEFINED";
-//             return os;
-//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR:
-//             os << "CLASSIC ATR";
-//             return os;
-//         case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::FPGA_STATE:
-//             os << "FPGA_STATE";
-//             return os;
-//         default:
-//             UHD_THROW_INVALID_CODE_PATH();
-//     }
-// }
-
-// void thinbx_dboard_impl::_init_cpld()
-// {
-//     // CPLD
-//     RFNOC_LOG_TRACE("Initializing CPLD...");
-//     _cpld = std::make_shared<thinbx_cpld_ctrl>(
-//         [this](const uint32_t addr,
-//             const uint32_t data,
-//             const thinbx_cpld_ctrl::chan_t chan) {
-//             const auto time_spec = (chan == thinbx_cpld_ctrl::NO_CHAN) ?
-//             time_spec_t::ASAP
-//                                    : (chan == thinbx_cpld_ctrl::CHAN1)
-//                                        ? _time_accessor(1)
-//                                        : _time_accessor(0);
-//             _regs.poke32(_reg_base_address + addr, data, time_spec);
-//         },
-//         [this](const uint32_t addr) {
-//             // We don't do timed peeks, so no chan parameter here.
-//             return _regs.peek32(_reg_base_address + addr);
-//         },
-//         [this](const uhd::time_spec_t& sleep_time) { _regs.sleep(sleep_time); },
-//         get_unique_id() + "::CPLD");
-//     UHD_ASSERT_THROW(_cpld);
-//     // We don't have access to the scratch register, so we use the config
-//     // registers to test communication. This also does some basic sanity check
-//     // of the CPLDs logic.
-//     RFNOC_LOG_TRACE("Testing CPLD communication...");
-//     const uint32_t random_value = static_cast<uint32_t>(time(NULL));
-//     _cpld->set_scratch(random_value);
-//     UHD_ASSERT_THROW(_cpld->get_scratch() == random_value);
-//     // Now go to classic ATR mode
-//     RFNOC_LOG_TRACE("CPLD communication good. Switching to classic ATR mode.");
-//     for (size_t i = 0; i < ZBX_NUM_CHANS; ++i) {
-//         _cpld->set_atr_mode(i,
-//             thinbx_cpld_ctrl::atr_mode_target::DSA,
-//             thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-//         _cpld->set_atr_mode(i,
-//             thinbx_cpld_ctrl::atr_mode_target::PATH_LED,
-//             thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
-//     }
-// }
-
 void thinbx_dboard_impl::_init_peripherals()
 {
     RFNOC_LOG_TRACE("Initializing peripherals...");
@@ -190,7 +131,6 @@ void thinbx_dboard_impl::_init_prop_tree()
         fs_path("tx_frontends"),
         fs_path("rx_frontends"),
         _rfdcc);
-    // _cpld);
 
     // subtree->create<eeprom_map_t>("eeprom")
     //     .add_coerced_subscriber([](const eeprom_map_t&) {
@@ -303,36 +243,6 @@ void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
     //    subsequent resolution, the nodes will follow simple topological ruling as long
     //    as we only change one property at a time.
 
-    // The current order should be:
-    // Frequency FE Expert -> LO Expert(s) -> MPM Expert -> Frequency BE Expert -> Gain
-    // Expert -> Programming Expert
-    /*
-        if (trx == TX_DIRECTION) {
-            expert_factory::add_worker_node<thinbx_tx_programming_expert>(expert,
-                expert->node_retriever(),
-                fe_path,
-                fs_path("rx_frontends") / chan_idx,
-                chan_idx,
-                _tx_dsa_cal,
-                _cpld);
-
-            expert_factory::add_worker_node<thinbx_tx_gain_expert>(expert,
-                expert->node_retriever(),
-                fe_path,
-                chan_idx,
-                get_pwr_mgr(trx).at(chan_idx),
-                _tx_dsa_cal);
-        } else {
-            expert_factory::add_worker_node<thinbx_rx_programming_expert>(
-                expert, expert->node_retriever(), fe_path, chan_idx, _rx_dsa_cal, _cpld);
-
-            expert_factory::add_worker_node<thinbx_rx_gain_expert>(expert,
-                expert->node_retriever(),
-                fe_path,
-                get_pwr_mgr(trx).at(chan_idx),
-                _rx_dsa_cal);
-        }*/
-
     expert_factory::add_worker_node<thinbx_freq_be_expert>(
         expert, expert->node_retriever(), fe_path);
 
@@ -340,9 +250,7 @@ void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
         expert, expert->node_retriever(), fe_path, trx, chan_idx, _rpcc);
 
 
-    // Initialize our LO Control Experts
-    // for (auto lo_select : ZBX_LOS) {
-    //     if (lo_select == RFDC_NCO) {
+    // Initialize our RFDC LO Control Experts
     expert_factory::add_worker_node<thinbx_rfdc_freq_expert>(expert,
         expert->node_retriever(),
         fe_path,
@@ -351,29 +259,11 @@ void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
         _rpc_prefix,
         _db_idx,
         _mb_rpcc);
-    //     } else {
-    //         const thinbx_lo_t lo = thinbx_lo_ctrl::lo_string_to_enum(trx, chan_idx,
-    //         lo_select); std::shared_ptr<thinbx_lo_ctrl> lo_ctrl =
-    //         std::make_shared<thinbx_lo_ctrl>(
-    //             lo,
-    //             [this, lo](const uint32_t addr, const uint16_t data) {
-    //                 _cpld->lo_poke16(lo, addr, data);
-    //             },
-    //             [this, lo](const uint32_t addr) { return _cpld->lo_peek16(lo, addr); },
-    //             [this](const uhd::time_spec_t& sleep_time) { _regs.sleep(sleep_time);
-    //             }, LMX2572_DEFAULT_FREQ, _prc_rate, false);
-    //         expert_factory::add_worker_node<thinbx_lo_expert>(
-    //             expert, expert->node_retriever(), fe_path, lo_select, lo_ctrl);
-    //         _lo_ctrl_map.insert({lo, lo_ctrl});
-    //     }
-    // }
 
     // const double lo_step_size = _prc_rate / ZBX_RELATIVE_LO_STEP_SIZE;
     // RFNOC_LOG_DEBUG("LO step size: " << (lo_step_size / 1e6) << " MHz.")
     expert_factory::add_worker_node<thinbx_freq_fe_expert>(
         expert, expert->node_retriever(), fe_path, trx, _rfdc_rate);
-    // chan_idx,
-    // lo_step_size);
     RFNOC_LOG_TRACE(fe_path + ", Experts created");
 }
 
@@ -385,15 +275,6 @@ void thinbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subt
         expert, subtree, fe_path / "freq", ZBX_DEFAULT_FREQ, AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_dual_prop_node<double>(
         expert, subtree, fe_path / "if_freq", 0.0, AUTO_RESOLVE_ON_WRITE);
-    // expert_factory::add_data_node<bool>(expert, fe_path / "is_highband", false);
-    // expert_factory::add_data_node<int>(
-    //     expert, fe_path / "mixer1_m", 0, AUTO_RESOLVE_ON_WRITE);
-    // expert_factory::add_data_node<int>(
-    //     expert, fe_path / "mixer1_n", 0, AUTO_RESOLVE_ON_WRITE);
-    // expert_factory::add_data_node<int>(
-    //     expert, fe_path / "mixer2_m", 0, AUTO_RESOLVE_ON_WRITE);
-    // expert_factory::add_data_node<int>(
-    //     expert, fe_path / "mixer2_n", 0, AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_data_node<bool>(
         expert, fe_path / "band_inverted", false, AUTO_RESOLVE_ON_WRITE);
 
@@ -418,8 +299,7 @@ void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     const size_t chan_idx,
     const fs_path fe_path)
 {
-    // First, overall gain nodes
-    // const auto gain_base_path = fe_path / "gains";
+    // Create gain node with 0dB gain
 
     const uhd::gain_range_t gain_range(0.0, 0.0, 1.0);
     subtree->create<meta_range_t>(fe_path / "gains" / "all" / "range")
@@ -427,106 +307,6 @@ void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
         .add_coerced_subscriber([](const meta_range_t&) {
             throw uhd::runtime_error("Attempting to update gain range!");
         });
-    // expert_factory::add_dual_prop_node<double>(expert,
-    //     subtree,
-    //     gain_base_path / ZBX_GAIN_STAGE_ALL / "value",
-    //     trx == TX_DIRECTION ? TX_MIN_GAIN : RX_MIN_GAIN,
-    //     AUTO_RESOLVE_ON_WRITE);
-    // subtree->create<meta_range_t>(fe_path / "gains" / "all" / "range")
-    //     .add_coerced_subscriber([](const meta_range_t&) {
-    //         throw uhd::runtime_error("Attempting to update gain range!");
-    //     })
-    //     .set_publisher([this, trx, chan_idx]() {
-    //         return (trx == TX_DIRECTION) ? this->get_tx_gain_range(chan_idx)
-    //                                      : this->get_rx_gain_range(chan_idx);
-    //     });
-    // // Then, individual DSA/amp gain nodes
-    // if (trx == TX_DIRECTION) {
-    //     // DSAs
-    //     for (const auto dsa : {ZBX_GAIN_STAGE_DSA1, ZBX_GAIN_STAGE_DSA2}) {
-    //         const auto gain_path = gain_base_path / dsa;
-    //         expert_factory::add_dual_prop_node<double>(
-    //             expert, subtree, gain_path / "value", 0, AUTO_RESOLVE_ON_WRITE);
-    //         subtree->create<meta_range_t>(gain_path / "range")
-    //             .set(uhd::meta_range_t(0, ZBX_TX_DSA_MAX_ATT, 1.0));
-    //         expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
-    //             _expert_container->node_retriever(),
-    //             gain_path / "value",
-    //             uhd::meta_range_t(0, ZBX_TX_DSA_MAX_ATT, 1.0));
-    //     }
-    //     // Amp
-    //     const auto amp_path = gain_base_path / ZBX_GAIN_STAGE_AMP;
-    //     expert_factory::add_dual_prop_node<double>(expert,
-    //         subtree,
-    //         amp_path / "value",
-    //         ZBX_TX_LOWBAND_GAIN,
-    //         AUTO_RESOLVE_ON_WRITE);
-    //     uhd::meta_range_t amp_gain_range;
-    //     for (const auto tx_gain_pair : ZBX_TX_GAIN_AMP_MAP) {
-    //         amp_gain_range.push_back(uhd::range_t(tx_gain_pair.first));
-    //     }
-    //     subtree->create<meta_range_t>(amp_path / "range").set(amp_gain_range);
-    //     expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
-    //         _expert_container->node_retriever(),
-    //         amp_path / "value",
-    //         amp_gain_range);
-    // } else {
-    //     // RX only has DSAs
-    //     for (const auto dsa : {ZBX_GAIN_STAGE_DSA1,
-    //              ZBX_GAIN_STAGE_DSA2,
-    //              ZBX_GAIN_STAGE_DSA3A,
-    //              ZBX_GAIN_STAGE_DSA3B}) {
-    //         const auto gain_path = gain_base_path / dsa;
-    //         expert_factory::add_dual_prop_node<double>(
-    //             expert, subtree, gain_path / "value", 0, AUTO_RESOLVE_ON_WRITE);
-    //         subtree->create<meta_range_t>(gain_path / "range")
-    //             .set(uhd::meta_range_t(0, ZBX_RX_DSA_MAX_ATT, 1.0));
-    //         expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
-    //             _expert_container->node_retriever(),
-    //             gain_path / "value",
-    //             uhd::meta_range_t(0, ZBX_RX_DSA_MAX_ATT, 1.0));
-    //     }
-    // }
-
-    // const uhd::fs_path gain_profile_path = gain_base_path / "all" / "profile";
-    // expert_factory::add_prop_node<std::string>(expert,
-    //     subtree,
-    //     gain_profile_path,
-    //     ZBX_GAIN_PROFILE_DEFAULT,
-    //     AUTO_RESOLVE_ON_WRITE);
-    // auto& gain_profile           = (trx == TX_DIRECTION) ? _tx_gain_profile_api
-    //                                                      : _rx_gain_profile_api;
-    // auto& other_dir_gp           = (trx == TX_DIRECTION) ? _rx_gain_profile_api
-    //                                                      : _tx_gain_profile_api;
-    // auto gain_profile_subscriber = [this, other_dir_gp, trx](
-    //                                    const std::string& profile, const size_t chan) {
-    //     // Upon changing the gain profile, we need to import the new value into
-    //     // the property tree.
-    //     const auto path = fs_path("dboard")
-    //                       / (trx == TX_DIRECTION ? "tx_frontends" : "rx_frontends") /
-    //                       chan / "gains" / "all" / "profile";
-    //     get_tree()->access<std::string>(path).set(profile);
-    //     // The CPLD does not have the option to have different ATR modes for RX
-    //     // and TX (it does have different modes for channel 0 and 1 though).
-    //     // This means we have to match up the gain profiles between RX and TX.
-    //     // The ZBX_GAIN_PROFILE_CPLD_NOATR profile uses the SW_DEFINED mode,
-    //     // and all the others use CLASSIC_ATR. So either both match
-    //     // ZBX_GAIN_PROFILE_CPLD_NOATR, or none do.
-    //     // This will not cause a loop, because the other_dir_gp will already
-    //     // match this one by the time we call it.
-    //     if ((profile == ZBX_GAIN_PROFILE_CPLD_NOATR
-    //             && other_dir_gp->get_gain_profile(chan) != ZBX_GAIN_PROFILE_CPLD_NOATR)
-    //         || (profile != ZBX_GAIN_PROFILE_CPLD_NOATR
-    //             && other_dir_gp->get_gain_profile(chan) ==
-    //             ZBX_GAIN_PROFILE_CPLD_NOATR)) {
-    //         RFNOC_LOG_DEBUG("Channel " << chan << ": Setting gain profile to `" <<
-    //         profile
-    //                                    << "' for both TX and RX.");
-    //         other_dir_gp->set_gain_profile(profile, chan);
-    //     }
-    // };
-
-    // gain_profile->add_subscriber(std::move(gain_profile_subscriber));
 }
 
 void thinbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtree,
@@ -555,79 +335,12 @@ void thinbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtre
         });
 }
 
-// void thinbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtree,
-//     expert_container::sptr expert,
-//     const fs_path fe_path)
-// {
-//     expert_factory::add_prop_node<int>(
-//         expert, subtree, fe_path / "rf" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-//     expert_factory::add_prop_node<int>(
-//         expert, subtree, fe_path / "if1" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-//     expert_factory::add_prop_node<int>(
-//         expert, subtree, fe_path / "if2" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-//     expert_factory::add_prop_node<thinbx_cpld_ctrl::atr_mode>(expert,
-//         subtree,
-//         fe_path / "atr_mode",
-//         thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR,
-//         AUTO_RESOLVE_ON_WRITE);
-// }
-
 void thinbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
     const fs_path fe_path)
 {
-    // Analog LO Specific
-    // for (const std::string lo : {ZBX_LO1, ZBX_LO2}) {
-    //     expert_factory::add_prop_node<thinbx_lo_source_t>(expert,
-    //         subtree,
-    //         fe_path / "ch" / lo / "source",
-    //         ZBX_DEFAULT_LO_SOURCE,
-    //         AUTO_RESOLVE_ON_WRITE);
-    //     expert_factory::add_prop_node<bool>(
-    //         expert, subtree, fe_path / lo / "enabled", false, AUTO_RESOLVE_ON_WRITE);
-    //     expert_factory::add_prop_node<bool>(
-    //         expert, subtree, fe_path / lo / "test_mode", false, AUTO_RESOLVE_ON_WRITE);
-    //     expert_factory::add_dual_prop_node<double>(expert,
-    //         subtree,
-    //         fe_path / "los" / lo / "freq" / "value",
-    //         LMX2572_DEFAULT_FREQ,
-    //         AUTO_RESOLVE_ON_WRITE);
-
-    //     subtree->create<meta_range_t>(fe_path / "los" / lo / "freq/range")
-    //         .set_publisher(
-    //             [this, lo, chan_idx]() { return this->_get_lo_freq_range(lo, chan_idx);
-    //             })
-    //         .add_coerced_subscriber([](const meta_range_t&) {
-    //             throw uhd::runtime_error("Attempting to update freq range!");
-    //         });
-    //     subtree->create<std::vector<std::string>>(fe_path / "los" / lo /
-    //     "source/options")
-    //         .set_publisher([this, lo, trx, chan_idx]() {
-    //             return trx == TX_DIRECTION ? this->get_tx_lo_sources(lo, chan_idx)
-    //                                        : this->get_rx_lo_sources(lo, chan_idx);
-    //         })
-    //         .add_coerced_subscriber([](const std::vector<std::string>&) {
-    //             throw uhd::runtime_error("Attempting to update LO source options!");
-    //         });
-
-    //     subtree
-    //         ->create<sensor_value_t>(
-    //             fe_path / "sensors" / boost::algorithm::to_lower_copy(lo) + "_locked")
-    //         .add_coerced_subscriber([](const sensor_value_t&) {
-    //             throw uhd::runtime_error("Attempting to write to sensor!");
-    //         })
-    //         .set_publisher([this, lo, trx, chan_idx]() {
-    //             return sensor_value_t(lo,
-    //                 this->_lo_ctrl_map
-    //                     .at(thinbx_lo_ctrl::lo_string_to_enum(trx, chan_idx, lo))
-    //                     ->get_lock_status(),
-    //                 "locked",
-    //                 "unlocked");
-    //         });
-    // }
-
     // The NCO gets a sub-node called 'reset'. It is read/write: Write will
     // perform a reset, and read will return the reset status. The latter is
     // also returned in the 'locked' sensor for the NCO, but the 'nco_locked'
@@ -662,17 +375,6 @@ void thinbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
     // LO lock sensor
     // We can't make this its own property value because it has to have access to two
     // containers (two instances of thinbx lo expert)
-    // subtree->create<sensor_value_t>(fe_path / "sensors" / "lo_locked")
-    //     .set(sensor_value_t("all_los", false, "locked", "unlocked"))
-    //     .add_coerced_subscriber([](const sensor_value_t&) {
-    //         throw uhd::runtime_error("Attempting to write to sensor!");
-    //     })
-    //     .set_publisher([this, trx, chan_idx]() {
-    //         return sensor_value_t("all_los",
-    //             this->_get_all_los_locked(trx, chan_idx),
-    //             "locked",
-    //             "unlocked");
-    //     });
     subtree->create<sensor_value_t>(fe_path / "sensors" / "nco_locked")
         .add_coerced_subscriber([](const sensor_value_t&) {
             throw uhd::runtime_error("Attempting to write to sensor!");

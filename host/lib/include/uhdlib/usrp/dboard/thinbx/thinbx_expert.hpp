@@ -7,8 +7,6 @@
 
 #pragma once
 
-// #include "thinbx_cpld_ctrl.hpp"
-//  #include "thinbx_lo_ctrl.hpp"
 #include "thinbx_constants.hpp"
 #include <uhd/cal/container.hpp>
 #include <uhd/cal/dsa_cal.hpp>
@@ -106,26 +104,9 @@ public:
         // const size_t chan,
         : experts::worker_node_t(fe_path / "thinbx_freq_fe_expert")
         , _desired_frequency(db, fe_path / "freq" / "desired")
-        // , _desired_lo1_frequency(
-        //       db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "desired")
-        // , _desired_lo2_frequency(
-        //       db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "desired")
-        // , _lo1_enabled(db, fe_path / ZBX_LO1 / "enabled")
-        // , _lo2_enabled(db, fe_path / ZBX_LO2 / "enabled")
-        // , _desired_if2_frequency(db, fe_path / "if_freq" / "desired")
         , _band_inverted(db, fe_path / "band_inverted")
-        // , _is_highband(db, fe_path / "is_highband")
-        // , _mixer1_m(db, fe_path / "mixer1_m")
-        // , _mixer1_n(db, fe_path / "mixer1_n")
-        // , _mixer2_m(db, fe_path / "mixer2_m")
-        // , _mixer2_n(db, fe_path / "mixer2_n")
-        // , _rf_filter(db, fe_path / "rf" / "filter")
-        // , _if1_filter(db, fe_path / "if1" / "filter")
-        // , _if2_filter(db, fe_path / "if2" / "filter")
         , _rfdc_rate(rfdc_rate)
-        // , _lo_freq_range(_get_quantized_lo_range(lo_step_size))
         , _trx(trx)
-        // , _chan(chan)
         , _rfdc_freq_desired(
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
     {
@@ -134,20 +115,7 @@ public:
 
         //  Outputs
         bind_accessor(_rfdc_freq_desired);
-        // bind_accessor(_desired_lo1_frequency);
-        // bind_accessor(_desired_lo2_frequency);
-        // bind_accessor(_lo1_enabled);
-        // bind_accessor(_lo2_enabled);
-        // bind_accessor(_desired_if2_frequency);
         bind_accessor(_band_inverted);
-        // bind_accessor(_is_highband);
-        // bind_accessor(_mixer1_m);
-        // bind_accessor(_mixer1_n);
-        // bind_accessor(_mixer2_m);
-        // bind_accessor(_mixer2_n);
-        // bind_accessor(_rf_filter);
-        // bind_accessor(_if1_filter);
-        // bind_accessor(_if2_filter);
     }
 
 private:
@@ -159,30 +127,10 @@ private:
     // Outputs
     // From calculation, to LO expert
     uhd::experts::data_writer_t<double> _rfdc_freq_desired;
-    // uhd::experts::data_writer_t<double> _desired_lo1_frequency;
-    // uhd::experts::data_writer_t<double> _desired_lo2_frequency;
-    // uhd::experts::data_writer_t<bool> _lo1_enabled;
-    // uhd::experts::data_writer_t<bool> _lo2_enabled;
-    // // From calculation, to MPM/RPC expert
-    // uhd::experts::data_writer_t<double> _desired_if2_frequency;
     uhd::experts::data_writer_t<bool> _band_inverted;
-    // // From calculation, to Frequency Backend expert
-    // uhd::experts::data_writer_t<bool> _is_highband;
-    // uhd::experts::data_writer_t<int> _mixer1_m;
-    // uhd::experts::data_writer_t<int> _mixer1_n;
-    // uhd::experts::data_writer_t<int> _mixer2_m;
-    // uhd::experts::data_writer_t<int> _mixer2_n;
-    // // From calculation, to CPLD Programming expert
-    // uhd::experts::data_writer_t<int> _rf_filter;
-    // uhd::experts::data_writer_t<int> _if1_filter;
-    // uhd::experts::data_writer_t<int> _if2_filter;
 
     const double _rfdc_rate;
-    // const uhd::freq_range_t _lo_freq_range;
-    // tune_map_item_t _tune_settings;
-    // Channel properties
     const uhd::direction_t _trx;
-    // const size_t _chan;
 };
 
 /*!---------------------------------------------------------
@@ -206,28 +154,10 @@ public:
         : uhd::experts::worker_node_t(fe_path / "thinbx_freq_be_expert")
         , _rfdc_freq_coerced(
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "coerced")
-        // , _coerced_lo1_frequency(
-        //       db, fe_path / "los" / ZBX_LO1 / "freq" / "value" / "coerced")
-        // , _coerced_lo2_frequency(
-        //       db, fe_path / "los" / ZBX_LO2 / "freq" / "value" / "coerced")
-        // , _coerced_if2_frequency(db, fe_path / "if_freq" / "coerced")
-        // , _is_highband(db, fe_path / "is_highband")
-        // , _mixer1_m(db, fe_path / "mixer1_m")
-        // , _mixer1_n(db, fe_path / "mixer1_n")
-        // , _mixer2_m(db, fe_path / "mixer2_m")
-        // , _mixer2_n(db, fe_path / "mixer2_n")
         , _coerced_frequency(db, fe_path / "freq" / "coerced")
     {
         //  Inputs
         bind_accessor(_rfdc_freq_coerced);
-        // bind_accessor(_coerced_lo1_frequency);
-        // bind_accessor(_coerced_lo2_frequency);
-        // bind_accessor(_coerced_if2_frequency);
-        // bind_accessor(_is_highband);
-        // bind_accessor(_mixer1_m);
-        // bind_accessor(_mixer1_n);
-        // bind_accessor(_mixer2_m);
-        // bind_accessor(_mixer2_n);
 
         //  Outputs
         bind_accessor(_coerced_frequency);
@@ -238,69 +168,10 @@ private:
 
     // Inputs from LO expert(s)
     uhd::experts::data_reader_t<double> _rfdc_freq_coerced;
-    // uhd::experts::data_reader_t<double> _coerced_lo1_frequency;
-    // uhd::experts::data_reader_t<double> _coerced_lo2_frequency;
-    // // Input from MPM/RPC expert
-    // uhd::experts::data_reader_t<double> _coerced_if2_frequency;
-    // uhd::experts::data_reader_t<bool> _is_highband;
-    // // Input from Frequency FE
-    // uhd::experts::data_reader_t<int> _mixer1_m;
-    // uhd::experts::data_reader_t<int> _mixer1_n;
-    // uhd::experts::data_reader_t<int> _mixer2_m;
-    // uhd::experts::data_reader_t<int> _mixer2_n;
 
     // Output to user/API
     uhd::experts::data_writer_t<double> _coerced_frequency;
 };
-
-/*!---------------------------------------------------------
- * thinbx_lo_expert
- *
- * This expert is responsible for controlling one LO on the thinbx
- * note: LO source control is handled by the CPLD Programming Expert
- *
- * This should trigger:
- *    - Relevant (tx/rx, channel) Frequency Back-end Expert
- *
- * One instance of this expert is required for each LO (lo1, lo2) per Direction (TX/RX)
- * and Channel (0,1); eight total
- * --------------------------------------------------------
- */
-/*class thinbx_lo_expert : public uhd::experts::worker_node_t
-{
-public:
-    thinbx_lo_expert(const uhd::experts::node_retriever_t& db,
-        const uhd::fs_path fe_path,
-        const std::string lo,
-        std::shared_ptr<thinbx_lo_ctrl> thinbx_lo_ctrl)
-        : uhd::experts::worker_node_t(fe_path / "thinbx_" + lo + "_expert")
-        , _desired_lo_frequency(db, fe_path / "los" / lo / "freq" / "value" / "desired")
-        , _set_is_enabled(db, fe_path / lo / "enabled")
-        , _test_mode_enabled(db, fe_path / lo / "test_mode")
-        , _coerced_lo_frequency(db, fe_path / "los" / lo / "freq" / "value" / "coerced")
-        , _lo_ctrl(thinbx_lo_ctrl)
-    {
-        bind_accessor(_desired_lo_frequency);
-        bind_accessor(_test_mode_enabled);
-        bind_accessor(_set_is_enabled);
-        bind_accessor(_coerced_lo_frequency);
-    }
-
-private:
-    void resolve() override;
-
-    // Inputs from Frequency FE expert or user/API
-    uhd::experts::data_reader_t<double> _desired_lo_frequency;
-    uhd::experts::data_reader_t<bool> _set_is_enabled;
-    // Inputs from user/API
-    uhd::experts::data_reader_t<bool> _test_mode_enabled;
-
-    // Outputs to Frequency BE expert or user/API
-    uhd::experts::data_writer_t<double> _coerced_lo_frequency;
-
-    std::shared_ptr<thinbx_lo_ctrl> _lo_ctrl;
-};
-*/
 
 /*! DSA coercer expert
  *
@@ -457,190 +328,6 @@ private:
 };
 
 /*!---------------------------------------------------------
- * thinbx_tx_programming_expert (TX CPLD Programming Expert)
- *
- * This expert is responsible for programming the ZBX CPLD with parameters determined by
- * user input or other experts This includes antenna setting, gain/dsa steps, lo source
- * control, rf filter settings
- *
- * This expert should not trigger any other experts, these are all blind parameters
- *
- * One instance of this expert is required for each TX Channel (0,1); two total
- * --------------------------------------------------------
- */
-// class thinbx_tx_programming_expert : public uhd::experts::worker_node_t
-// {
-// public:
-//     thinbx_tx_programming_expert(const uhd::experts::node_retriever_t& db,
-//         const uhd::fs_path tx_fe_path,
-//         const uhd::fs_path rx_fe_path, /*needed for shared command time*/
-//         const size_t chan,
-//         uhd::usrp::cal::zbx_tx_dsa_cal::sptr dsa_cal,
-//         std::shared_ptr<thinbx_cpld_ctrl> cpld)
-//         : experts::worker_node_t(tx_fe_path / "thinbx_tx_programming_expert")
-//         , _antenna(db, tx_fe_path / "antenna" / "value")
-//         , _atr_mode(db, tx_fe_path / "atr_mode")
-//         , _profile(db, tx_fe_path / "gains" / "all" / "profile")
-//         , _command_time(db, rx_fe_path / "time" / "cmd")
-//         , _frequency(db, tx_fe_path / "freq" / "coerced")
-//         , _dsa1(db, tx_fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "coerced")
-//         , _dsa2(db, tx_fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "coerced")
-//         , _amp_gain(db, tx_fe_path / "gains" / ZBX_GAIN_STAGE_AMP / "value" /
-//         "coerced") , _rf_filter(db, tx_fe_path / "rf" / "filter") , _if1_filter(db,
-//         tx_fe_path / "if1" / "filter") , _if2_filter(db, tx_fe_path / "if2" / "filter")
-//         , _is_highband(db, tx_fe_path / "is_highband")
-//         , _lo1_source(db, tx_fe_path / "ch" / ZBX_LO1 / "source")
-//         , _lo2_source(db, tx_fe_path / "ch" / ZBX_LO2 / "source")
-//         , _dsa_cal(dsa_cal)
-//         , _cpld(cpld)
-//         , _chan(chan)
-//     {
-//         bind_accessor(_antenna);
-//         bind_accessor(_atr_mode);
-//         bind_accessor(_profile);
-//         bind_accessor(_command_time);
-//         bind_accessor(_frequency);
-//         bind_accessor(_dsa1);
-//         bind_accessor(_dsa2);
-//         bind_accessor(_amp_gain);
-//         bind_accessor(_rf_filter);
-//         bind_accessor(_if1_filter);
-//         bind_accessor(_if2_filter);
-//         bind_accessor(_is_highband);
-//         bind_accessor(_lo1_source);
-//         bind_accessor(_lo2_source);
-//     }
-
-// private:
-//     void resolve() override;
-
-//     // Inputs from user/API
-//     uhd::experts::data_reader_t<std::string> _antenna;
-//     uhd::experts::data_reader_t<thinbx_cpld_ctrl::atr_mode> _atr_mode;
-//     uhd::experts::data_reader_t<std::string> _profile;
-
-//     // Inputs from the Frequency FE expert
-//     // Note: this is just for node dependencies, we want to be notified if just the
-//     tune
-//     // frequency has been changed.
-//     uhd::experts::data_reader_t<time_spec_t> _command_time;
-//     uhd::experts::data_reader_t<double> _frequency;
-
-//     // Inputs from Gain TX expert
-//     uhd::experts::data_reader_t<double> _dsa1;
-//     uhd::experts::data_reader_t<double> _dsa2;
-//     uhd::experts::data_reader_t<double> _amp_gain;
-
-//     // Inputs from Frequency FE expert
-//     uhd::experts::data_reader_t<int> _rf_filter;
-//     uhd::experts::data_reader_t<int> _if1_filter;
-//     uhd::experts::data_reader_t<int> _if2_filter;
-//     uhd::experts::data_reader_t<bool> _is_highband;
-//     // Inputs from LO expert(s)
-//     uhd::experts::data_reader_t<thinbx_lo_source_t> _lo1_source;
-//     uhd::experts::data_reader_t<thinbx_lo_source_t> _lo2_source;
-
-//     uhd::usrp::cal::zbx_tx_dsa_cal::sptr _dsa_cal;
-//     // Expects constructed cpld control objects
-//     std::shared_ptr<thinbx_cpld_ctrl> _cpld;
-//     const size_t _chan;
-// };
-
-/*!---------------------------------------------------------
- * thinbx_rx_programming_expert (RX CPLD Programming Expert)
- *
- * This expert is responsible for programming the ZBX CPLD with parameters determined by
- * user input or other experts.
- * This includes antenna setting, gain/dsa steps, lo source control, rf filter settings
- *
- * This expert should not trigger any other experts, these are all blind parameters
- *
- * One instance of this expert is required for each RX Channel (0,1); two total
- * --------------------------------------------------------
- */
-// class thinbx_rx_programming_expert : public uhd::experts::worker_node_t
-// {
-// public:
-//     thinbx_rx_programming_expert(const uhd::experts::node_retriever_t& db,
-//         const uhd::fs_path fe_path,
-//         const size_t chan,
-//         uhd::usrp::cal::zbx_rx_dsa_cal::sptr dsa_cal,
-//         std::shared_ptr<thinbx_cpld_ctrl> cpld)
-//         : experts::worker_node_t(fe_path / "thinbx_rx_programming_expert")
-//         , _antenna(db, fe_path / "antenna" / "value")
-//         , _atr_mode(db, fe_path / "atr_mode")
-//         , _profile(db, fe_path / "gains" / "all" / "profile")
-//         , _command_time(db, fe_path / "time" / "cmd")
-//         , _frequency(db, fe_path / "freq" / "coerced")
-//         , _dsa1(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "coerced")
-//         , _dsa2(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "coerced")
-//         , _dsa3a(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3A / "value" / "coerced")
-//         , _dsa3b(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3B / "value" / "coerced")
-//         , _rf_filter(db, fe_path / "rf" / "filter")
-//         , _if1_filter(db, fe_path / "if1" / "filter")
-//         , _if2_filter(db, fe_path / "if2" / "filter")
-//         , _is_highband(db, fe_path / "is_highband")
-//         , _lo1_source(db, fe_path / "ch" / ZBX_LO1 / "source")
-//         , _lo2_source(db, fe_path / "ch" / ZBX_LO2 / "source")
-//         , _dsa_cal(dsa_cal)
-//         , _cpld(cpld)
-//         , _chan(chan)
-//     {
-//         bind_accessor(_antenna);
-//         bind_accessor(_atr_mode);
-//         bind_accessor(_profile);
-//         bind_accessor(_command_time);
-//         bind_accessor(_frequency);
-//         bind_accessor(_dsa1);
-//         bind_accessor(_dsa2);
-//         bind_accessor(_dsa3a);
-//         bind_accessor(_dsa3b);
-//         bind_accessor(_rf_filter);
-//         bind_accessor(_if1_filter);
-//         bind_accessor(_if2_filter);
-//         bind_accessor(_is_highband);
-//         bind_accessor(_lo1_source);
-//         bind_accessor(_lo2_source);
-//     }
-
-// private:
-//     void resolve() override;
-//     void _update_leds();
-
-//     // Inputs from user/API
-//     uhd::experts::data_reader_t<std::string> _antenna;
-//     uhd::experts::data_reader_t<thinbx_cpld_ctrl::atr_mode> _atr_mode;
-//     uhd::experts::data_reader_t<std::string> _profile;
-
-//     // Inputs from the Frequency FE expert
-//     // Note: this is just for node dependencies, we want to be notified if just the
-//     tune
-//     // frequency has been changed.
-//     uhd::experts::data_reader_t<time_spec_t> _command_time;
-//     uhd::experts::data_reader_t<double> _frequency;
-
-//     // Inputs from Gain expert
-//     uhd::experts::data_reader_t<double> _dsa1;
-//     uhd::experts::data_reader_t<double> _dsa2;
-//     uhd::experts::data_reader_t<double> _dsa3a;
-//     uhd::experts::data_reader_t<double> _dsa3b;
-
-//     // Inputs from Frequency FE expert
-//     uhd::experts::data_reader_t<int> _rf_filter;
-//     uhd::experts::data_reader_t<int> _if1_filter;
-//     uhd::experts::data_reader_t<int> _if2_filter;
-//     uhd::experts::data_reader_t<bool> _is_highband;
-//     // Inputs from LO expert(s)
-//     uhd::experts::data_reader_t<thinbx_lo_source_t> _lo1_source;
-//     uhd::experts::data_reader_t<thinbx_lo_source_t> _lo2_source;
-
-//     uhd::usrp::cal::zbx_rx_dsa_cal::sptr _dsa_cal;
-//     // Expects constructed cpld control objects
-//     std::shared_ptr<thinbx_cpld_ctrl> _cpld;
-//     const size_t _chan;
-// };
-
-/*!---------------------------------------------------------
  * thinbx_band_inversion_expert
  *
  * This expert is responsible for handling the band inversion calls to MPM on the target
@@ -707,8 +394,6 @@ public:
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
         , _rfdc_freq_coerced(
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "coerced")
-        // , _if2_frequency_desired(db, fe_path / "if_freq" / "desired")
-        // , _if2_frequency_coerced(db, fe_path / "if_freq" / "coerced")
         , _rpc_prefix(rpc_prefix)
         , _db_idx(db_idx)
         , _rpcc(rpcc)
@@ -717,8 +402,6 @@ public:
     {
         bind_accessor(_rfdc_freq_desired);
         bind_accessor(_rfdc_freq_coerced);
-        // bind_accessor(_if2_frequency_desired);
-        // bind_accessor(_if2_frequency_coerced);
     }
 
 private:
@@ -729,14 +412,6 @@ private:
 
     // Outputs to user/API
     uhd::experts::data_writer_t<double> _rfdc_freq_coerced;
-
-
-    // // Inputs from Frequency FE expert
-    // uhd::experts::data_reader_t<double> _if2_frequency_desired;
-
-    // // Outputs to Frequency BE expert
-    // uhd::experts::data_writer_t<double> _if2_frequency_coerced;
-
 
     const std::string _rpc_prefix;
     const size_t _db_idx;
@@ -766,31 +441,6 @@ public:
         // std::shared_ptr<thinbx_cpld_ctrl> cpld)
         : uhd::experts::worker_node_t("thinbx_sync_expert")
         , _fe_time{{db, rx_fe_path / 0 / "time/fe"}, {db, rx_fe_path / 1 / "time/fe"}}
-        // , _lo_freqs{{thinbx_lo_t::RX0_LO1,
-        //                 {db,
-        //                     rx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value"
-        //                         / "coerced"}},
-        //       {thinbx_lo_t::RX0_LO2,
-        //           {db, rx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::TX0_LO1,
-        //           {db, tx_fe_path / 0 / "los" / ZBX_LO1 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::TX0_LO2,
-        //           {db, tx_fe_path / 0 / "los" / ZBX_LO2 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::RX1_LO1,
-        //           {db, rx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::RX1_LO2,
-        //           {db, rx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::TX1_LO1,
-        //           {db, tx_fe_path / 1 / "los" / ZBX_LO1 / "freq" / "value" /
-        //           "coerced"}},
-        //       {thinbx_lo_t::TX1_LO2,
-        //           {db, tx_fe_path / 1 / "los" / ZBX_LO2 / "freq" / "value" /
-        //           "coerced"}}}
         , _nco_freqs{{rfdc_control::rfdc_type::RX0,
                          {db, rx_fe_path / 0 / "if_freq" / "coerced"}},
               {rfdc_control::rfdc_type::RX1,
@@ -801,14 +451,10 @@ public:
                   {db, tx_fe_path / 1 / "los" / RFDC_NCO / "freq" / "value" / "coerced"}}}
 
         , _rfdcc(rfdcc)
-    // , _cpld(cpld)
     {
         for (auto& fe_time : _fe_time) {
             bind_accessor(fe_time);
         }
-        // for (auto& lo_freq : _lo_freqs) {
-        //     bind_accessor(lo_freq.second);
-        // }
         for (auto& nco_freq : _nco_freqs) {
             bind_accessor(nco_freq.second);
         }
@@ -820,8 +466,6 @@ private:
     // Inputs from user/API
     // Command time: We have 2 channels, one time spec per channel
     std::vector<uhd::experts::data_reader_t<time_spec_t>> _fe_time;
-    // We have 8 LOs:
-    // std::map<thinbx_lo_t, uhd::experts::data_reader_t<double>> _lo_freqs;
     // We have 4 NCOs
     std::map<rfdc_control::rfdc_type, uhd::experts::data_reader_t<double>> _nco_freqs;
 
@@ -829,7 +473,6 @@ private:
 
     // Attributes
     rfdc_control::sptr _rfdcc;
-    // std::shared_ptr<thinbx_cpld_ctrl> _cpld;
     //! Store the sync state of the ADC gearboxes. If false, we assume they're
     // out of sync. This could also be a vector of booleans if we want to be
     // able to sync ADC gearboxes individually.

@@ -8,9 +8,7 @@
 #pragma once
 
 #include "thinbx_constants.hpp"
-// #include "thinbx_cpld_ctrl.hpp"
 #include "thinbx_expert.hpp"
-// #include "thinbx_lo_ctrl.hpp"
 #include <uhd/cal/dsa_cal.hpp>
 #include <uhd/property_tree.hpp>
 #include <uhd/rfnoc/register_iface.hpp>
@@ -329,9 +327,6 @@ private:
     //! Get subtree path for a given direction/channel
     fs_path _get_frontend_path(const direction_t dir, const size_t chan_idx) const;
 
-    // Get all los "lock status", per enabled && locked individual LOs
-    // bool _get_all_los_locked(const direction_t dir, const size_t chan);
-
     const std::string _unique_id;
     std::string get_unique_id() const;
 
@@ -375,12 +370,6 @@ private:
 
     //! Reference to the RFDC controller
     uhd::rfnoc::x400::rfdc_control::sptr _rfdcc;
-
-    //! Reference to the CPLD controls
-    // std::shared_ptr<thinbx_cpld_ctrl> _cpld;
-
-    //! Reference to all LO controls
-    // std::map<thinbx_lo_t, std::shared_ptr<thinbx_lo_ctrl>> _lo_ctrl_map;
 
     //! Reference to the TX Cal data
     std::shared_ptr<uhd::usrp::cal::zbx_tx_dsa_cal> _tx_dsa_cal;
