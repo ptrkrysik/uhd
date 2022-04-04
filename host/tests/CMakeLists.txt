@@ -382,6 +382,11 @@ UHD_ADD_RFNOC_BLOCK_TEST(
     ${UHD_SOURCE_DIR}/lib/usrp/dboard/zbx/zbx_lo_ctrl.cpp
     ${UHD_SOURCE_DIR}/lib/usrp/dboard/zbx/zbx_cpld_ctrl.cpp
     ${UHD_SOURCE_DIR}/lib/usrp/dboard/zbx/zbx_expert.cpp
+    ${UHD_SOURCE_DIR}/lib/usrp/dboard/thinbx/thinbx_dboard.cpp
+    ${UHD_SOURCE_DIR}/lib/usrp/dboard/thinbx/thinbx_dboard_init.cpp
+    ${UHD_SOURCE_DIR}/lib/usrp/dboard/thinbx/thinbx_lo_ctrl.cpp
+    ${UHD_SOURCE_DIR}/lib/usrp/dboard/thinbx/thinbx_cpld_ctrl.cpp
+    ${UHD_SOURCE_DIR}/lib/usrp/dboard/thinbx/thinbx_expert.cpp
     ${UHD_SOURCE_DIR}/lib/utils/compat_check.cpp
     ${UHD_SOURCE_DIR}/lib/features/discoverable_feature_registry.cpp
     ${UHD_SOURCE_DIR}/lib/usrp/cores/gpio_atr_3000.cpp
