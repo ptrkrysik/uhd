@@ -8,7 +8,7 @@
 #include <uhd/utils/assert_has.hpp>
 #include <uhd/utils/log.hpp>
 #include <uhd/utils/math.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_expert.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_expert.hpp>
 #include <uhdlib/utils/interpolation.hpp>
 #include <uhdlib/utils/narrow.hpp>
 #include <algorithm>
@@ -16,7 +16,7 @@
 
 using namespace uhd;
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 namespace {
 
@@ -137,14 +137,14 @@ double _calc_ideal_if2_freq(const double tune_freq, const tune_map_item_t tune_s
  * or changing value
  * --------------------------------------------------------
  */
-void zbx_scheduling_expert::resolve()
+void thinbx_scheduling_expert::resolve()
 {
     // We currently have no fancy scheduling, but here is where we'd add it if
     // we need to do that (e.g., plan out SYNC pulse timing vs. NCO timing etc.)
     _frontend_time = _command_time;
 }
 
-void zbx_freq_fe_expert::resolve()
+void thinbx_freq_fe_expert::resolve()
 {
     const double tune_freq = ZBX_FREQ_RANGE.clip(_desired_frequency);
     // _tune_settings         = _get_tune_settings(tune_freq, _trx);
@@ -162,7 +162,7 @@ void zbx_freq_fe_expert::resolve()
     // double if1_freq      = tune_freq;
     // const double lo_step = _lo_freq_range.step();
     // If we need to apply an offset to avoid injection locking, we need to
-    // offset in different directions for different channels on the same zbx
+    // offset in different directions for different channels on the same thinbx
     // const double lo_offset_sign = (_chan == 0) ? -1 : 1;
     // In high band, LO1 is not needed (the signal is already at a high enough
     // frequency for the second stage)
@@ -216,7 +216,7 @@ void zbx_freq_fe_expert::resolve()
 }
 
 
-void zbx_freq_be_expert::resolve()
+void thinbx_freq_be_expert::resolve()
 {
     _coerced_frequency = _rfdc_freq_coerced;
     // if (_is_highband) {
@@ -243,7 +243,7 @@ void zbx_freq_be_expert::resolve()
     }
 }
 
-void zbx_lo_expert::resolve()
+void thinbx_lo_expert::resolve()
 {
     if (_test_mode_enabled.is_dirty()) {
         _lo_ctrl->set_lo_test_mode_enabled(_test_mode_enabled);
@@ -260,12 +260,12 @@ void zbx_lo_expert::resolve()
     }
 }
 
-void zbx_gain_coercer_expert::resolve()
+void thinbx_gain_coercer_expert::resolve()
 {
     _gain_coerced = _valid_range.clip(_gain_desired, true);
 }
 
-void zbx_tx_gain_expert::resolve()
+void thinbx_tx_gain_expert::resolve()
 {
     if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
         return;
@@ -291,7 +291,7 @@ void zbx_tx_gain_expert::resolve()
     _amp_gain = ZBX_TX_AMP_GAIN_MAP.at(static_cast<tx_amp>(dsa_settings[2]));
 }
 
-void zbx_rx_gain_expert::resolve()
+void thinbx_rx_gain_expert::resolve()
 {
     if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
         return;
@@ -322,18 +322,18 @@ void zbx_rx_gain_expert::resolve()
     _dsa3b = ZBX_RX_DSA_MAX_ATT - dsa_settings[3];
 }
 
-void zbx_tx_programming_expert::resolve()
+void thinbx_tx_programming_expert::resolve()
 {
     if (_profile.is_dirty()) {
         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
             || _profile == ZBX_GAIN_PROFILE_CPLD) {
             _cpld->set_atr_mode(_chan,
-                zbx_cpld_ctrl::atr_mode_target::DSA,
-                zbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+                thinbx_cpld_ctrl::atr_mode_target::DSA,
+                thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
         } else {
             _cpld->set_atr_mode(_chan,
-                zbx_cpld_ctrl::atr_mode_target::DSA,
-                zbx_cpld_ctrl::atr_mode::SW_DEFINED);
+                thinbx_cpld_ctrl::atr_mode_target::DSA,
+                thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
         }
     }
 
@@ -345,7 +345,7 @@ void zbx_tx_programming_expert::resolve()
     // values if the cached version and the actual value on the CPLD differ.
     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
         // Convert gains back to attenuation
-        zbx_cpld_ctrl::tx_dsa_type dsa_settings = {
+        thinbx_cpld_ctrl::tx_dsa_type dsa_settings = {
             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa1.get()),
             uhd::narrow_cast<uint32_t>(ZBX_TX_DSA_MAX_ATT - _dsa2.get())};
         _cpld->set_tx_gain_switches(_chan, ATR_ADDR_TX, dsa_settings);
@@ -370,10 +370,10 @@ void zbx_tx_programming_expert::resolve()
 
     for (const size_t idx : ATR_ADDRS) {
         _cpld->set_lo_source(idx,
-            zbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO1),
+            thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO1),
             _lo1_source);
         _cpld->set_lo_source(idx,
-            zbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO2),
+            thinbx_lo_ctrl::lo_string_to_enum(TX_DIRECTION, _chan, ZBX_LO2),
             _lo2_source);
 
         _cpld->set_tx_rf_filter(_chan, idx, _rf_filter);
@@ -392,18 +392,18 @@ void zbx_tx_programming_expert::resolve()
     // We do not update LEDs on switching TX antenna value by definition
 }
 
-void zbx_rx_programming_expert::resolve()
+void thinbx_rx_programming_expert::resolve()
 {
     if (_profile.is_dirty()) {
         if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL
             || _profile == ZBX_GAIN_PROFILE_CPLD) {
             _cpld->set_atr_mode(_chan,
-                zbx_cpld_ctrl::atr_mode_target::DSA,
-                zbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+                thinbx_cpld_ctrl::atr_mode_target::DSA,
+                thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
         } else {
             _cpld->set_atr_mode(_chan,
-                zbx_cpld_ctrl::atr_mode_target::DSA,
-                zbx_cpld_ctrl::atr_mode::SW_DEFINED);
+                thinbx_cpld_ctrl::atr_mode_target::DSA,
+                thinbx_cpld_ctrl::atr_mode::SW_DEFINED);
         }
     }
 
@@ -414,7 +414,7 @@ void zbx_rx_programming_expert::resolve()
     // from the input data nodes to this worker node. This can overwrite DSA
     // values if the cached version and the actual value on the CPLD differ.
     if (_profile == ZBX_GAIN_PROFILE_DEFAULT || _profile == ZBX_GAIN_PROFILE_MANUAL) {
-        zbx_cpld_ctrl::rx_dsa_type dsa_settings = {
+        thinbx_cpld_ctrl::rx_dsa_type dsa_settings = {
             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa1.get()),
             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa2.get()),
             uhd::narrow_cast<uint32_t>(ZBX_RX_DSA_MAX_ATT - _dsa3a.get()),
@@ -444,10 +444,10 @@ void zbx_rx_programming_expert::resolve()
 
     for (const size_t idx : ATR_ADDRS) {
         _cpld->set_lo_source(idx,
-            zbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO1),
+            thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO1),
             _lo1_source);
         _cpld->set_lo_source(idx,
-            zbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO2),
+            thinbx_lo_ctrl::lo_string_to_enum(RX_DIRECTION, _chan, ZBX_LO2),
             _lo2_source);
 
         // If using the TX/RX terminal, only configure the ATR RX state since the
@@ -464,9 +464,9 @@ void zbx_rx_programming_expert::resolve()
     _update_leds();
 }
 
-void zbx_rx_programming_expert::_update_leds()
+void thinbx_rx_programming_expert::_update_leds()
 {
-    if (_atr_mode != zbx_cpld_ctrl::atr_mode::CLASSIC_ATR) {
+    if (_atr_mode != thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR) {
         return;
     }
     // We default to the RX1 LED for all RX antenna values that are not TX/RX0
@@ -480,12 +480,12 @@ void zbx_rx_programming_expert::_update_leds()
     // clang-format on
 }
 
-void zbx_band_inversion_expert::resolve()
+void thinbx_band_inversion_expert::resolve()
 {
     _rpcc->enable_iq_swap(_is_band_inverted.get(), _get_trx_string(_trx), _chan);
 }
 
-void zbx_rfdc_freq_expert::resolve()
+void thinbx_rfdc_freq_expert::resolve()
 {
     // Because we can configure both IF2 and the RFDC NCO frequency, these may
     // come into conflict. We choose IF2 over RFDC in that case. In other words
@@ -502,20 +502,20 @@ void zbx_rfdc_freq_expert::resolve()
         _get_trx_string(_trx), _db_idx, _chan, _rfdc_freq_desired);
 }
 
-void zbx_sync_expert::resolve()
+void thinbx_sync_expert::resolve()
 {
     // Some local helper consts
     // clang-format off
-    // constexpr std::array<std::array<zbx_lo_t, 4>, 2> los{{{
-    //     zbx_lo_t::RX0_LO1,
-    //     zbx_lo_t::RX0_LO2,
-    //     zbx_lo_t::TX0_LO1,
-    //     zbx_lo_t::TX0_LO2
+    // constexpr std::array<std::array<thinbx_lo_t, 4>, 2> los{{{
+    //     thinbx_lo_t::RX0_LO1,
+    //     thinbx_lo_t::RX0_LO2,
+    //     thinbx_lo_t::TX0_LO1,
+    //     thinbx_lo_t::TX0_LO2
     // }, {
-    //     zbx_lo_t::RX1_LO1,
-    //     zbx_lo_t::RX1_LO2,
-    //     zbx_lo_t::TX1_LO1,
-    //     zbx_lo_t::TX1_LO2
+    //     thinbx_lo_t::RX1_LO1,
+    //     thinbx_lo_t::RX1_LO2,
+    //     thinbx_lo_t::TX1_LO1,
+    //     thinbx_lo_t::TX1_LO2
     // }}};
     
     constexpr std::array<std::array<rfdc_control::rfdc_type, 2>, 2> ncos{{
@@ -536,7 +536,7 @@ void zbx_sync_expert::resolve()
 
     // ** Find LOs to synchronize *********************************************
     // Find dirty LOs which need sync'ing
-    // std::set<zbx_lo_t> los_to_sync;
+    // std::set<thinbx_lo_t> los_to_sync;
     // for (const size_t chan : ZBX_CHANNELS) {
     //     if (chan_needs_sync[chan]) {
     //         for (const auto& lo_idx : los[chan]) {
@@ -614,7 +614,7 @@ void zbx_sync_expert::resolve()
         }
         // if (!los_to_sync.empty()) {
         //     _cpld->pulse_lo_sync(
-        //         0, std::vector<zbx_lo_t>(los_to_sync.cbegin(), los_to_sync.cend()));
+        //         0, std::vector<thinbx_lo_t>(los_to_sync.cbegin(), los_to_sync.cend()));
         // }
         if (!ncos_to_sync.empty()) {
             _rfdcc->reset_ncos(std::vector<rfdc_control::rfdc_type>(
@@ -629,8 +629,8 @@ void zbx_sync_expert::resolve()
         const auto sync_order = (first_sync_chan == 0) ? std::vector<size_t>{0, 1}
                                                        : std::vector<size_t>{1, 0};
         for (const size_t chan : sync_order) {
-            std::vector<zbx_lo_t> this_chan_los;
-            // for (const zbx_lo_t lo_idx : los[chan]) {
+            std::vector<thinbx_lo_t> this_chan_los;
+            // for (const thinbx_lo_t lo_idx : los[chan]) {
             //     if (los_to_sync.count(lo_idx)) {
             //         this_chan_los.push_back(lo_idx);
             //     }
@@ -665,8 +665,8 @@ void zbx_sync_expert::resolve()
             }
         }
     }
-} // zbx_sync_expert::resolve()
+} // thinbx_sync_expert::resolve()
 
 // End expert resolve sections
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

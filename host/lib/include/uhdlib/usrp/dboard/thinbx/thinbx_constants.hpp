@@ -15,11 +15,11 @@
 #include <string>
 #include <vector>
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 //! Which LO to address when peeking/poking
 //  This must match the LO_SELECT values in gen_zbx_cpld_regs.py
-enum class zbx_lo_t {
+enum class thinbx_lo_t {
     TX0_LO1 = 0,
     TX0_LO2 = 1,
     TX1_LO1 = 2,
@@ -30,34 +30,34 @@ enum class zbx_lo_t {
     RX1_LO2 = 7
 };
 
-static const std::map<zbx_lo_t, std::string> ZBX_LO_LOG_ID = {
-    {zbx_lo_t::TX0_LO1, "ZBX TX0 LO1"},
-    {zbx_lo_t::TX0_LO2, "ZBX TX0 LO2"},
-    {zbx_lo_t::TX1_LO1, "ZBX TX1 LO1"},
-    {zbx_lo_t::TX1_LO2, "ZBX TX1 LO2"},
-    {zbx_lo_t::RX0_LO1, "ZBX RX0 LO1"},
-    {zbx_lo_t::RX0_LO2, "ZBX RX0 LO2"},
-    {zbx_lo_t::RX1_LO1, "ZBX RX1 LO1"},
-    {zbx_lo_t::RX1_LO2, "ZBX RX1 LO2"}};
+static const std::map<thinbx_lo_t, std::string> ZBX_LO_LOG_ID = {
+    {thinbx_lo_t::TX0_LO1, "ZBX TX0 LO1"},
+    {thinbx_lo_t::TX0_LO2, "ZBX TX0 LO2"},
+    {thinbx_lo_t::TX1_LO1, "ZBX TX1 LO1"},
+    {thinbx_lo_t::TX1_LO2, "ZBX TX1 LO2"},
+    {thinbx_lo_t::RX0_LO1, "ZBX RX0 LO1"},
+    {thinbx_lo_t::RX0_LO2, "ZBX RX0 LO2"},
+    {thinbx_lo_t::RX1_LO1, "ZBX RX1 LO1"},
+    {thinbx_lo_t::RX1_LO2, "ZBX RX1 LO2"}};
 
-static constexpr std::array<zbx_lo_t, 8> ZBX_ALL_LO = {zbx_lo_t::TX0_LO1,
-    zbx_lo_t::TX0_LO2,
-    zbx_lo_t::TX1_LO1,
-    zbx_lo_t::TX1_LO2,
-    zbx_lo_t::RX0_LO1,
-    zbx_lo_t::RX0_LO2,
-    zbx_lo_t::RX1_LO1,
-    zbx_lo_t::RX1_LO2};
+static constexpr std::array<thinbx_lo_t, 8> ZBX_ALL_LO = {thinbx_lo_t::TX0_LO1,
+    thinbx_lo_t::TX0_LO2,
+    thinbx_lo_t::TX1_LO1,
+    thinbx_lo_t::TX1_LO2,
+    thinbx_lo_t::RX0_LO1,
+    thinbx_lo_t::RX0_LO2,
+    thinbx_lo_t::RX1_LO1,
+    thinbx_lo_t::RX1_LO2};
 
 
 /******************************************************************************
  * Important: When changing values here, check if that also requires updating
- * the manual (host/docs/zbx.dox). If it also requires changing the website or
+ * the manual (host/docs/thinbx.dox). If it also requires changing the website or
  * other sales/marketing material, make sure to let the appropriate people know!
  *****************************************************************************/
 
-enum class zbx_lo_source_t { internal, external };
-static constexpr zbx_lo_source_t ZBX_DEFAULT_LO_SOURCE = zbx_lo_source_t::internal;
+enum class thinbx_lo_source_t { internal, external };
+static constexpr thinbx_lo_source_t ZBX_DEFAULT_LO_SOURCE = thinbx_lo_source_t::internal;
 
 // The ZBX has a non-configurable analog bandwidth of 400 MHz. At lower frequency,
 // the usable bandwidth may be smaller though. For those smaller bandwidths, see
@@ -184,7 +184,7 @@ static constexpr std::array<size_t, 2> ZBX_CHANNELS{0, 1};
 
 static constexpr double ZBX_MIX1_MN_THRESHOLD = 4e9;
 
-// Struct for holding band information, used by zbx_radio_control_impl.
+// Struct for holding band information, used by thinbx_radio_control_impl.
 // This information should be selected base on requested tune frequency, and should not be
 // changed once initialized.
 struct tune_map_item_t
@@ -261,12 +261,12 @@ static const std::vector<tune_map_item_t> tx_tune_map = {
 // Turn clang-format back on just for posterity
 // clang-format on
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx
 
 
-namespace uhd { namespace usrp { namespace zbx {
-// << Operator overload for expert's node printing (zbx_lo_source_t property)
+namespace uhd { namespace usrp { namespace thinbx {
+// << Operator overload for expert's node printing (thinbx_lo_source_t property)
 // Any added expert nodes of type enum class will have to define this
 std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::zbx::zbx_lo_source_t& lo_source);
-}}} // namespace uhd::usrp::zbx
+    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_lo_source_t& lo_source);
+}}} // namespace uhd::usrp::thinbx

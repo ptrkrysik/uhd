@@ -10,17 +10,17 @@
 #include <uhd/utils/assert_has.hpp>
 #include <uhd/utils/log.hpp>
 #include <uhd/utils/math.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_dboard.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_dboard.hpp>
 #include <uhdlib/utils/narrow.hpp>
 #include <cstdlib>
 #include <sstream>
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 /******************************************************************************
  * Structors
  *****************************************************************************/
-zbx_dboard_impl::zbx_dboard_impl(register_iface& reg_iface,
+thinbx_dboard_impl::thinbx_dboard_impl(register_iface& reg_iface,
     const size_t reg_base_address,
     time_accessor_fn_type&& time_accessor,
     const size_t db_idx,
@@ -45,7 +45,7 @@ zbx_dboard_impl::zbx_dboard_impl(register_iface& reg_iface,
     , _rfdc_rate(_rpcc->get_dboard_sample_rate())
     , _prc_rate(_rpcc->get_dboard_prc_rate())
 {
-    RFNOC_LOG_TRACE("Entering zbx_dboard_impl ctor...");
+    RFNOC_LOG_TRACE("Entering thinbx_dboard_impl ctor...");
     RFNOC_LOG_TRACE("Radio slot: " << _radio_slot);
 
     // _tx_gain_profile_api = std::make_shared<rf_control::enumerated_gain_profile>(
@@ -54,7 +54,7 @@ zbx_dboard_impl::zbx_dboard_impl(register_iface& reg_iface,
     //     ZBX_GAIN_PROFILES, ZBX_GAIN_PROFILE_DEFAULT, ZBX_NUM_CHANS);
 
     _expert_container =
-        uhd::experts::expert_factory::create_container("zbx_radio_" + _radio_slot);
+        uhd::experts::expert_factory::create_container("thinbx_radio_" + _radio_slot);
     // _init_cpld();
     // _init_peripherals();
     // Prop tree requires the initialization of certain peripherals
@@ -64,17 +64,17 @@ zbx_dboard_impl::zbx_dboard_impl(register_iface& reg_iface,
     // _expert_container->debug_audit();
 }
 
-zbx_dboard_impl::~zbx_dboard_impl()
+thinbx_dboard_impl::~thinbx_dboard_impl()
 {
-    RFNOC_LOG_TRACE("zbx_dboard::dtor() ");
+    RFNOC_LOG_TRACE("thinbx_dboard::dtor() ");
 }
 
-void zbx_dboard_impl::deinit()
+void thinbx_dboard_impl::deinit()
 {
     _wb_ifaces.clear();
 }
 
-void zbx_dboard_impl::set_command_time(uhd::time_spec_t time, const size_t chan)
+void thinbx_dboard_impl::set_command_time(uhd::time_spec_t time, const size_t chan)
 {
     // When the command time gets updated, import it into the expert graph
     get_tree()
@@ -82,7 +82,7 @@ void zbx_dboard_impl::set_command_time(uhd::time_spec_t time, const size_t chan)
         .set(time);
 }
 
-std::string zbx_dboard_impl::get_unique_id() const
+std::string thinbx_dboard_impl::get_unique_id() const
 {
     return _unique_id;
 }
@@ -91,7 +91,7 @@ std::string zbx_dboard_impl::get_unique_id() const
 /******************************************************************************
  * API Calls
  *****************************************************************************/
-void zbx_dboard_impl::set_tx_antenna(const std::string& ant, const size_t chan)
+void thinbx_dboard_impl::set_tx_antenna(const std::string& ant, const size_t chan)
 {
     RFNOC_LOG_TRACE("Setting TX antenna to " << ant << " for chan " << chan);
     if (!TX_ANTENNA_NAME_COMPAT_MAP.count(ant)) {
@@ -102,7 +102,7 @@ void zbx_dboard_impl::set_tx_antenna(const std::string& ant, const size_t chan)
     _tree->access<std::string>(fe_path / "antenna" / "value").set(ant);
 }
 
-void zbx_dboard_impl::set_rx_antenna(const std::string& ant, const size_t chan)
+void thinbx_dboard_impl::set_rx_antenna(const std::string& ant, const size_t chan)
 {
     RFNOC_LOG_TRACE("Setting RX antenna to " << ant << " for chan " << chan);
     if (!RX_ANTENNA_NAME_COMPAT_MAP.count(ant)) {
@@ -114,7 +114,7 @@ void zbx_dboard_impl::set_rx_antenna(const std::string& ant, const size_t chan)
     _tree->access<std::string>(fe_path / "antenna" / "value").set(ant);
 }
 
-double zbx_dboard_impl::set_tx_frequency(const double req_freq, const size_t chan)
+double thinbx_dboard_impl::set_tx_frequency(const double req_freq, const size_t chan)
 {
     const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
 
@@ -129,7 +129,7 @@ double zbx_dboard_impl::set_tx_frequency(const double req_freq, const size_t cha
     return _tree->access<double>(fe_path / "freq").get();
 }
 
-double zbx_dboard_impl::set_rx_frequency(const double req_freq, const size_t chan)
+double thinbx_dboard_impl::set_rx_frequency(const double req_freq, const size_t chan)
 {
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
 
@@ -143,7 +143,7 @@ double zbx_dboard_impl::set_rx_frequency(const double req_freq, const size_t cha
     return _tree->access<double>(fe_path / "freq").get();
 }
 
-double zbx_dboard_impl::set_tx_bandwidth(const double bandwidth, const size_t chan)
+double thinbx_dboard_impl::set_tx_bandwidth(const double bandwidth, const size_t chan)
 {
     const double bw = get_tx_bandwidth(chan);
     if (!uhd::math::frequencies_are_equal(bandwidth, bw)) {
@@ -152,14 +152,14 @@ double zbx_dboard_impl::set_tx_bandwidth(const double bandwidth, const size_t ch
     return bw;
 }
 
-double zbx_dboard_impl::get_tx_bandwidth(size_t chan)
+double thinbx_dboard_impl::get_tx_bandwidth(size_t chan)
 {
     return _tree
         ->access<double>(_get_frontend_path(TX_DIRECTION, chan) / "bandwidth/value")
         .get();
 }
 
-double zbx_dboard_impl::set_rx_bandwidth(const double bandwidth, const size_t chan)
+double thinbx_dboard_impl::set_rx_bandwidth(const double bandwidth, const size_t chan)
 {
     const double bw = get_rx_bandwidth(chan);
     if (!uhd::math::frequencies_are_equal(bandwidth, bw)) {
@@ -168,14 +168,14 @@ double zbx_dboard_impl::set_rx_bandwidth(const double bandwidth, const size_t ch
     return bw;
 }
 
-double zbx_dboard_impl::get_rx_bandwidth(size_t chan)
+double thinbx_dboard_impl::get_rx_bandwidth(size_t chan)
 {
     return _tree
         ->access<double>(_get_frontend_path(RX_DIRECTION, chan) / "bandwidth/value")
         .get();
 }
 
-double zbx_dboard_impl::set_tx_gain(
+double thinbx_dboard_impl::set_tx_gain(
     const double gain, const std::string& name_, const size_t chan)
 {
     // // We have to accept the empty string for "all", because that's widely used
@@ -204,7 +204,7 @@ double zbx_dboard_impl::set_tx_gain(
     //     static const uhd::meta_range_t table_range(0, 255, 1);
     //     const uint8_t table_idx = uhd::narrow<uint8_t>(table_range.clip(gain, true));
     //     if (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
-    //         _cpld->set_sw_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
+    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
     //         return static_cast<double>(table_idx);
     //     }
     //     if (gain_profile == ZBX_GAIN_PROFILE_MANUAL
@@ -227,7 +227,7 @@ double zbx_dboard_impl::set_tx_gain(
     return 0;
 }
 
-double zbx_dboard_impl::set_rx_gain(
+double thinbx_dboard_impl::set_rx_gain(
     const double gain, const std::string& name_, const size_t chan)
 {
     // // We have to accept the empty string for "all", because that's widely used
@@ -258,7 +258,7 @@ double zbx_dboard_impl::set_rx_gain(
     //     static const uhd::meta_range_t table_range(0, 255, 1);
     //     const uint8_t table_idx = uhd::narrow<uint8_t>(table_range.clip(gain, true));
     //     if (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
-    //         _cpld->set_sw_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
+    //         _cpld->set_sw_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA, table_idx);
     //         return static_cast<double>(table_idx);
     //     }
     //     if (gain_profile == ZBX_GAIN_PROFILE_MANUAL
@@ -279,7 +279,7 @@ double zbx_dboard_impl::set_rx_gain(
     return 0;
 }
 
-double zbx_dboard_impl::set_tx_gain(const double gain, const size_t chan)
+double thinbx_dboard_impl::set_tx_gain(const double gain, const size_t chan)
 {
     // const auto gain_profile = _tx_gain_profile_api->get_gain_profile(chan);
     // if (gain_profile == ZBX_GAIN_PROFILE_MANUAL) {
@@ -297,7 +297,7 @@ double zbx_dboard_impl::set_tx_gain(const double gain, const size_t chan)
     return 0;
 }
 
-double zbx_dboard_impl::set_rx_gain(const double gain, const size_t chan)
+double thinbx_dboard_impl::set_rx_gain(const double gain, const size_t chan)
 {
     // const auto gain_profile = _rx_gain_profile_api->get_gain_profile(chan);
     // if (gain_profile == ZBX_GAIN_PROFILE_MANUAL) {
@@ -315,7 +315,7 @@ double zbx_dboard_impl::set_rx_gain(const double gain, const size_t chan)
     return 0;
 }
 
-double zbx_dboard_impl::get_tx_gain(const size_t chan)
+double thinbx_dboard_impl::get_tx_gain(const size_t chan)
 {
     // const auto gain_profile = _tx_gain_profile_api->get_gain_profile(chan);
     // if (gain_profile == ZBX_GAIN_PROFILE_CPLD
@@ -330,7 +330,7 @@ double zbx_dboard_impl::get_tx_gain(const size_t chan)
     return 0;
 }
 
-double zbx_dboard_impl::get_rx_gain(const size_t chan)
+double thinbx_dboard_impl::get_rx_gain(const size_t chan)
 {
     // const auto gain_profile = _rx_gain_profile_api->get_gain_profile(chan);
     // if (gain_profile == ZBX_GAIN_PROFILE_CPLD
@@ -345,7 +345,7 @@ double zbx_dboard_impl::get_rx_gain(const size_t chan)
     return 0;
 }
 
-double zbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
 {
     // We have to accept the empty string for "all", because that's widely used
     // (e.g. by multi_usrp)
@@ -362,7 +362,7 @@ double zbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
     // // Table gain: Returns the current DSA table index.
     // if (name == ZBX_GAIN_STAGE_TABLE) {
     //     return static_cast<double>(
-    //         _cpld->get_current_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA));
+    //         _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA));
     // }
     // // Otherwise: DSA or amp. Sanity check key is valid. Because the table gain
     // // is not a property tree node, this check comes after the previous if-clause.
@@ -379,11 +379,11 @@ double zbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
     //         || gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)) {
     //     const uint8_t idx =
     //         (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)
-    //             ? _cpld->get_current_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA)
+    //             ? _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA)
     //             : ATR_ADDR_TX;
     //     constexpr bool update_cache = true; // Make sure to peek the actual value
-    //     const auto dsa = (name == ZBX_GAIN_STAGE_DSA1) ? zbx_cpld_ctrl::dsa_type::DSA1
-    //                                                    : zbx_cpld_ctrl::dsa_type::DSA2;
+    //     const auto dsa = (name == ZBX_GAIN_STAGE_DSA1) ? thinbx_cpld_ctrl::dsa_type::DSA1
+    //                                                    : thinbx_cpld_ctrl::dsa_type::DSA2;
     //     const uint8_t dsa_val = _cpld->get_tx_dsa(chan, idx, dsa, update_cache);
     //     // Update the tree because we're good citizens, and if we switch the
     //     // gain profile from 'table' to 'manual', we want everything to be
@@ -402,7 +402,7 @@ double zbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
     return 0;
 }
 
-double zbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
 {
     // // We have to accept the empty string for "all", because that's widely used
     // // (e.g. by multi_usrp)
@@ -419,7 +419,7 @@ double zbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
     // // Table gain: Returns the current DSA table index.
     // if (name == ZBX_GAIN_STAGE_TABLE) {
     //     return static_cast<double>(
-    //         _cpld->get_current_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA));
+    //         _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA));
     // }
     // // Otherwise: DSA. Sanity check key is valid. Because the table gain is not
     // // a property tree node, this check comes after the previous if-clause.
@@ -435,14 +435,14 @@ double zbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
     //     || gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR) {
     //     const uint8_t idx =
     //         (gain_profile == ZBX_GAIN_PROFILE_CPLD_NOATR)
-    //             ? _cpld->get_current_config(chan, zbx_cpld_ctrl::atr_mode_target::DSA)
+    //             ? _cpld->get_current_config(chan, thinbx_cpld_ctrl::atr_mode_target::DSA)
     //             : ATR_ADDR_RX;
     //     constexpr bool update_cache = true; // Make sure to peek the actual value
-    //     static const std::map<std::string, zbx_cpld_ctrl::dsa_type> dsa_map{
-    //         {ZBX_GAIN_STAGE_DSA1, zbx_cpld_ctrl::dsa_type::DSA1},
-    //         {ZBX_GAIN_STAGE_DSA2, zbx_cpld_ctrl::dsa_type::DSA2},
-    //         {ZBX_GAIN_STAGE_DSA3A, zbx_cpld_ctrl::dsa_type::DSA3A},
-    //         {ZBX_GAIN_STAGE_DSA3B, zbx_cpld_ctrl::dsa_type::DSA3B},
+    //     static const std::map<std::string, thinbx_cpld_ctrl::dsa_type> dsa_map{
+    //         {ZBX_GAIN_STAGE_DSA1, thinbx_cpld_ctrl::dsa_type::DSA1},
+    //         {ZBX_GAIN_STAGE_DSA2, thinbx_cpld_ctrl::dsa_type::DSA2},
+    //         {ZBX_GAIN_STAGE_DSA3A, thinbx_cpld_ctrl::dsa_type::DSA3A},
+    //         {ZBX_GAIN_STAGE_DSA3B, thinbx_cpld_ctrl::dsa_type::DSA3B},
     //     };
     //     const auto dsa        = dsa_map.at(name);
     //     const uint8_t dsa_val = _cpld->get_rx_dsa(chan, idx, dsa, update_cache);
@@ -462,7 +462,7 @@ double zbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
     return 0;
 }
 
-std::vector<std::string> zbx_dboard_impl::get_tx_gain_names(const size_t chan) const
+std::vector<std::string> thinbx_dboard_impl::get_tx_gain_names(const size_t chan) const
 {
     UHD_ASSERT_THROW(chan < ZBX_NUM_CHANS);
     // const std::string gain_profile = _tx_gain_profile_api->get_gain_profile(chan);
@@ -478,7 +478,7 @@ std::vector<std::string> zbx_dboard_impl::get_tx_gain_names(const size_t chan) c
     return {""};
 }
 
-std::vector<std::string> zbx_dboard_impl::get_rx_gain_names(const size_t chan) const
+std::vector<std::string> thinbx_dboard_impl::get_rx_gain_names(const size_t chan) const
 {
     UHD_ASSERT_THROW(chan < ZBX_NUM_CHANS);
     // const std::string gain_profile = _rx_gain_profile_api->get_gain_profile(chan);
@@ -494,7 +494,7 @@ std::vector<std::string> zbx_dboard_impl::get_rx_gain_names(const size_t chan) c
     return {""};
 }
 
-const std::string zbx_dboard_impl::get_tx_lo_source(
+const std::string thinbx_dboard_impl::get_tx_lo_source(
     const std::string& name, const size_t chan)
 {
     // const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
@@ -502,13 +502,13 @@ const std::string zbx_dboard_impl::get_tx_lo_source(
     //     throw uhd::value_error("get_tx_lo_source(): Invalid LO name: " + name);
     // }
 
-    // const zbx_lo_source_t lo_source =
-    //     _tree->access<zbx_lo_source_t>(fe_path / "ch" / name / "source").get();
-    // return lo_source == zbx_lo_source_t::internal ? "internal" : "external";
+    // const thinbx_lo_source_t lo_source =
+    //     _tree->access<thinbx_lo_source_t>(fe_path / "ch" / name / "source").get();
+    // return lo_source == thinbx_lo_source_t::internal ? "internal" : "external";
     return "";
 }
 
-const std::string zbx_dboard_impl::get_rx_lo_source(
+const std::string thinbx_dboard_impl::get_rx_lo_source(
     const std::string& name, const size_t chan)
 {
     // const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
@@ -516,13 +516,13 @@ const std::string zbx_dboard_impl::get_rx_lo_source(
     //     throw uhd::value_error("get_rx_lo_source(): Invalid LO name: " + name);
     // }
 
-    // const zbx_lo_source_t lo_source =
-    //     _tree->access<zbx_lo_source_t>(fe_path / "ch" / name / "source").get();
-    // return lo_source == zbx_lo_source_t::internal ? "internal" : "external";
+    // const thinbx_lo_source_t lo_source =
+    //     _tree->access<thinbx_lo_source_t>(fe_path / "ch" / name / "source").get();
+    // return lo_source == thinbx_lo_source_t::internal ? "internal" : "external";
     return "";
 }
 
-void zbx_dboard_impl::set_rx_lo_source(
+void thinbx_dboard_impl::set_rx_lo_source(
     const std::string& src, const std::string& name, const size_t chan)
 {
     RFNOC_LOG_TRACE("set_rx_lo_source(name=" << name << ", src=" << src << ")");
@@ -531,12 +531,12 @@ void zbx_dboard_impl::set_rx_lo_source(
     //     throw uhd::value_error("set_rx_lo_source(): Invalid LO name: " + name);
     // }
 
-    // _tree->access<zbx_lo_source_t>(fe_path / "ch" / name / "source")
-    //     .set(src == "internal" ? zbx_lo_source_t::internal :
-    //     zbx_lo_source_t::external);
+    // _tree->access<thinbx_lo_source_t>(fe_path / "ch" / name / "source")
+    //     .set(src == "internal" ? thinbx_lo_source_t::internal :
+    //     thinbx_lo_source_t::external);
 }
 
-void zbx_dboard_impl::set_tx_lo_source(
+void thinbx_dboard_impl::set_tx_lo_source(
     const std::string& src, const std::string& name, const size_t chan)
 {
     RFNOC_LOG_TRACE("set_tx_lo_source(name=" << name << ", src=" << src << ")");
@@ -545,12 +545,12 @@ void zbx_dboard_impl::set_tx_lo_source(
     //     throw uhd::value_error("set_tx_lo_source(): Invalid LO name: " + name);
     // }
 
-    // _tree->access<zbx_lo_source_t>(fe_path / "ch" / name / "source")
-    //     .set(src == "internal" ? zbx_lo_source_t::internal :
-    //     zbx_lo_source_t::external);
+    // _tree->access<thinbx_lo_source_t>(fe_path / "ch" / name / "source")
+    //     .set(src == "internal" ? thinbx_lo_source_t::internal :
+    //     thinbx_lo_source_t::external);
 }
 
-double zbx_dboard_impl::set_tx_lo_freq(
+double thinbx_dboard_impl::set_tx_lo_freq(
     double freq, const std::string& name, const size_t chan)
 {
     RFNOC_LOG_TRACE("set_tx_lo_freq(freq=" << freq << ", name=" << name << ")");
@@ -562,7 +562,7 @@ double zbx_dboard_impl::set_tx_lo_freq(
     //     .get();
 }
 
-double zbx_dboard_impl::get_tx_lo_freq(const std::string& name, const size_t chan)
+double thinbx_dboard_impl::get_tx_lo_freq(const std::string& name, const size_t chan)
 {
     // RFNOC_LOG_TRACE("get_tx_lo_freq(name=" << name << ")");
     // const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
@@ -572,7 +572,7 @@ double zbx_dboard_impl::get_tx_lo_freq(const std::string& name, const size_t cha
     return 0;
 }
 
-freq_range_t zbx_dboard_impl::_get_lo_freq_range(
+freq_range_t thinbx_dboard_impl::_get_lo_freq_range(
     const std::string& name, const size_t /*chan*/) const
 {
     // if (name == ZBX_LO1 || name == ZBX_LO2) {
@@ -592,7 +592,7 @@ freq_range_t zbx_dboard_impl::_get_lo_freq_range(
     throw uhd::value_error("Invalid LO name: " + name);
 }
 
-double zbx_dboard_impl::set_rx_lo_freq(
+double thinbx_dboard_impl::set_rx_lo_freq(
     double freq, const std::string& name, const size_t chan)
 {
     RFNOC_LOG_TRACE("set_rx_lo_freq(freq=" << freq << ", name=" << name << ")");
@@ -604,7 +604,7 @@ double zbx_dboard_impl::set_rx_lo_freq(
         .get();
 }
 
-double zbx_dboard_impl::get_rx_lo_freq(const std::string& name, size_t chan)
+double thinbx_dboard_impl::get_rx_lo_freq(const std::string& name, size_t chan)
 {
     RFNOC_LOG_TRACE("get_rx_lo_freq(name=" << name << ")");
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
@@ -613,46 +613,46 @@ double zbx_dboard_impl::get_rx_lo_freq(const std::string& name, size_t chan)
     return _tree->access<double>(fe_path / "los" / name / "freq" / "value").get();
 }
 
-std::string zbx_dboard_impl::get_tx_antenna(size_t chan) const
+std::string thinbx_dboard_impl::get_tx_antenna(size_t chan) const
 {
     const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
     return _tree->access<std::string>(fe_path / "antenna" / "value").get();
 }
 
-std::string zbx_dboard_impl::get_rx_antenna(size_t chan) const
+std::string thinbx_dboard_impl::get_rx_antenna(size_t chan) const
 {
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
     return _tree->access<std::string>(fe_path / "antenna" / "value").get();
 }
 
-double zbx_dboard_impl::get_tx_frequency(size_t chan)
+double thinbx_dboard_impl::get_tx_frequency(size_t chan)
 {
     const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
     return _tree->access<double>(fe_path / "freq").get();
 }
 
-double zbx_dboard_impl::get_rx_frequency(size_t chan)
+double thinbx_dboard_impl::get_rx_frequency(size_t chan)
 {
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
     return _tree->access<double>(fe_path / "freq").get();
 }
 
-void zbx_dboard_impl::set_tx_tune_args(const uhd::device_addr_t&, const size_t)
+void thinbx_dboard_impl::set_tx_tune_args(const uhd::device_addr_t&, const size_t)
 {
     RFNOC_LOG_TRACE("tune_args not supported by this radio.");
 }
 
-void zbx_dboard_impl::set_rx_tune_args(const uhd::device_addr_t&, const size_t)
+void thinbx_dboard_impl::set_rx_tune_args(const uhd::device_addr_t&, const size_t)
 {
     RFNOC_LOG_TRACE("tune_args not supported by this radio.");
 }
 
-void zbx_dboard_impl::set_rx_agc(const bool, const size_t)
+void thinbx_dboard_impl::set_rx_agc(const bool, const size_t)
 {
     throw uhd::not_implemented_error("set_rx_agc() is not supported on this radio!");
 }
 
-uhd::gain_range_t zbx_dboard_impl::get_tx_gain_range(
+uhd::gain_range_t thinbx_dboard_impl::get_tx_gain_range(
     const std::string& name, const size_t chan) const
 {
     // We have to accept the empty string for "all", because that's widely used
@@ -664,7 +664,7 @@ uhd::gain_range_t zbx_dboard_impl::get_tx_gain_range(
     return get_tx_gain_range(chan);
 }
 
-uhd::gain_range_t zbx_dboard_impl::get_rx_gain_range(
+uhd::gain_range_t thinbx_dboard_impl::get_rx_gain_range(
     const std::string& name, const size_t chan) const
 {
     // We have to accept the empty string for "all", because that's widely used
@@ -676,24 +676,24 @@ uhd::gain_range_t zbx_dboard_impl::get_rx_gain_range(
     return get_rx_gain_range(chan);
 }
 
-void zbx_dboard_impl::set_rx_lo_export_enabled(bool, const std::string&, const size_t)
+void thinbx_dboard_impl::set_rx_lo_export_enabled(bool, const std::string&, const size_t)
 {
     throw uhd::not_implemented_error(
         "set_rx_lo_export_enabled is not supported on this radio");
 }
 
-bool zbx_dboard_impl::get_rx_lo_export_enabled(const std::string&, const size_t)
+bool thinbx_dboard_impl::get_rx_lo_export_enabled(const std::string&, const size_t)
 {
     return false;
 }
 
-void zbx_dboard_impl::set_tx_lo_export_enabled(bool, const std::string&, const size_t)
+void thinbx_dboard_impl::set_tx_lo_export_enabled(bool, const std::string&, const size_t)
 {
     throw uhd::not_implemented_error(
         "set_rx_lo_export_enabled is not supported on this radio");
 }
 
-bool zbx_dboard_impl::get_tx_lo_export_enabled(const std::string&, const size_t)
+bool thinbx_dboard_impl::get_tx_lo_export_enabled(const std::string&, const size_t)
 {
     return false;
 }
@@ -701,12 +701,12 @@ bool zbx_dboard_impl::get_tx_lo_export_enabled(const std::string&, const size_t)
 /******************************************************************************
  * EEPROM API
  *****************************************************************************/
-eeprom_map_t zbx_dboard_impl::get_db_eeprom()
+eeprom_map_t thinbx_dboard_impl::get_db_eeprom()
 {
     return _mb_rpcc->get_db_eeprom(_db_idx);
 }
 
-size_t zbx_dboard_impl::get_chan_from_dboard_fe(
+size_t thinbx_dboard_impl::get_chan_from_dboard_fe(
     const std::string& fe, const uhd::direction_t) const
 {
     if (fe == "0") {
@@ -718,7 +718,7 @@ size_t zbx_dboard_impl::get_chan_from_dboard_fe(
     throw uhd::key_error(std::string("[X400] Invalid frontend: ") + fe);
 }
 
-std::string zbx_dboard_impl::get_dboard_fe_from_chan(
+std::string thinbx_dboard_impl::get_dboard_fe_from_chan(
     const size_t chan, const uhd::direction_t) const
 {
     if (chan == 0) {
@@ -735,19 +735,19 @@ std::string zbx_dboard_impl::get_dboard_fe_from_chan(
  *   Private misc/calculative helper functions
  **********************************************************************/
 
-bool zbx_dboard_impl::_get_all_los_locked(const direction_t dir, const size_t chan)
+bool thinbx_dboard_impl::_get_all_los_locked(const direction_t dir, const size_t chan)
 {
     const fs_path fe_path = _get_frontend_path(dir, chan);
 
     const bool is_lo1_enabled = _tree->access<bool>(fe_path / ZBX_LO1 / "enabled").get();
     const bool is_lo1_locked =
-        _lo_ctrl_map.at(zbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO1))
+        _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO1))
             ->get_lock_status();
     // LO2 is always enabled via center frequency tuning, but users may manually disable
     // it
     const bool is_lo2_enabled = _tree->access<bool>(fe_path / ZBX_LO2 / "enabled").get();
     const bool is_lo2_locked =
-        _lo_ctrl_map.at(zbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO2))
+        _lo_ctrl_map.at(thinbx_lo_ctrl::lo_string_to_enum(dir, chan, ZBX_LO2))
             ->get_lock_status();
     // We only care about the lock status if it's enabled (lowband center frequency)
     // That means we have set it to true if is_lo[1,2]_enabled is *false*, but check for
@@ -755,7 +755,7 @@ bool zbx_dboard_impl::_get_all_los_locked(const direction_t dir, const size_t ch
     return (!is_lo1_enabled || is_lo1_locked) && (!is_lo2_enabled || is_lo2_locked);
 }
 
-fs_path zbx_dboard_impl::_get_frontend_path(
+fs_path thinbx_dboard_impl::_get_frontend_path(
     const direction_t dir, const size_t chan_idx) const
 {
     UHD_ASSERT_THROW(chan_idx < ZBX_NUM_CHANS);
@@ -763,7 +763,7 @@ fs_path zbx_dboard_impl::_get_frontend_path(
     return fs_path("dboard") / frontend / chan_idx;
 }
 
-std::vector<uhd::usrp::pwr_cal_mgr::sptr>& zbx_dboard_impl::get_pwr_mgr(
+std::vector<uhd::usrp::pwr_cal_mgr::sptr>& thinbx_dboard_impl::get_pwr_mgr(
     uhd::direction_t trx)
 {
     switch (trx) {
@@ -776,4 +776,4 @@ std::vector<uhd::usrp::pwr_cal_mgr::sptr>& zbx_dboard_impl::get_pwr_mgr(
     }
 }
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "zbx_constants.hpp"
-#include "zbx_cpld_ctrl.hpp"
-#include "zbx_expert.hpp"
-#include "zbx_lo_ctrl.hpp"
+#include "thinbx_constants.hpp"
+#include "thinbx_cpld_ctrl.hpp"
+#include "thinbx_expert.hpp"
+#include "thinbx_lo_ctrl.hpp"
 #include <uhd/cal/dsa_cal.hpp>
 #include <uhd/property_tree.hpp>
 #include <uhd/rfnoc/register_iface.hpp>
@@ -34,22 +34,22 @@
 
 using namespace uhd::rfnoc;
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
-const static uint16_t ZBX_PID = 0x4002;
+const static uint16_t THIN_PID = 0x4012;
 
 /*! Provide access to a ZBX radio.
  */
-class zbx_dboard_impl : public uhd::usrp::x400::x400_dboard_iface
+class thinbx_dboard_impl : public uhd::usrp::x400::x400_dboard_iface
 {
 public:
-    using sptr                  = std::shared_ptr<zbx_dboard_impl>;
+    using sptr                  = std::shared_ptr<thinbx_dboard_impl>;
     using time_accessor_fn_type = std::function<uhd::time_spec_t(size_t)>;
 
     /************************************************************************
      * Structors
      ***********************************************************************/
-    zbx_dboard_impl(register_iface& reg_iface,
+    thinbx_dboard_impl(register_iface& reg_iface,
         const size_t reg_base_address,
         time_accessor_fn_type&& time_accessor,
         const size_t db_idx,
@@ -60,7 +60,7 @@ public:
         uhd::usrp::zbx_rpc_iface::sptr rpcc,
         uhd::rfnoc::x400::rfdc_control::sptr rfdcc,
         uhd::property_tree::sptr tree);
-    virtual ~zbx_dboard_impl();
+    virtual ~thinbx_dboard_impl();
 
     size_t get_chan_from_dboard_fe(
         const std::string& fe, const uhd::direction_t) const override;
@@ -376,10 +376,10 @@ private:
     uhd::rfnoc::x400::rfdc_control::sptr _rfdcc;
 
     //! Reference to the CPLD controls
-    std::shared_ptr<zbx_cpld_ctrl> _cpld;
+    std::shared_ptr<thinbx_cpld_ctrl> _cpld;
 
     //! Reference to all LO controls
-    std::map<zbx_lo_t, std::shared_ptr<zbx_lo_ctrl>> _lo_ctrl_map;
+    std::map<thinbx_lo_t, std::shared_ptr<thinbx_lo_ctrl>> _lo_ctrl_map;
 
     //! Reference to the TX Cal data
     std::shared_ptr<uhd::usrp::cal::zbx_tx_dsa_cal> _tx_dsa_cal;
@@ -413,4 +413,4 @@ private:
     const double _prc_rate;
 };
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

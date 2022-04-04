@@ -18,9 +18,9 @@
 #include <uhdlib/experts/expert_container.hpp>
 #include <uhdlib/experts/expert_factory.hpp>
 #include <uhdlib/rfnoc/reg_iface_adapter.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_constants.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_dboard.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_expert.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_constants.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_dboard.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_expert.hpp>
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <vector>
@@ -31,16 +31,16 @@ using namespace uhd::rfnoc;
 
 // ostream << operator overloads for our enum classes, so that property nodes of that type
 // can be added to our expert graph
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::zbx::zbx_lo_source_t& lo_source)
+    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_lo_source_t& lo_source)
 {
     switch (lo_source) {
-        case ::uhd::usrp::zbx::zbx_lo_source_t::internal:
+        case ::uhd::usrp::thinbx::thinbx_lo_source_t::internal:
             os << "internal";
             return os;
-        case ::uhd::usrp::zbx::zbx_lo_source_t::external:
+        case ::uhd::usrp::thinbx::thinbx_lo_source_t::external:
             os << "external";
             return os;
         default:
@@ -49,16 +49,16 @@ std::ostream& operator<<(
 }
 
 std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::zbx::zbx_cpld_ctrl::atr_mode& atr)
+    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode& atr)
 {
     switch (atr) {
-        case ::uhd::usrp::zbx::zbx_cpld_ctrl::atr_mode::SW_DEFINED:
+        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::SW_DEFINED:
             os << "SW_DEFINED";
             return os;
-        case ::uhd::usrp::zbx::zbx_cpld_ctrl::atr_mode::CLASSIC_ATR:
+        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR:
             os << "CLASSIC ATR";
             return os;
-        case ::uhd::usrp::zbx::zbx_cpld_ctrl::atr_mode::FPGA_STATE:
+        case ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode::FPGA_STATE:
             os << "FPGA_STATE";
             return os;
         default:
@@ -66,15 +66,15 @@ std::ostream& operator<<(
     }
 }
 
-void zbx_dboard_impl::_init_cpld()
+void thinbx_dboard_impl::_init_cpld()
 {
     // CPLD
     RFNOC_LOG_TRACE("Initializing CPLD...");
-    _cpld = std::make_shared<zbx_cpld_ctrl>(
+    _cpld = std::make_shared<thinbx_cpld_ctrl>(
         [this](
-            const uint32_t addr, const uint32_t data, const zbx_cpld_ctrl::chan_t chan) {
-            const auto time_spec = (chan == zbx_cpld_ctrl::NO_CHAN) ? time_spec_t::ASAP
-                                   : (chan == zbx_cpld_ctrl::CHAN1) ? _time_accessor(1)
+            const uint32_t addr, const uint32_t data, const thinbx_cpld_ctrl::chan_t chan) {
+            const auto time_spec = (chan == thinbx_cpld_ctrl::NO_CHAN) ? time_spec_t::ASAP
+                                   : (chan == thinbx_cpld_ctrl::CHAN1) ? _time_accessor(1)
                                                                     : _time_accessor(0);
             _regs.poke32(_reg_base_address + addr, data, time_spec);
         },
@@ -96,19 +96,19 @@ void zbx_dboard_impl::_init_cpld()
     RFNOC_LOG_TRACE("CPLD communication good. Switching to classic ATR mode.");
     for (size_t i = 0; i < ZBX_NUM_CHANS; ++i) {
         _cpld->set_atr_mode(
-            i, zbx_cpld_ctrl::atr_mode_target::DSA, zbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+            i, thinbx_cpld_ctrl::atr_mode_target::DSA, thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
         _cpld->set_atr_mode(i,
-            zbx_cpld_ctrl::atr_mode_target::PATH_LED,
-            zbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
+            thinbx_cpld_ctrl::atr_mode_target::PATH_LED,
+            thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR);
     }
 }
 
-void zbx_dboard_impl::_init_peripherals()
+void thinbx_dboard_impl::_init_peripherals()
 {
     RFNOC_LOG_TRACE("Initializing peripherals...");
     // Load DSA cal data (rx and tx)
-    constexpr char dsa_step_filename_tx[] = "zbx_dsa_tx";
-    constexpr char dsa_step_filename_rx[] = "zbx_dsa_rx";
+    constexpr char dsa_step_filename_tx[] = "thinbx_dsa_tx";
+    constexpr char dsa_step_filename_rx[] = "thinbx_dsa_rx";
     uhd::eeprom_map_t eeprom_map          = get_db_eeprom();
     const std::string db_serial(eeprom_map["serial"].begin(), eeprom_map["serial"].end());
     if (uhd::usrp::cal::database::has_cal_data(
@@ -142,7 +142,7 @@ void zbx_dboard_impl::_init_peripherals()
     }
 }
 
-void zbx_dboard_impl::_init_prop_tree()
+void thinbx_dboard_impl::_init_prop_tree()
 {
     auto subtree = get_tree()->subtree(fs_path("dboard"));
 
@@ -167,7 +167,7 @@ void zbx_dboard_impl::_init_prop_tree()
         _init_frontend_subtree(subtree, RX_DIRECTION, chan_idx, fe_path);
 
         // The time nodes get connected with one scheduling expert per channel:
-        expert_factory::add_worker_node<zbx_scheduling_expert>(
+        expert_factory::add_worker_node<thinbx_scheduling_expert>(
             _expert_container, _expert_container->node_retriever(), fe_path);
     }
 
@@ -180,7 +180,7 @@ void zbx_dboard_impl::_init_prop_tree()
     }
 
     // Now add the sync worker:
-    expert_factory::add_worker_node<zbx_sync_expert>(_expert_container,
+    expert_factory::add_worker_node<thinbx_sync_expert>(_expert_container,
         _expert_container->node_retriever(),
         fs_path("tx_frontends"),
         fs_path("rx_frontends"),
@@ -194,17 +194,17 @@ void zbx_dboard_impl::_init_prop_tree()
     //     .set_publisher([this]() { return get_db_eeprom(); });
 }
 
-void zbx_dboard_impl::_init_frontend_subtree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_frontend_subtree(uhd::property_tree::sptr subtree,
     const uhd::direction_t trx,
     const size_t chan_idx,
     const fs_path fe_path)
 {
-    static constexpr char ZBX_FE_NAME[] = "ZBX";
+    static constexpr char THINBX_FE_NAME[] = "ThinBX";
 
     RFNOC_LOG_TRACE("Adding non-RFNoC block properties for channel "
                     << chan_idx << " to prop tree path " << fe_path);
     // Standard attributes
-    subtree->create<std::string>(fe_path / "name").set(ZBX_FE_NAME);
+    subtree->create<std::string>(fe_path / "name").set(THINBX_FE_NAME);
     subtree->create<std::string>(fe_path / "connection").set("IQ");
 
     _init_frequency_prop_tree(subtree, _expert_container, fe_path);
@@ -216,7 +216,7 @@ void zbx_dboard_impl::_init_frontend_subtree(uhd::property_tree::sptr subtree,
 }
 
 
-uhd::usrp::pwr_cal_mgr::sptr zbx_dboard_impl::_init_power_cal(
+uhd::usrp::pwr_cal_mgr::sptr thinbx_dboard_impl::_init_power_cal(
     uhd::property_tree::sptr subtree,
     const uhd::direction_t trx,
     const size_t chan_idx,
@@ -265,18 +265,18 @@ uhd::usrp::pwr_cal_mgr::sptr zbx_dboard_impl::_init_power_cal(
             chan_str = std::to_string(chan_idx)]() -> std::string {
             const std::string antenna = pwr_cal_mgr::sanitize_antenna_name(
                 subtree->access<std::string>(fe_path / "antenna/value").get());
-            // The lookup key for X410 + ZBX shall start with x4xx_pwr_zbx.
+            // The lookup key for X410 + ZBX shall start with x4xx_pwr_thinbx.
             // Should we rev the ZBX in a way that would make generic cal data
             // unsuitable between revs, then we need to check the rev (or PID)
-            // here and generate a different key prefix (e.g. x4xx_pwr_zbxD_ or
+            // here and generate a different key prefix (e.g. x4xx_pwr_thinbxD_ or
             // something like that).
-            return std::string("x4xx_pwr_zbx_") + trx_str + "_" + chan_str + "_"
+            return std::string("x4xx_pwr_thinbx_") + trx_str + "_" + chan_str + "_"
                    + antenna;
         },
         ggroup);
 }
 
-void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
@@ -303,7 +303,7 @@ void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
     // Expert -> Programming Expert
     /*
         if (trx == TX_DIRECTION) {
-            expert_factory::add_worker_node<zbx_tx_programming_expert>(expert,
+            expert_factory::add_worker_node<thinbx_tx_programming_expert>(expert,
                 expert->node_retriever(),
                 fe_path,
                 fs_path("rx_frontends") / chan_idx,
@@ -311,34 +311,34 @@ void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
                 _tx_dsa_cal,
                 _cpld);
 
-            expert_factory::add_worker_node<zbx_tx_gain_expert>(expert,
+            expert_factory::add_worker_node<thinbx_tx_gain_expert>(expert,
                 expert->node_retriever(),
                 fe_path,
                 chan_idx,
                 get_pwr_mgr(trx).at(chan_idx),
                 _tx_dsa_cal);
         } else {
-            expert_factory::add_worker_node<zbx_rx_programming_expert>(
+            expert_factory::add_worker_node<thinbx_rx_programming_expert>(
                 expert, expert->node_retriever(), fe_path, chan_idx, _rx_dsa_cal, _cpld);
 
-            expert_factory::add_worker_node<zbx_rx_gain_expert>(expert,
+            expert_factory::add_worker_node<thinbx_rx_gain_expert>(expert,
                 expert->node_retriever(),
                 fe_path,
                 get_pwr_mgr(trx).at(chan_idx),
                 _rx_dsa_cal);
         }*/
 
-    expert_factory::add_worker_node<zbx_freq_be_expert>(
+    expert_factory::add_worker_node<thinbx_freq_be_expert>(
         expert, expert->node_retriever(), fe_path);
 
-    expert_factory::add_worker_node<zbx_band_inversion_expert>(
+    expert_factory::add_worker_node<thinbx_band_inversion_expert>(
         expert, expert->node_retriever(), fe_path, trx, chan_idx, _rpcc);
 
 
     // Initialize our LO Control Experts
     // for (auto lo_select : ZBX_LOS) {
     //     if (lo_select == RFDC_NCO) {
-    expert_factory::add_worker_node<zbx_rfdc_freq_expert>(expert,
+    expert_factory::add_worker_node<thinbx_rfdc_freq_expert>(expert,
         expert->node_retriever(),
         fe_path,
         trx,
@@ -347,9 +347,9 @@ void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
         _db_idx,
         _mb_rpcc);
     //     } else {
-    //         const zbx_lo_t lo = zbx_lo_ctrl::lo_string_to_enum(trx, chan_idx,
-    //         lo_select); std::shared_ptr<zbx_lo_ctrl> lo_ctrl =
-    //         std::make_shared<zbx_lo_ctrl>(
+    //         const thinbx_lo_t lo = thinbx_lo_ctrl::lo_string_to_enum(trx, chan_idx,
+    //         lo_select); std::shared_ptr<thinbx_lo_ctrl> lo_ctrl =
+    //         std::make_shared<thinbx_lo_ctrl>(
     //             lo,
     //             [this, lo](const uint32_t addr, const uint16_t data) {
     //                 _cpld->lo_poke16(lo, addr, data);
@@ -357,7 +357,7 @@ void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
     //             [this, lo](const uint32_t addr) { return _cpld->lo_peek16(lo, addr); },
     //             [this](const uhd::time_spec_t& sleep_time) { _regs.sleep(sleep_time);
     //             }, LMX2572_DEFAULT_FREQ, _prc_rate, false);
-    //         expert_factory::add_worker_node<zbx_lo_expert>(
+    //         expert_factory::add_worker_node<thinbx_lo_expert>(
     //             expert, expert->node_retriever(), fe_path, lo_select, lo_ctrl);
     //         _lo_ctrl_map.insert({lo, lo_ctrl});
     //     }
@@ -365,14 +365,14 @@ void zbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
 
     // const double lo_step_size = _prc_rate / ZBX_RELATIVE_LO_STEP_SIZE;
     // RFNOC_LOG_DEBUG("LO step size: " << (lo_step_size / 1e6) << " MHz.")
-    expert_factory::add_worker_node<zbx_freq_fe_expert>(
+    expert_factory::add_worker_node<thinbx_freq_fe_expert>(
         expert, expert->node_retriever(), fe_path, trx, _rfdc_rate);
     // chan_idx,
     // lo_step_size);
     RFNOC_LOG_TRACE(fe_path + ", Experts created");
 }
 
-void zbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const fs_path fe_path)
 {
@@ -407,7 +407,7 @@ void zbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subtree
         });
 }
 
-void zbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
@@ -444,7 +444,7 @@ void zbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     //             expert, subtree, gain_path / "value", 0, AUTO_RESOLVE_ON_WRITE);
     //         subtree->create<meta_range_t>(gain_path / "range")
     //             .set(uhd::meta_range_t(0, ZBX_TX_DSA_MAX_ATT, 1.0));
-    //         expert_factory::add_worker_node<zbx_gain_coercer_expert>(_expert_container,
+    //         expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
     //             _expert_container->node_retriever(),
     //             gain_path / "value",
     //             uhd::meta_range_t(0, ZBX_TX_DSA_MAX_ATT, 1.0));
@@ -461,7 +461,7 @@ void zbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     //         amp_gain_range.push_back(uhd::range_t(tx_gain_pair.first));
     //     }
     //     subtree->create<meta_range_t>(amp_path / "range").set(amp_gain_range);
-    //     expert_factory::add_worker_node<zbx_gain_coercer_expert>(_expert_container,
+    //     expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
     //         _expert_container->node_retriever(),
     //         amp_path / "value",
     //         amp_gain_range);
@@ -476,7 +476,7 @@ void zbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     //             expert, subtree, gain_path / "value", 0, AUTO_RESOLVE_ON_WRITE);
     //         subtree->create<meta_range_t>(gain_path / "range")
     //             .set(uhd::meta_range_t(0, ZBX_RX_DSA_MAX_ATT, 1.0));
-    //         expert_factory::add_worker_node<zbx_gain_coercer_expert>(_expert_container,
+    //         expert_factory::add_worker_node<thinbx_gain_coercer_expert>(_expert_container,
     //             _expert_container->node_retriever(),
     //             gain_path / "value",
     //             uhd::meta_range_t(0, ZBX_RX_DSA_MAX_ATT, 1.0));
@@ -524,7 +524,7 @@ void zbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     // gain_profile->add_subscriber(std::move(gain_profile_subscriber));
 }
 
-void zbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
@@ -550,7 +550,7 @@ void zbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtree,
         });
 }
 
-void zbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const fs_path fe_path)
 {
@@ -560,14 +560,14 @@ void zbx_dboard_impl::_init_programming_prop_tree(uhd::property_tree::sptr subtr
         expert, subtree, fe_path / "if1" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_prop_node<int>(
         expert, subtree, fe_path / "if2" / "filter", 1, AUTO_RESOLVE_ON_WRITE);
-    expert_factory::add_prop_node<zbx_cpld_ctrl::atr_mode>(expert,
+    expert_factory::add_prop_node<thinbx_cpld_ctrl::atr_mode>(expert,
         subtree,
         fe_path / "atr_mode",
-        zbx_cpld_ctrl::atr_mode::CLASSIC_ATR,
+        thinbx_cpld_ctrl::atr_mode::CLASSIC_ATR,
         AUTO_RESOLVE_ON_WRITE);
 }
 
-void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
+void thinbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
     expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
@@ -575,7 +575,7 @@ void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
 {
     // Analog LO Specific
     // for (const std::string lo : {ZBX_LO1, ZBX_LO2}) {
-    //     expert_factory::add_prop_node<zbx_lo_source_t>(expert,
+    //     expert_factory::add_prop_node<thinbx_lo_source_t>(expert,
     //         subtree,
     //         fe_path / "ch" / lo / "source",
     //         ZBX_DEFAULT_LO_SOURCE,
@@ -616,7 +616,7 @@ void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
     //         .set_publisher([this, lo, trx, chan_idx]() {
     //             return sensor_value_t(lo,
     //                 this->_lo_ctrl_map
-    //                     .at(zbx_lo_ctrl::lo_string_to_enum(trx, chan_idx, lo))
+    //                     .at(thinbx_lo_ctrl::lo_string_to_enum(trx, chan_idx, lo))
     //                     ->get_lock_status(),
     //                 "locked",
     //                 "unlocked");
@@ -648,7 +648,7 @@ void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
         _mb_rpcc->rfdc_get_nco_freq(trx == TX_DIRECTION ? "tx" : "rx", _db_idx, chan_idx),
         AUTO_RESOLVE_ON_WRITE);
 
-    expert_factory::add_prop_node<zbx_lo_source_t>(expert,
+    expert_factory::add_prop_node<thinbx_lo_source_t>(expert,
         subtree,
         fe_path / "ch" / RFDC_NCO / "source",
         ZBX_DEFAULT_LO_SOURCE,
@@ -656,7 +656,7 @@ void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
 
     // LO lock sensor
     // We can't make this its own property value because it has to have access to two
-    // containers (two instances of zbx lo expert)
+    // containers (two instances of thinbx lo expert)
     // subtree->create<sensor_value_t>(fe_path / "sensors" / "lo_locked")
     //     .set(sensor_value_t("all_los", false, "locked", "unlocked"))
     //     .add_coerced_subscriber([](const sensor_value_t&) {
@@ -677,4 +677,4 @@ void zbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
                 RFDC_NCO, this->_rfdcc->get_nco_reset_done(), "locked", "unlocked");
         });
 }
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

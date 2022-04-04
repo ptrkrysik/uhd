@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "zbx_constants.hpp"
-#include "zbx_lo_ctrl.hpp"
+#include "thinbx_constants.hpp"
+#include "thinbx_lo_ctrl.hpp"
 #include <uhd/types/direction.hpp>
 #include <uhd/types/serial.hpp>
 #include <uhd/types/time_spec.hpp>
@@ -16,7 +16,7 @@
 #include <functional>
 #include <mutex>
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 /*! ZBX CPLD Control Class
  *
@@ -32,7 +32,7 @@ namespace uhd { namespace usrp { namespace zbx {
  * specific mapping to RX or TX states. If the mode is atr_mode::SW_DEFINED,
  * then the ATR pins are ignored, and the state is configured by set_sw_config().
  */
-class zbx_cpld_ctrl
+class thinbx_cpld_ctrl
 {
 public:
     enum chan_t { CHAN0, CHAN1, BOTH_CHANS, NO_CHAN };
@@ -56,12 +56,12 @@ public:
     //! Maps a DSA name ("DSA1", "DSA2", etc.) to its equivalent dsa_type
     static const std::unordered_map<std::string, dsa_type> dsa_map;
 
-    zbx_cpld_ctrl(poke_fn_type&& poke_fn,
+    thinbx_cpld_ctrl(poke_fn_type&& poke_fn,
         peek_fn_type&& peek_fn,
         sleep_fn_type&& sleep_fn,
         const std::string& log_id);
 
-    ~zbx_cpld_ctrl(void) = default;
+    ~thinbx_cpld_ctrl(void) = default;
 
     //! Write a value to the scratch register
     void set_scratch(const uint32_t value);
@@ -233,8 +233,7 @@ public:
      * \param idx Table index
      * \param rf_fir rf filter value
      */
-    void set_rx_rf_filter(
-        const size_t channel, const uint8_t idx, const uint8_t rf_fir);
+    void set_rx_rf_filter(const size_t channel, const uint8_t idx, const uint8_t rf_fir);
 
     /*! Setting switches required for if1 filter changes, receiving side
      *
@@ -260,8 +259,7 @@ public:
      * \param idx Table index
      * \param rf_fir rf filter value
      */
-    void set_tx_rf_filter(
-        const size_t channel, const uint8_t idx, const uint8_t rf_fir);
+    void set_tx_rf_filter(const size_t channel, const uint8_t idx, const uint8_t rf_fir);
 
     /*! Setting switches required for if1 filter changes, transmitting side
      *
@@ -321,7 +319,7 @@ public:
     // \param lo Which LO to write to.
     // \param addr The address of the LO register (see the LMX2572 datasheet)
     // \param data The data to write to the LO register (see the LMX2572 datasheet)
-    void lo_poke16(const zbx_lo_t lo, const uint8_t addr, const uint16_t data);
+    void lo_poke16(const thinbx_lo_t lo, const uint8_t addr, const uint16_t data);
 
     //! Read back from the LO
     //
@@ -341,7 +339,7 @@ public:
     //        wait for this many ms before throwing an exception. A zero timeout
     //        is possible, which means the first read to the LO_SPI_STATUS
     //        register must already have the ready bit high.
-    uint16_t lo_peek16(const zbx_lo_t lo, const uint8_t addr);
+    uint16_t lo_peek16(const thinbx_lo_t lo, const uint8_t addr);
 
     //! Returns true if the LO_SPI_READY bit is high, i.e., the LO SPI is ready
     // for a transaction
@@ -354,12 +352,12 @@ public:
     // \param lo Which LO to read from
     // \param lo_source Set LO source to internal/external
     void set_lo_source(
-        const size_t idx, const zbx_lo_t lo, const zbx_lo_source_t lo_source);
+        const size_t idx, const thinbx_lo_t lo, const thinbx_lo_source_t lo_source);
 
     //! Retrieve lo source
     // \param idx Table index to read from
     // \param lo Which LO to read from
-    zbx_lo_source_t get_lo_source(const size_t idx, zbx_lo_t lo);
+    thinbx_lo_source_t get_lo_source(const size_t idx, thinbx_lo_t lo);
 
     //! Synchronize LOs
     //
@@ -379,7 +377,7 @@ public:
     // \param ref_chan The channel that is used as a timing reference.
     // \param los A list of LOs to synchronize
     // \throws uhd::runtime_error if LO sync bypass is enabled.
-    void pulse_lo_sync(const size_t ref_chan, const std::vector<zbx_lo_t>& los);
+    void pulse_lo_sync(const size_t ref_chan, const std::vector<thinbx_lo_t>& los);
 
     //! Enable/disable LO sync bypass
     //
@@ -440,7 +438,7 @@ private:
      * \param throttle If true, wait after writing, so that a following SPI
      *                 transaction won't clobber the previous one
      */
-    void _lo_spi_transact(const zbx_lo_t lo,
+    void _lo_spi_transact(const thinbx_lo_t lo,
         const uint8_t addr,
         const uint16_t data,
         const spi_xact_t xact_type,
@@ -477,11 +475,11 @@ private:
     const std::string _log_id;
 };
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx
 
-namespace uhd { namespace usrp { namespace zbx {
-// << Operator overload for expert's node printing (zbx_lo_source_t property)
+namespace uhd { namespace usrp { namespace thinbx {
+// << Operator overload for expert's node printing (thinbx_lo_source_t property)
 // Any added expert nodes of type enum class will have to define this
 std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::zbx::zbx_cpld_ctrl::atr_mode& lo_source);
-}}} // namespace uhd::usrp::zbx
+    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_cpld_ctrl::atr_mode& lo_source);
+}}} // namespace uhd::usrp::thinbx

@@ -6,12 +6,12 @@
 
 #include <uhd/exception.hpp>
 #include <uhd/utils/log.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_lo_ctrl.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_lo_ctrl.hpp>
 #include <thread>
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
-zbx_lo_ctrl::zbx_lo_ctrl(zbx_lo_t lo,
+thinbx_lo_ctrl::thinbx_lo_ctrl(thinbx_lo_t lo,
     lmx2572_iface::write_fn_t&& poke16,
     lmx2572_iface::read_fn_t&& peek16,
     lmx2572_iface::sleep_fn_t&& sleep,
@@ -36,7 +36,7 @@ zbx_lo_ctrl::zbx_lo_ctrl(zbx_lo_t lo,
     wait_for_lo_lock();
 }
 
-double zbx_lo_ctrl::set_lo_freq(const double freq)
+double thinbx_lo_ctrl::set_lo_freq(const double freq)
 {
     UHD_ASSERT_THROW(_lmx);
     UHD_LOG_TRACE(_log_id, "Setting LO frequency " << freq / 1e6 << " MHz");
@@ -48,12 +48,12 @@ double zbx_lo_ctrl::set_lo_freq(const double freq)
     return _freq;
 }
 
-double zbx_lo_ctrl::get_lo_freq()
+double thinbx_lo_ctrl::get_lo_freq()
 {
     return _freq;
 }
 
-void zbx_lo_ctrl::wait_for_lo_lock()
+void thinbx_lo_ctrl::wait_for_lo_lock()
 {
     UHD_LOG_TRACE(_log_id, "Waiting for LO lock,  " << ZBX_LO_LOCK_TIMEOUT_MS << " ms");
     const auto timeout = std::chrono::steady_clock::now()
@@ -67,12 +67,12 @@ void zbx_lo_ctrl::wait_for_lo_lock()
     }
 }
 
-bool zbx_lo_ctrl::get_lock_status()
+bool thinbx_lo_ctrl::get_lock_status()
 {
     return _lmx->get_lock_status();
 }
 
-void zbx_lo_ctrl::set_lo_port_enabled(bool enable)
+void thinbx_lo_ctrl::set_lo_port_enabled(bool enable)
 {
     UHD_LOG_TRACE(_log_id,
         "Enabling LO " << (_testing_mode_enabled ? "test" : "output") << " port");
@@ -94,61 +94,61 @@ void zbx_lo_ctrl::set_lo_port_enabled(bool enable)
     _lmx->commit();
 }
 
-bool zbx_lo_ctrl::get_lo_port_enabled()
+bool thinbx_lo_ctrl::get_lo_port_enabled()
 {
     return _lmx->get_enabled();
 }
 
-void zbx_lo_ctrl::set_lo_test_mode_enabled(bool enable)
+void thinbx_lo_ctrl::set_lo_test_mode_enabled(bool enable)
 {
     _testing_mode_enabled = enable;
     set_lo_port_enabled(get_lo_port_enabled());
 }
 
-bool zbx_lo_ctrl::get_lo_test_mode_enabled()
+bool thinbx_lo_ctrl::get_lo_test_mode_enabled()
 {
     return _testing_mode_enabled;
 }
 
-zbx_lo_t zbx_lo_ctrl::lo_string_to_enum(
+thinbx_lo_t thinbx_lo_ctrl::lo_string_to_enum(
     const uhd::direction_t trx, const size_t channel, const std::string name)
 {
     if (trx == TX_DIRECTION) {
         if (channel == 0) {
             if (name == ZBX_LO1) {
-                return zbx_lo_t::TX0_LO1;
+                return thinbx_lo_t::TX0_LO1;
             } else if (name == ZBX_LO2) {
-                return zbx_lo_t::TX0_LO2;
+                return thinbx_lo_t::TX0_LO2;
             }
         } else if (channel == 1) {
             if (name == ZBX_LO1) {
-                return zbx_lo_t::TX1_LO1;
+                return thinbx_lo_t::TX1_LO1;
             } else if (name == ZBX_LO2) {
-                return zbx_lo_t::TX1_LO2;
+                return thinbx_lo_t::TX1_LO2;
             }
         }
     } else {
         if (channel == 0) {
             if (name == ZBX_LO1) {
-                return zbx_lo_t::RX0_LO1;
+                return thinbx_lo_t::RX0_LO1;
             } else if (name == ZBX_LO2) {
-                return zbx_lo_t::RX0_LO2;
+                return thinbx_lo_t::RX0_LO2;
             }
         } else if (channel == 1) {
             if (name == ZBX_LO1) {
-                return zbx_lo_t::RX1_LO1;
+                return thinbx_lo_t::RX1_LO1;
             } else if (name == ZBX_LO2) {
-                return zbx_lo_t::RX1_LO2;
+                return thinbx_lo_t::RX1_LO2;
             }
         }
     }
     UHD_THROW_INVALID_CODE_PATH();
 }
 
-lmx2572_iface::output_t zbx_lo_ctrl::_get_output_port(bool testing_mode)
+lmx2572_iface::output_t thinbx_lo_ctrl::_get_output_port(bool testing_mode)
 {
-    // Note: The LO output ports here are dependent to the LO and zbx hardware
-    // configuration, in no particular order (zbx radio configuration output vs.
+    // Note: The LO output ports here are dependent to the LO and thinbx hardware
+    // configuration, in no particular order (thinbx radio configuration output vs.
     // test port output)
     if (!testing_mode) {
         // Rev B has all LO outputs on Port A
@@ -158,4 +158,4 @@ lmx2572_iface::output_t zbx_lo_ctrl::_get_output_port(bool testing_mode)
     }
 }
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

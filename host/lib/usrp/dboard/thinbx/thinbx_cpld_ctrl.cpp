@@ -5,7 +5,7 @@
 //
 
 #include <uhd/utils/log.hpp>
-#include <uhdlib/usrp/dboard/zbx/zbx_cpld_ctrl.hpp>
+#include <uhdlib/usrp/dboard/thinbx/thinbx_cpld_ctrl.hpp>
 #include <chrono>
 #include <map>
 #include <thread>
@@ -15,48 +15,48 @@ namespace {
 const uhd::time_spec_t SPI_THROTTLE_TIME = uhd::time_spec_t(2e-6);
 } // namespace
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
 // clang-format off
-const std::unordered_map<size_t, std::unordered_map<zbx_cpld_ctrl::dsa_type, zbx_cpld_regs_t::zbx_cpld_field_t>>
+const std::unordered_map<size_t, std::unordered_map<thinbx_cpld_ctrl::dsa_type, zbx_cpld_regs_t::zbx_cpld_field_t>>
     RX_DSA_CPLD_MAP
 {
     {0, {
-        {zbx_cpld_ctrl::dsa_type::DSA1,  zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA1},
-        {zbx_cpld_ctrl::dsa_type::DSA2,  zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA2},
-        {zbx_cpld_ctrl::dsa_type::DSA3A, zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA3_A},
-        {zbx_cpld_ctrl::dsa_type::DSA3B, zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA3_B}
+        {thinbx_cpld_ctrl::dsa_type::DSA1,  zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA1},
+        {thinbx_cpld_ctrl::dsa_type::DSA2,  zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA2},
+        {thinbx_cpld_ctrl::dsa_type::DSA3A, zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA3_A},
+        {thinbx_cpld_ctrl::dsa_type::DSA3B, zbx_cpld_regs_t::zbx_cpld_field_t::RX0_DSA3_B}
     }},
     {1, {
-        {zbx_cpld_ctrl::dsa_type::DSA1,  zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA1},
-        {zbx_cpld_ctrl::dsa_type::DSA2,  zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA2},
-        {zbx_cpld_ctrl::dsa_type::DSA3A, zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA3_A},
-        {zbx_cpld_ctrl::dsa_type::DSA3B, zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA3_B}
+        {thinbx_cpld_ctrl::dsa_type::DSA1,  zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA1},
+        {thinbx_cpld_ctrl::dsa_type::DSA2,  zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA2},
+        {thinbx_cpld_ctrl::dsa_type::DSA3A, zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA3_A},
+        {thinbx_cpld_ctrl::dsa_type::DSA3B, zbx_cpld_regs_t::zbx_cpld_field_t::RX1_DSA3_B}
     }}
 };
 
-const std::unordered_map<size_t, std::unordered_map<zbx_cpld_ctrl::dsa_type, zbx_cpld_regs_t::zbx_cpld_field_t>>
+const std::unordered_map<size_t, std::unordered_map<thinbx_cpld_ctrl::dsa_type, zbx_cpld_regs_t::zbx_cpld_field_t>>
     TX_DSA_CPLD_MAP
 {
     {0, {
-        {zbx_cpld_ctrl::dsa_type::DSA1, zbx_cpld_regs_t::zbx_cpld_field_t::TX0_DSA1},
-        {zbx_cpld_ctrl::dsa_type::DSA2, zbx_cpld_regs_t::zbx_cpld_field_t::TX0_DSA2}
+        {thinbx_cpld_ctrl::dsa_type::DSA1, zbx_cpld_regs_t::zbx_cpld_field_t::TX0_DSA1},
+        {thinbx_cpld_ctrl::dsa_type::DSA2, zbx_cpld_regs_t::zbx_cpld_field_t::TX0_DSA2}
     }},
     {1, {
-        {zbx_cpld_ctrl::dsa_type::DSA1, zbx_cpld_regs_t::zbx_cpld_field_t::TX1_DSA1},
-        {zbx_cpld_ctrl::dsa_type::DSA2, zbx_cpld_regs_t::zbx_cpld_field_t::TX1_DSA2}
+        {thinbx_cpld_ctrl::dsa_type::DSA1, zbx_cpld_regs_t::zbx_cpld_field_t::TX1_DSA1},
+        {thinbx_cpld_ctrl::dsa_type::DSA2, zbx_cpld_regs_t::zbx_cpld_field_t::TX1_DSA2}
     }}
 };
 // clang-format on
 
 
-const std::unordered_map<std::string, zbx_cpld_ctrl::dsa_type> zbx_cpld_ctrl::dsa_map{
-    {ZBX_GAIN_STAGE_DSA1, zbx_cpld_ctrl::dsa_type::DSA1},
-    {ZBX_GAIN_STAGE_DSA2, zbx_cpld_ctrl::dsa_type::DSA2},
-    {ZBX_GAIN_STAGE_DSA3A, zbx_cpld_ctrl::dsa_type::DSA3A},
-    {ZBX_GAIN_STAGE_DSA3B, zbx_cpld_ctrl::dsa_type::DSA3B}};
+const std::unordered_map<std::string, thinbx_cpld_ctrl::dsa_type>
+    thinbx_cpld_ctrl::dsa_map{{ZBX_GAIN_STAGE_DSA1, thinbx_cpld_ctrl::dsa_type::DSA1},
+        {ZBX_GAIN_STAGE_DSA2, thinbx_cpld_ctrl::dsa_type::DSA2},
+        {ZBX_GAIN_STAGE_DSA3A, thinbx_cpld_ctrl::dsa_type::DSA3A},
+        {ZBX_GAIN_STAGE_DSA3B, thinbx_cpld_ctrl::dsa_type::DSA3B}};
 
-zbx_cpld_ctrl::zbx_cpld_ctrl(poke_fn_type&& poke_fn,
+thinbx_cpld_ctrl::thinbx_cpld_ctrl(poke_fn_type&& poke_fn,
     peek_fn_type&& peek_fn,
     sleep_fn_type&& sleep_fn,
     const std::string& log_id)
@@ -68,23 +68,23 @@ zbx_cpld_ctrl::zbx_cpld_ctrl(poke_fn_type&& poke_fn,
 {
     UHD_LOG_TRACE(_log_id, "Entering CPLD ctor...");
     // Reset and stash the regs state. We can't assume the defaults in
-    // gen_zbx_cpld_regs.py match what's on the hardware.
+    // gen_thinbx_cpld_regs.py match what's on the hardware.
     commit(NO_CHAN, true);
     _regs.save_state();
 }
 
-void zbx_cpld_ctrl::set_scratch(const uint32_t value)
+void thinbx_cpld_ctrl::set_scratch(const uint32_t value)
 {
     _regs.SCRATCH = value;
     commit(NO_CHAN);
 }
 
-uint32_t zbx_cpld_ctrl::get_scratch()
+uint32_t thinbx_cpld_ctrl::get_scratch()
 {
     return _peek32(_regs.get_addr("SCRATCH"));
 }
 
-void zbx_cpld_ctrl::set_atr_mode(
+void thinbx_cpld_ctrl::set_atr_mode(
     const size_t channel, const atr_mode_target target, const atr_mode mode)
 {
     UHD_ASSERT_THROW(channel == 0 || channel == 1);
@@ -104,7 +104,7 @@ void zbx_cpld_ctrl::set_atr_mode(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_sw_config(
+void thinbx_cpld_ctrl::set_sw_config(
     const size_t channel, const atr_mode_target target, const uint8_t rf_config)
 {
     UHD_ASSERT_THROW(channel == 0 || channel == 1);
@@ -121,7 +121,7 @@ void zbx_cpld_ctrl::set_sw_config(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-uint8_t zbx_cpld_ctrl::get_current_config(
+uint8_t thinbx_cpld_ctrl::get_current_config(
     const size_t channel, const atr_mode_target target)
 {
     UHD_ASSERT_THROW(channel == 0 || channel == 1);
@@ -141,7 +141,7 @@ uint8_t zbx_cpld_ctrl::get_current_config(
     return _regs.get_field(mode_map.at({channel, target}));
 }
 
-void zbx_cpld_ctrl::set_tx_gain_switches(
+void thinbx_cpld_ctrl::set_tx_gain_switches(
     const size_t channel, const uint8_t idx, const tx_dsa_type& dsa_steps)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
@@ -160,7 +160,7 @@ void zbx_cpld_ctrl::set_tx_gain_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_rx_gain_switches(
+void thinbx_cpld_ctrl::set_rx_gain_switches(
     const size_t channel, const uint8_t idx, const rx_dsa_type& dsa_steps)
 {
     UHD_LOG_TRACE(_log_id,
@@ -181,7 +181,7 @@ void zbx_cpld_ctrl::set_rx_gain_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_rx_gain_switches(
+void thinbx_cpld_ctrl::set_rx_gain_switches(
     const size_t channel, const uint8_t idx, const uint8_t table_idx)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
@@ -195,7 +195,7 @@ void zbx_cpld_ctrl::set_rx_gain_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_tx_gain_switches(
+void thinbx_cpld_ctrl::set_tx_gain_switches(
     const size_t channel, const uint8_t idx, const uint8_t table_idx)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
@@ -209,7 +209,7 @@ void zbx_cpld_ctrl::set_tx_gain_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-uint8_t zbx_cpld_ctrl::set_tx_dsa(
+uint8_t thinbx_cpld_ctrl::set_tx_dsa(
     const size_t channel, const uint8_t idx, const dsa_type tx_dsa, const uint8_t att)
 {
     UHD_ASSERT_THROW(channel == 0 || channel == 1);
@@ -220,7 +220,7 @@ uint8_t zbx_cpld_ctrl::set_tx_dsa(
     return att_coerced;
 }
 
-uint8_t zbx_cpld_ctrl::set_rx_dsa(
+uint8_t thinbx_cpld_ctrl::set_rx_dsa(
     const size_t channel, const uint8_t idx, const dsa_type rx_dsa, const uint8_t att)
 {
     UHD_ASSERT_THROW(channel == 0 || channel == 1);
@@ -230,7 +230,7 @@ uint8_t zbx_cpld_ctrl::set_rx_dsa(
     return att_coerced;
 }
 
-uint8_t zbx_cpld_ctrl::get_tx_dsa(const size_t channel,
+uint8_t thinbx_cpld_ctrl::get_tx_dsa(const size_t channel,
     const uint8_t idx,
     const dsa_type tx_dsa,
     const bool update_cache)
@@ -243,7 +243,7 @@ uint8_t zbx_cpld_ctrl::get_tx_dsa(const size_t channel,
     return _regs.get_field(TX_DSA_CPLD_MAP.at(channel).at(tx_dsa), idx);
 }
 
-uint8_t zbx_cpld_ctrl::get_rx_dsa(const size_t channel,
+uint8_t thinbx_cpld_ctrl::get_rx_dsa(const size_t channel,
     const uint8_t idx,
     const dsa_type rx_dsa,
     const bool update_cache)
@@ -255,7 +255,7 @@ uint8_t zbx_cpld_ctrl::get_rx_dsa(const size_t channel,
     return _regs.get_field(RX_DSA_CPLD_MAP.at(channel).at(rx_dsa), idx);
 }
 
-void zbx_cpld_ctrl::set_tx_antenna_switches(
+void thinbx_cpld_ctrl::set_tx_antenna_switches(
     const size_t channel, const uint8_t idx, const std::string& antenna, const tx_amp amp)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
@@ -313,7 +313,7 @@ void zbx_cpld_ctrl::set_tx_antenna_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_rx_antenna_switches(
+void thinbx_cpld_ctrl::set_rx_antenna_switches(
     const size_t channel, const uint8_t idx, const std::string& antenna)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
@@ -355,7 +355,7 @@ void zbx_cpld_ctrl::set_rx_antenna_switches(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-tx_amp zbx_cpld_ctrl::get_tx_amp_settings(
+tx_amp thinbx_cpld_ctrl::get_tx_amp_settings(
     const size_t channel, const uint8_t idx, const bool update_cache)
 {
     if (channel == 0) {
@@ -409,7 +409,7 @@ tx_amp zbx_cpld_ctrl::get_tx_amp_settings(
     UHD_THROW_INVALID_CODE_PATH();
 }
 
-void zbx_cpld_ctrl::set_rx_rf_filter(
+void thinbx_cpld_ctrl::set_rx_rf_filter(
     const size_t channel, const uint8_t idx, const uint8_t rf_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && rf_fir < 4);
@@ -450,7 +450,7 @@ void zbx_cpld_ctrl::set_rx_rf_filter(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_rx_if1_filter(
+void thinbx_cpld_ctrl::set_rx_if1_filter(
     const size_t channel, const uint8_t idx, const uint8_t if1_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && if1_fir != 0 && if1_fir < 5);
@@ -483,7 +483,7 @@ void zbx_cpld_ctrl::set_rx_if1_filter(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_rx_if2_filter(
+void thinbx_cpld_ctrl::set_rx_if2_filter(
     const size_t channel, const uint8_t idx, const uint8_t if2_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && if2_fir != 0 && if2_fir < 3);
@@ -498,7 +498,7 @@ void zbx_cpld_ctrl::set_rx_if2_filter(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_tx_rf_filter(
+void thinbx_cpld_ctrl::set_tx_rf_filter(
     const size_t channel, const uint8_t idx, const uint8_t rf_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && rf_fir < 4);
@@ -539,7 +539,7 @@ void zbx_cpld_ctrl::set_tx_rf_filter(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_tx_if1_filter(
+void thinbx_cpld_ctrl::set_tx_if1_filter(
     const size_t channel, const uint8_t idx, const uint8_t if1_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && if1_fir != 0 && if1_fir < 7);
@@ -596,7 +596,7 @@ void zbx_cpld_ctrl::set_tx_if1_filter(
     commit(channel == 0 ? CHAN0 : CHAN1);
 }
 
-void zbx_cpld_ctrl::set_tx_if2_filter(
+void thinbx_cpld_ctrl::set_tx_if2_filter(
     const size_t channel, const uint8_t idx, const uint8_t if2_fir)
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS && if2_fir != 0 && if2_fir < 3);
@@ -614,7 +614,7 @@ void zbx_cpld_ctrl::set_tx_if2_filter(
 /******************************************************************************
  * LED control
  *****************************************************************************/
-void zbx_cpld_ctrl::set_leds(const size_t channel,
+void thinbx_cpld_ctrl::set_leds(const size_t channel,
     const uint8_t idx,
     const bool rx,
     const bool trx_rx,
@@ -622,15 +622,15 @@ void zbx_cpld_ctrl::set_leds(const size_t channel,
 {
     UHD_ASSERT_THROW(channel < ZBX_NUM_CHANS);
     if (channel == 0) {
-        _regs.RX0_RX_LED[idx] = rx ? zbx_cpld_regs_t::RX0_RX_LED_ENABLE
-                                   : zbx_cpld_regs_t::RX0_RX_LED_DISABLE;
+        _regs.RX0_RX_LED[idx]  = rx ? zbx_cpld_regs_t::RX0_RX_LED_ENABLE
+                                    : zbx_cpld_regs_t::RX0_RX_LED_DISABLE;
         _regs.RX0_TRX_LED[idx] = trx_rx ? zbx_cpld_regs_t::RX0_TRX_LED_ENABLE
                                         : zbx_cpld_regs_t::RX0_TRX_LED_DISABLE;
         _regs.TX0_TRX_LED[idx] = trx_tx ? zbx_cpld_regs_t::TX0_TRX_LED_ENABLE
                                         : zbx_cpld_regs_t::TX0_TRX_LED_DISABLE;
     } else {
-        _regs.RX1_RX_LED[idx] = rx ? zbx_cpld_regs_t::RX1_RX_LED_ENABLE
-                                   : zbx_cpld_regs_t::RX1_RX_LED_DISABLE;
+        _regs.RX1_RX_LED[idx]  = rx ? zbx_cpld_regs_t::RX1_RX_LED_ENABLE
+                                    : zbx_cpld_regs_t::RX1_RX_LED_DISABLE;
         _regs.RX1_TRX_LED[idx] = trx_rx ? zbx_cpld_regs_t::RX1_TRX_LED_ENABLE
                                         : zbx_cpld_regs_t::RX1_TRX_LED_DISABLE;
         _regs.TX1_TRX_LED[idx] = trx_tx ? zbx_cpld_regs_t::TX1_TRX_LED_ENABLE
@@ -642,7 +642,8 @@ void zbx_cpld_ctrl::set_leds(const size_t channel,
 /******************************************************************************
  * LO control
  *****************************************************************************/
-void zbx_cpld_ctrl::lo_poke16(const zbx_lo_t lo, const uint8_t addr, const uint16_t data)
+void thinbx_cpld_ctrl::lo_poke16(
+    const thinbx_lo_t lo, const uint8_t addr, const uint16_t data)
 {
     _lo_spi_transact(lo, addr, data, spi_xact_t::WRITE, true);
     // We always sleep here, in the assumption that the next poke to the CPLD is
@@ -655,7 +656,7 @@ void zbx_cpld_ctrl::lo_poke16(const zbx_lo_t lo, const uint8_t addr, const uint1
     // to throttle.
 }
 
-uint16_t zbx_cpld_ctrl::lo_peek16(const zbx_lo_t lo, const uint8_t addr)
+uint16_t thinbx_cpld_ctrl::lo_peek16(const thinbx_lo_t lo, const uint8_t addr)
 {
     _lo_spi_transact(lo, addr, 0, spi_xact_t::READ, true);
     // Now poll the LO_SPI_READY register until we have good return value
@@ -685,101 +686,102 @@ uint16_t zbx_cpld_ctrl::lo_peek16(const zbx_lo_t lo, const uint8_t addr)
     return _regs.DATA;
 }
 
-bool zbx_cpld_ctrl::lo_spi_ready()
+bool thinbx_cpld_ctrl::lo_spi_ready()
 {
     return _peek32(_lo_spi_offset) & (1 << 30);
 }
 
-void zbx_cpld_ctrl::set_lo_source(
-    const size_t idx, const zbx_lo_t lo, const zbx_lo_source_t lo_source)
+void thinbx_cpld_ctrl::set_lo_source(
+    const size_t idx, const thinbx_lo_t lo, const thinbx_lo_source_t lo_source)
 {
     // LO source is either internal or external
-    const bool internal = lo_source == zbx_lo_source_t::internal;
+    const bool internal = lo_source == thinbx_lo_source_t::internal;
     switch (lo) {
-        case zbx_lo_t::TX0_LO1:
+        case thinbx_lo_t::TX0_LO1:
             _regs.TX0_LO_14[idx] = internal ? zbx_cpld_regs_t::TX0_LO_14_INTERNAL
                                             : zbx_cpld_regs_t::TX0_LO_14_EXTERNAL;
             break;
-        case zbx_lo_t::TX0_LO2:
+        case thinbx_lo_t::TX0_LO2:
             _regs.TX0_LO_13[idx] = internal ? zbx_cpld_regs_t::TX0_LO_13_INTERNAL
                                             : zbx_cpld_regs_t::TX0_LO_13_EXTERNAL;
             break;
-        case zbx_lo_t::TX1_LO1:
+        case thinbx_lo_t::TX1_LO1:
             _regs.TX1_LO_14[idx] = internal ? zbx_cpld_regs_t::TX1_LO_14_INTERNAL
                                             : zbx_cpld_regs_t::TX1_LO_14_EXTERNAL;
             break;
-        case zbx_lo_t::TX1_LO2:
+        case thinbx_lo_t::TX1_LO2:
             _regs.TX1_LO_13[idx] = internal ? zbx_cpld_regs_t::TX1_LO_13_INTERNAL
                                             : zbx_cpld_regs_t::TX1_LO_13_EXTERNAL;
             break;
-        case zbx_lo_t::RX0_LO1:
+        case thinbx_lo_t::RX0_LO1:
             _regs.RX0_LO_9[idx] = internal ? zbx_cpld_regs_t::RX0_LO_9_INTERNAL
                                            : zbx_cpld_regs_t::RX0_LO_9_EXTERNAL;
             break;
-        case zbx_lo_t::RX0_LO2:
+        case thinbx_lo_t::RX0_LO2:
             _regs.RX0_LO_10[idx] = internal ? zbx_cpld_regs_t::RX0_LO_10_INTERNAL
                                             : zbx_cpld_regs_t::RX0_LO_10_EXTERNAL;
             break;
-        case zbx_lo_t::RX1_LO1:
+        case thinbx_lo_t::RX1_LO1:
             _regs.RX1_LO_9[idx] = internal ? zbx_cpld_regs_t::RX1_LO_9_INTERNAL
                                            : zbx_cpld_regs_t::RX1_LO_9_EXTERNAL;
             break;
-        case zbx_lo_t::RX1_LO2:
+        case thinbx_lo_t::RX1_LO2:
             _regs.RX1_LO_10[idx] = internal ? zbx_cpld_regs_t::RX1_LO_10_INTERNAL
                                             : zbx_cpld_regs_t::RX1_LO_10_EXTERNAL;
             break;
         default:
             UHD_THROW_INVALID_CODE_PATH();
     }
-    if (lo == zbx_lo_t::TX0_LO1 || lo == zbx_lo_t::TX0_LO2 || lo == zbx_lo_t::RX0_LO1
-        || lo == zbx_lo_t::RX0_LO2) {
+    if (lo == thinbx_lo_t::TX0_LO1 || lo == thinbx_lo_t::TX0_LO2
+        || lo == thinbx_lo_t::RX0_LO1 || lo == thinbx_lo_t::RX0_LO2) {
         commit(CHAN0);
     } else {
         commit(CHAN1);
     }
 }
 
-zbx_lo_source_t zbx_cpld_ctrl::get_lo_source(const size_t idx, zbx_lo_t lo)
+thinbx_lo_source_t thinbx_cpld_ctrl::get_lo_source(const size_t idx, thinbx_lo_t lo)
 {
     switch (lo) {
-        case zbx_lo_t::TX0_LO1:
+        case thinbx_lo_t::TX0_LO1:
             return _regs.TX0_LO_14[idx] == zbx_cpld_regs_t::TX0_LO_14_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::TX0_LO2:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::TX0_LO2:
             return _regs.TX0_LO_13[idx] == zbx_cpld_regs_t::TX0_LO_13_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::TX1_LO1:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::TX1_LO1:
             return _regs.TX1_LO_14[idx] == zbx_cpld_regs_t::TX1_LO_14_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::TX1_LO2:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::TX1_LO2:
             return _regs.TX1_LO_13[idx] == zbx_cpld_regs_t::TX1_LO_13_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::RX0_LO1:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::RX0_LO1:
             return _regs.RX0_LO_9[idx] == zbx_cpld_regs_t::RX0_LO_9_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::RX0_LO2:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::RX0_LO2:
             return _regs.RX0_LO_10[idx] == zbx_cpld_regs_t::RX0_LO_10_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::RX1_LO1:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::RX1_LO1:
             return _regs.RX1_LO_9[idx] == zbx_cpld_regs_t::RX1_LO_9_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
-        case zbx_lo_t::RX1_LO2:
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
+        case thinbx_lo_t::RX1_LO2:
             return _regs.RX1_LO_10[idx] == zbx_cpld_regs_t::RX1_LO_10_INTERNAL
-                       ? zbx_lo_source_t::internal
-                       : zbx_lo_source_t::external;
+                       ? thinbx_lo_source_t::internal
+                       : thinbx_lo_source_t::external;
         default:
             UHD_THROW_INVALID_CODE_PATH();
     }
 }
 
-void zbx_cpld_ctrl::pulse_lo_sync(const size_t ref_chan, const std::vector<zbx_lo_t>& los)
+void thinbx_cpld_ctrl::pulse_lo_sync(
+    const size_t ref_chan, const std::vector<thinbx_lo_t>& los)
 {
     if (_regs.BYPASS_SYNC_REGISTER == zbx_cpld_regs_t::BYPASS_SYNC_REGISTER_ENABLE) {
         const std::string err_msg = "Cannot pulse LO SYNC when bypass is enabled!";
@@ -787,16 +789,24 @@ void zbx_cpld_ctrl::pulse_lo_sync(const size_t ref_chan, const std::vector<zbx_l
         throw uhd::runtime_error(_log_id + err_msg);
     }
     // Assert a 1 for all LOs to be sync'd
-    static const std::unordered_map<zbx_lo_t, zbx_cpld_regs_t::zbx_cpld_field_t>
+    static const std::unordered_map<thinbx_lo_t, zbx_cpld_regs_t::zbx_cpld_field_t>
         lo_pulse_map{{
-            {zbx_lo_t::TX0_LO1, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX0_LO1_SYNC},
-            {zbx_lo_t::TX0_LO2, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX0_LO2_SYNC},
-            {zbx_lo_t::TX1_LO1, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX1_LO1_SYNC},
-            {zbx_lo_t::TX1_LO2, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX1_LO2_SYNC},
-            {zbx_lo_t::RX0_LO1, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX0_LO1_SYNC},
-            {zbx_lo_t::RX0_LO2, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX0_LO2_SYNC},
-            {zbx_lo_t::RX1_LO1, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX1_LO1_SYNC},
-            {zbx_lo_t::RX1_LO2, zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX1_LO2_SYNC},
+            {thinbx_lo_t::TX0_LO1,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX0_LO1_SYNC},
+            {thinbx_lo_t::TX0_LO2,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX0_LO2_SYNC},
+            {thinbx_lo_t::TX1_LO1,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX1_LO1_SYNC},
+            {thinbx_lo_t::TX1_LO2,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_TX1_LO2_SYNC},
+            {thinbx_lo_t::RX0_LO1,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX0_LO1_SYNC},
+            {thinbx_lo_t::RX0_LO2,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX0_LO2_SYNC},
+            {thinbx_lo_t::RX1_LO1,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX1_LO1_SYNC},
+            {thinbx_lo_t::RX1_LO2,
+                zbx_cpld_regs_t::zbx_cpld_field_t::PULSE_RX1_LO2_SYNC},
         }};
     for (const auto lo : los) {
         _regs.set_field(lo_pulse_map.at(lo), 1);
@@ -810,14 +820,14 @@ void zbx_cpld_ctrl::pulse_lo_sync(const size_t ref_chan, const std::vector<zbx_l
     _regs.save_state();
 }
 
-void zbx_cpld_ctrl::set_lo_sync_bypass(const bool enable)
+void thinbx_cpld_ctrl::set_lo_sync_bypass(const bool enable)
 {
     _regs.BYPASS_SYNC_REGISTER = enable ? zbx_cpld_regs_t::BYPASS_SYNC_REGISTER_ENABLE
                                         : zbx_cpld_regs_t::BYPASS_SYNC_REGISTER_DISABLE;
     commit(NO_CHAN);
 }
 
-void zbx_cpld_ctrl::update_tx_dsa_settings(
+void thinbx_cpld_ctrl::update_tx_dsa_settings(
     const std::vector<uint32_t>& dsa1_table, const std::vector<uint32_t>& dsa2_table)
 {
     write_register_vector("TX0_TABLE_DSA1", dsa1_table);
@@ -827,7 +837,7 @@ void zbx_cpld_ctrl::update_tx_dsa_settings(
     commit(NO_CHAN);
 }
 
-void zbx_cpld_ctrl::update_rx_dsa_settings(const std::vector<uint32_t>& dsa1_table,
+void thinbx_cpld_ctrl::update_rx_dsa_settings(const std::vector<uint32_t>& dsa1_table,
     const std::vector<uint32_t>& dsa2_table,
     const std::vector<uint32_t>& dsa3a_table,
     const std::vector<uint32_t>& dsa3b_table)
@@ -846,7 +856,7 @@ void zbx_cpld_ctrl::update_rx_dsa_settings(const std::vector<uint32_t>& dsa1_tab
 /******************************************************************************
  * Private methods
  *****************************************************************************/
-void zbx_cpld_ctrl::_lo_spi_transact(const zbx_lo_t lo,
+void thinbx_cpld_ctrl::_lo_spi_transact(const thinbx_lo_t lo,
     const uint8_t addr,
     const uint16_t data,
     const spi_xact_t xact_type,
@@ -854,8 +864,8 @@ void zbx_cpld_ctrl::_lo_spi_transact(const zbx_lo_t lo,
 {
     // Look up the channel based on the LO, so we can load the correct command
     // time for the poke
-    const chan_t chan = (lo == zbx_lo_t::TX0_LO1 || lo == zbx_lo_t::TX0_LO2
-                            || lo == zbx_lo_t::RX0_LO1 || lo == zbx_lo_t::RX0_LO2)
+    const chan_t chan = (lo == thinbx_lo_t::TX0_LO1 || lo == thinbx_lo_t::TX0_LO2
+                            || lo == thinbx_lo_t::RX0_LO1 || lo == thinbx_lo_t::RX0_LO2)
                             ? CHAN0
                             : CHAN1;
     // Note: For SPI transactions, we can't also be lugging around other
@@ -864,7 +874,7 @@ void zbx_cpld_ctrl::_lo_spi_transact(const zbx_lo_t lo,
     _regs.DATA      = data;
     _regs.READ_FLAG = (xact_type == spi_xact_t::WRITE) ? zbx_cpld_regs_t::READ_FLAG_WRITE
                                                        : zbx_cpld_regs_t::READ_FLAG_READ;
-    _regs.LO_SELECT         = zbx_cpld_regs_t::LO_SELECT_t(lo);
+    _regs.LO_SELECT = zbx_cpld_regs_t::LO_SELECT_t(lo);
     _regs.START_TRANSACTION = zbx_cpld_regs_t::START_TRANSACTION_ENABLE;
     _poke32(_lo_spi_offset, _regs.get_reg(_lo_spi_offset), chan);
     _regs.START_TRANSACTION = zbx_cpld_regs_t::START_TRANSACTION_DISABLE;
@@ -876,7 +886,7 @@ void zbx_cpld_ctrl::_lo_spi_transact(const zbx_lo_t lo,
     }
 }
 
-void zbx_cpld_ctrl::write_register_vector(
+void thinbx_cpld_ctrl::write_register_vector(
     const std::string& reg_addr_name, const std::vector<uint32_t>& values)
 {
     UHD_LOG_DEBUG(
@@ -895,7 +905,7 @@ void zbx_cpld_ctrl::write_register_vector(
     }
 }
 
-void zbx_cpld_ctrl::commit(const chan_t chan, const bool save_all)
+void thinbx_cpld_ctrl::commit(const chan_t chan, const bool save_all)
 {
     UHD_LOG_TRACE(_log_id,
         "Storing register cache " << (save_all ? "completely" : "selectively")
@@ -912,7 +922,7 @@ void zbx_cpld_ctrl::commit(const chan_t chan, const bool save_all)
             << changed_addrs.size() << " registers.");
 }
 
-void zbx_cpld_ctrl::update_field(
+void thinbx_cpld_ctrl::update_field(
     const zbx_cpld_regs_t::zbx_cpld_field_t field, const size_t idx)
 {
     const uint16_t addr     = _regs.get_addr(field) + 4 * idx;
@@ -934,4 +944,4 @@ void zbx_cpld_ctrl::update_field(
     }
 }
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx

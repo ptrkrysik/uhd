@@ -6,18 +6,18 @@
 
 #pragma once
 
-#include "zbx_constants.hpp"
+#include "thinbx_constants.hpp"
 #include <uhd/types/direction.hpp>
 #include <uhdlib/usrp/common/lmx2572.hpp>
 #include <functional>
 
-namespace uhd { namespace usrp { namespace zbx {
+namespace uhd { namespace usrp { namespace thinbx {
 
-class zbx_lo_ctrl final
+class thinbx_lo_ctrl final
 {
 public:
     // Pass in our lo selection and poke/peek functions
-    zbx_lo_ctrl(zbx_lo_t lo,
+    thinbx_lo_ctrl(thinbx_lo_t lo,
         lmx2572_iface::write_fn_t&& poke16,
         lmx2572_iface::read_fn_t&& peek16,
         lmx2572_iface::sleep_fn_t&& sleep,
@@ -52,7 +52,7 @@ public:
     // Returns whether the test mode has been enabled
     bool get_lo_test_mode_enabled();
 
-    static zbx_lo_t lo_string_to_enum(
+    static thinbx_lo_t lo_string_to_enum(
         const uhd::direction_t trx, const size_t channel, const std::string name);
 
     // TODO: Future implementation of spur dodging
@@ -81,4 +81,4 @@ private:
     bool _testing_mode_enabled;
 };
 
-}}} // namespace uhd::usrp::zbx
+}}} // namespace uhd::usrp::thinbx
