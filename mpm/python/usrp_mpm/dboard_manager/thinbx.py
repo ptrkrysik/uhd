@@ -109,22 +109,25 @@ class ZBX(DboardManagerBase):
         self.db_iface = kwargs['db_iface']
 
         self.eeprom_symbol = f"db{slot_idx}_eeprom"
-        eeprom = self._get_eeprom()
-        self._assert_rev_compatibility(eeprom["rev_compat"])
+        # eeprom = self._get_eeprom()
+        # self._assert_rev_compatibility(eeprom["rev_compat"])
         # Initialize daughterboard CPLD control
-        self.poke_cpld = self.db_iface.poke_db_cpld
-        self.peek_cpld = self.db_iface.peek_db_cpld
-        self.regs = zbx_cpld_regs_t()
-        self._spi_addr = self.regs.SPI_READY_addr
+        # self.poke_cpld = self.db_iface.poke_db_cpld
+        # self.peek_cpld = self.db_iface.peek_db_cpld
+        # self.regs = zbx_cpld_regs_t()
+        # self._spi_addr = self.regs.SPI_READY_addr
         self._enable_base_power()
         # Check register map compatibility
-        self._check_compat_version()
-        self.log.debug("ZBX CPLD build git hash: %s", self._get_cpld_git_hash())
+        # self._check_compat_version()
+        # self.log.debug("ZBX CPLD build git hash: %s", self._get_cpld_git_hash())
         # Power up the DB
-        self._enable_power()
+        # self._enable_power()
         # enable PLL reference clock
-        self.reset_clock(False)
-        self._cpld_set_safe_defaults()
+        # self.reset_clock(False)
+        # self._cpld_set_safe_defaults()
+        # for trx in ['rx', 'tx']:
+        #     for channel in range(0,2):
+        #         self.enable_iq_swap(False, trx, channel)
 
     def _get_eeprom(self):
         """
@@ -169,12 +172,14 @@ class ZBX(DboardManagerBase):
 
     def _enable_power(self, enable=True):
         """ Enables or disables power switches internal to the DB CPLD """
-        self.regs.ENABLE_TX_POS_7V0 = self.regs.ENABLE_TX_POS_7V0_t(int(enable))
-        self.regs.ENABLE_RX_POS_7V0 = self.regs.ENABLE_RX_POS_7V0_t(int(enable))
-        self.regs.ENABLE_POS_3V3 = self.regs.ENABLE_POS_3V3_t(int(enable))
-        self.poke_cpld(
-            self.regs.ENABLE_POS_3V3_addr,
-            self.regs.get_reg(self.regs.ENABLE_POS_3V3_addr))
+        # self.regs.ENABLE_TX_POS_7V0 = self.regs.ENABLE_TX_POS_7V0_t(int(enable))
+        # self.regs.ENABLE_RX_POS_7V0 = self.regs.ENABLE_RX_POS_7V0_t(int(enable))
+        # self.regs.ENABLE_POS_3V3 = self.regs.ENABLE_POS_3V3_t(int(enable))
+        # self.poke_cpld(
+        #     self.regs.ENABLE_POS_3V3_addr,
+            # self.regs.get_reg(self.regs.ENABLE_POS_3V3_addr))
+        pass   
+            
 
     def _check_compat_version(self):
         """ Check compatibility of DB CPLD image and SW regmap """
@@ -291,8 +296,8 @@ class ZBX(DboardManagerBase):
         cpld_regs.RX0_DSA2[0] = 15
         cpld_regs.RX0_DSA3_A[0] = 15
         cpld_regs.RX0_DSA3_B[0] = 15
-        for addr in cpld_regs.get_changed_addrs():
-            self.poke_cpld(addr, cpld_regs.get_reg(addr))
+        # for addr in cpld_regs.get_changed_addrs():
+            # self.poke_cpld(addr, cpld_regs.get_reg(addr))
         # pylint: enable=too-many-statements
 
     #########################################################################
@@ -312,8 +317,9 @@ class ZBX(DboardManagerBase):
         """
         De-initialize after UHD session completes
         """
-        self.log.debug("Setting CPLD back to safe defaults after UHD session.")
-        self._cpld_set_safe_defaults()
+        self.log.debug("Deinit")
+        # self.log.debug("Setting CPLD back to safe defaults after UHD session.")
+        # self._cpld_set_safe_defaults()
 
     def tear_down(self):
         self.db_iface.tear_down()
@@ -363,13 +369,13 @@ class ZBX(DboardManagerBase):
         """
         if self._clock_enabled != bool(value):
             return
-        addr = self.regs.get_addr("PLL_REF_CLOCK_ENABLE")
-        enum = self.regs.PLL_REF_CLOCK_ENABLE_t
-        if value:
-            reg_value = enum.PLL_REF_CLOCK_ENABLE_DISABLE.value
-        else:
-            reg_value = enum.PLL_REF_CLOCK_ENABLE_ENABLE.value
-        self.poke_cpld(addr, reg_value)
+        # addr = self.regs.get_addr("PLL_REF_CLOCK_ENABLE")
+        # enum = self.regs.PLL_REF_CLOCK_ENABLE_t
+        # if value:
+        #     reg_value = enum.PLL_REF_CLOCK_ENABLE_DISABLE.value
+        # else:
+        #     reg_value = enum.PLL_REF_CLOCK_ENABLE_ENABLE.value
+        # self.poke_cpld(addr, reg_value)
         self._clock_enabled = not bool(value)
 
     #########################################################################
@@ -406,7 +412,7 @@ class ZBX(DboardManagerBase):
         self.regs.ADDRESS = addr
         self.regs.START_TRANSACTION = \
             self.regs.START_TRANSACTION_t.START_TRANSACTION_ENABLE
-        self.poke_cpld(self._spi_addr, self.regs.get_reg(self._spi_addr))
+        # self.poke_cpld(self._spi_addr, self.regs.get_reg(self._spi_addr))
 
     def _lo_spi_check_status(self, lo_name, addr, write=False):
         """ Wait for SPI Ready and check the success of the LO SPI transaction """
@@ -467,14 +473,15 @@ class ZBX(DboardManagerBase):
             self.regs.TX1_TRX_LED[0] = self.regs.TX1_TRX_LED[0].TX1_TRX_LED_ENABLE \
                 if bool(trx_tx) else self.regs.TX1_TRX_LED[0].TX1_TRX_LED_DISABLE
 
-        for addr in self.regs.get_changed_addrs():
-            self.poke_cpld(addr, self.regs.get_reg(addr))
+        # for addr in self.regs.get_changed_addrs():
+        #     self.poke_cpld(addr, self.regs.get_reg(addr))
 
     ###########################################################################
     # Sensors
     ###########################################################################
     def get_rf_temp_sensor(self, _):
         """
+        
         Return the RF temperature sensor value
         """
         self.log.trace("Reading RF daughterboard temperature.")
