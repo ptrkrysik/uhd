@@ -16,6 +16,7 @@ if not __simulated__:
     from .eiscat import EISCAT
     from .empty_slot import EmptySlot
     from .zbx import ZBX
+    from .thinbx import ThinBX
     from .test import test
     from .unknown import unknown
     from .dboard_iface import DboardIface
