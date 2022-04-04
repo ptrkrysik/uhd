@@ -543,14 +543,14 @@ class PeriphManagerBase(object):
         Read back EEPROM info from the daughterboards
         """
         dboard_info = {'db0': {
-                        'eeprom_md': {'serial': 'deadbee', 'pid': 0x4006},
+                        'eeprom_md': {'serial': 'deadbee', 'pid': 0x4012},
                         'eeprom_raw': [],
-                        'pid': 0x4006
+                        'pid': 0x4012
                     },
                     'db1': {
-                        'eeprom_md': {'serial': 'deadbef', 'pid': 0x4006},
+                        'eeprom_md': {'serial': 'deadbef', 'pid': 0x4012},
                         'eeprom_raw': [],
-                        'pid': 0x4006
+                        'pid': 0x4012
                     }}
         # dboard_info = self._get_board_info_by_symbol(self.dboard_eeprom_symbols)
         if len(dboard_info) > self.max_num_dboards:
