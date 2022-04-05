@@ -7,7 +7,7 @@ After=network.target
 Requires=network.target
 
 [Service]
-ExecStart=@CMAKE_INSTALL_PREFIX@/bin/uhd_adc_self_cal --args @UHD_SELF_CAL_ARGS@
+ExecStart=/usr/bin/uhd_adc_self_cal --args @UHD_SELF_CAL_ARGS@
 Type=simple
 User=root
 
