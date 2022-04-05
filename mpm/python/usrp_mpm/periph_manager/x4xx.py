@@ -152,7 +152,7 @@ class x4xx(ZynqComponents, PeriphManagerBase):
     # See PeriphManagerBase for documentation on these fields. We try and keep
     # them in the same order as they are in PeriphManagerBase for easier lookup.
     #########################################################################
-    pids = {0x0410: 'x410'}
+    pids = {0x0410: 'x410', 0x0411: 'x411'}
     description = "X400-Series Device"
     eeprom_search = PeriphManagerBase._EepromSearch.SYMBOL
     # This is not in the overridables section from PeriphManagerBase, but we use
@@ -239,7 +239,6 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             eeprom_md, mboard_info, dboard_infos)
         # Then add X4xx-specific information
         mb_pid = eeprom_md.get('pid')
-        mb_pid = 0x0410 #temporary hack
         device_info['product'] = cls.pids.get(mb_pid, 'unknown')
         module_serial = eeprom_md.get('module_serial')
         if module_serial is not None:
@@ -497,8 +496,7 @@ class x4xx(ZynqComponents, PeriphManagerBase):
 
         # Init Mboard Regs
         self.log.trace("Initializing MBoard reg controls...")
-        # serial_number = self._get_serial_number()
-        serial_number = b'\x01\x11' # temporary hack
+        serial_number = self._get_serial_number()
         self.mboard_regs_control = MboardRegsControl(
             self.mboard_regs_label, self.log)
         self._check_fpga_compat()
