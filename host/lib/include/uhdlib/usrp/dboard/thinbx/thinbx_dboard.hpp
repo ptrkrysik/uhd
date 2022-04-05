@@ -124,11 +124,11 @@ public:
     double set_rx_frequency(const double freq, const size_t chan) override;
     uhd::freq_range_t get_tx_frequency_range(const size_t /*chan*/) const override
     {
-        return ZBX_FREQ_RANGE;
+        return THINBX_FREQ_RANGE;
     }
     uhd::freq_range_t get_rx_frequency_range(const size_t /*chan*/) const override
     {
-        return ZBX_FREQ_RANGE;
+        return THINBX_FREQ_RANGE;
     }
 
     double set_tx_bandwidth(const double bandwidth, const size_t chan) override;
@@ -161,23 +161,23 @@ public:
 
     uhd::gain_range_t get_tx_gain_range(const size_t /*chan*/) const override
     {
-        return ZBX_TX_GAIN_RANGE;
+        return THINBX_GAIN_RANGE;
     }
     uhd::gain_range_t get_rx_gain_range(const size_t /*chan*/) const override
     {
         // FIXME This should return a ZBX_RX_LOW_FREQ_GAIN_RANGE when freq is
         // low, but this function is const
-        return ZBX_RX_GAIN_RANGE;
+        return THINBX_GAIN_RANGE;
     }
 
     // LO Property Getters
     std::vector<std::string> get_tx_lo_names(const size_t /*chan*/) const override
     {
-        return ZBX_LOS;
+        return THINBX_LOS;
     }
     std::vector<std::string> get_rx_lo_names(const size_t /*chan*/) const override
     {
-        return ZBX_LOS;
+        return THINBX_LOS;
     }
     std::vector<std::string> get_tx_lo_sources(
         const std::string& /*name*/, const size_t /*chan*/) const override
@@ -296,17 +296,13 @@ private:
         const uhd::direction_t trx,
         const size_t chan_idx,
         const fs_path fe_path);
-    void _init_programming_prop_tree(uhd::property_tree::sptr subtree,
-        uhd::experts::expert_container::sptr,
-        const fs_path fe_path);
     void _init_lo_prop_tree(uhd::property_tree::sptr subtree,
         uhd::experts::expert_container::sptr,
         const uhd::direction_t trx,
         const size_t chan_idx,
         const fs_path fe_path);
     //! Init all experts, bind to properties created above
-    void _init_experts(uhd::property_tree::sptr subtree,
-        uhd::experts::expert_container::sptr,
+    void _init_experts(uhd::experts::expert_container::sptr,
         const uhd::direction_t trx,
         const size_t chan_idx,
         const fs_path fe_path);
@@ -390,11 +386,11 @@ private:
     rf_control::gain_profile_iface::sptr _rx_gain_profile_api;
 
     //! Store the current RX gain profile
-    std::vector<std::string> _rx_gain_profile = {
-        ZBX_GAIN_PROFILE_DEFAULT, ZBX_GAIN_PROFILE_DEFAULT};
+    // std::vector<std::string> _rx_gain_profile = {
+    //     ZBX_GAIN_PROFILE_DEFAULT, ZBX_GAIN_PROFILE_DEFAULT};
     //! Store the current TX gain profile
-    std::vector<std::string> _tx_gain_profile = {
-        ZBX_GAIN_PROFILE_DEFAULT, ZBX_GAIN_PROFILE_DEFAULT};
+    // std::vector<std::string> _tx_gain_profile = {
+    //     ZBX_GAIN_PROFILE_DEFAULT, ZBX_GAIN_PROFILE_DEFAULT};
 
     //! The sampling rate of the RFdc, typically something close to 3 GHz
     const double _rfdc_rate;

@@ -274,7 +274,7 @@ double thinbx_dboard_impl::set_rx_lo_freq(
 {
     RFNOC_LOG_TRACE("set_rx_lo_freq(freq=" << freq << ", name=" << name << ")");
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
-    assert_has(ZBX_LOS, name);
+    assert_has(THINBX_LOS, name);
 
     return _tree->access<double>(fe_path / "los" / name / "freq" / "value")
         .set(freq)
@@ -285,7 +285,7 @@ double thinbx_dboard_impl::get_rx_lo_freq(const std::string& name, size_t chan)
 {
     RFNOC_LOG_TRACE("get_rx_lo_freq(name=" << name << ")");
     const fs_path fe_path = _get_frontend_path(RX_DIRECTION, chan);
-    assert_has(ZBX_LOS, name);
+    assert_has(THINBX_LOS, name);
 
     return _tree->access<double>(fe_path / "los" / name / "freq" / "value").get();
 }
@@ -334,7 +334,7 @@ uhd::gain_range_t thinbx_dboard_impl::get_tx_gain_range(
 {
     // We have to accept the empty string for "all", because that's widely used
     // (e.g. by multi_usrp)
-    if (!name.empty() && name != ZBX_GAIN_STAGE_ALL) {
+    if (!name.empty() && name != THINBX_GAIN_STAGE_ALL) {
         throw uhd::value_error(
             std::string("get_tx_gain_range(): Unknown gain name '") + name + "'!");
     }
@@ -346,7 +346,7 @@ uhd::gain_range_t thinbx_dboard_impl::get_rx_gain_range(
 {
     // We have to accept the empty string for "all", because that's widely used
     // (e.g. by multi_usrp)
-    if (!name.empty() && name != ZBX_GAIN_STAGE_ALL) {
+    if (!name.empty() && name != THINBX_GAIN_STAGE_ALL) {
         throw uhd::value_error(
             std::string("get_rx_gain_range(): Unknown gain name '") + name + "'!");
     }
@@ -415,7 +415,7 @@ std::string thinbx_dboard_impl::get_dboard_fe_from_chan(
 fs_path thinbx_dboard_impl::_get_frontend_path(
     const direction_t dir, const size_t chan_idx) const
 {
-    UHD_ASSERT_THROW(chan_idx < ZBX_NUM_CHANS);
+    UHD_ASSERT_THROW(chan_idx < THINBX_NUM_CHANS);
     const std::string frontend = dir == TX_DIRECTION ? "tx_frontends" : "rx_frontends";
     return fs_path("dboard") / frontend / chan_idx;
 }

@@ -24,24 +24,6 @@
 
 namespace uhd { namespace usrp { namespace thinbx {
 
-namespace {
-
-//! Depending on the given \p lo_step_size, this will return a valid frequency
-// range on a quantized grid for the the LOs. The lower limit of this range will
-// never be smaller than LMX2572_MIN_FREQ and the upper frequency will never be
-// larger than LMX2572_MAX_FREQ. All frequencies will be integer multiples of
-// the given \p lo_step_size.
-uhd::freq_range_t _get_quantized_lo_range(const double lo_step_size)
-{
-    const double start = std::ceil(LMX2572_MIN_FREQ / lo_step_size) * lo_step_size;
-    const double stop  = std::floor(LMX2572_MAX_FREQ / lo_step_size) * lo_step_size;
-    UHD_ASSERT_THROW(start >= LMX2572_MIN_FREQ);
-    UHD_ASSERT_THROW(stop <= LMX2572_MAX_FREQ);
-    return uhd::freq_range_t(start, stop, lo_step_size);
-}
-
-} // namespace
-
 /*!---------------------------------------------------------
  * thinbx_scheduling_expert
  *
@@ -215,56 +197,56 @@ private:
  * One instance of this expert is required for each TX Channel (0,1); two total
  * --------------------------------------------------------
  */
-class thinbx_tx_gain_expert : public uhd::experts::worker_node_t
-{
-public:
-    thinbx_tx_gain_expert(const uhd::experts::node_retriever_t& db,
-        const uhd::fs_path fe_path,
-        const size_t chan,
-        uhd::usrp::pwr_cal_mgr::sptr power_mgr,
-        uhd::usrp::cal::zbx_tx_dsa_cal::sptr dsa_cal)
-        : uhd::experts::worker_node_t(fe_path / "thinbx_gain_expert")
-        , _gain_in(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "desired")
-        , _profile(db, fe_path / "gains" / "all" / "profile")
-        , _frequency(db, fe_path / "freq" / "coerced")
-        , _gain_out(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "coerced")
-        , _dsa1(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "desired")
-        , _dsa2(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "desired")
-        , _amp_gain(db, fe_path / "gains" / ZBX_GAIN_STAGE_AMP / "value" / "desired")
-        , _power_mgr(power_mgr)
-        , _dsa_cal(dsa_cal)
-        , _chan(chan)
-    {
-        bind_accessor(_gain_in);
-        bind_accessor(_profile);
-        bind_accessor(_frequency);
-        bind_accessor(_gain_out);
-        bind_accessor(_dsa1);
-        bind_accessor(_dsa2);
-        bind_accessor(_amp_gain);
-    }
+// class thinbx_tx_gain_expert : public uhd::experts::worker_node_t
+// {
+// public:
+//     thinbx_tx_gain_expert(const uhd::experts::node_retriever_t& db,
+//         const uhd::fs_path fe_path,
+//         const size_t chan,
+//         uhd::usrp::pwr_cal_mgr::sptr power_mgr,
+//         uhd::usrp::cal::zbx_tx_dsa_cal::sptr dsa_cal)
+//         : uhd::experts::worker_node_t(fe_path / "thinbx_gain_expert")
+//         , _gain_in(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "desired")
+//         , _profile(db, fe_path / "gains" / "all" / "profile")
+//         , _frequency(db, fe_path / "freq" / "coerced")
+//         , _gain_out(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "coerced")
+//         , _dsa1(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "desired")
+//         , _dsa2(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "desired")
+//         , _amp_gain(db, fe_path / "gains" / ZBX_GAIN_STAGE_AMP / "value" / "desired")
+//         , _power_mgr(power_mgr)
+//         , _dsa_cal(dsa_cal)
+//         , _chan(chan)
+//     {
+//         bind_accessor(_gain_in);
+//         bind_accessor(_profile);
+//         bind_accessor(_frequency);
+//         bind_accessor(_gain_out);
+//         bind_accessor(_dsa1);
+//         bind_accessor(_dsa2);
+//         bind_accessor(_amp_gain);
+//     }
 
-private:
-    void resolve() override;
-    void _set_tx_dsa(const std::string, const uint8_t desired_gain);
-    double _set_tx_amp_by_gain(const double gain);
-    // Inputs from user/API
-    uhd::experts::data_reader_t<double> _gain_in;
-    // Inputs for DSA calibration
-    uhd::experts::data_reader_t<std::string> _profile;
-    uhd::experts::data_reader_t<double> _frequency;
+// private:
+//     void resolve() override;
+//     void _set_tx_dsa(const std::string, const uint8_t desired_gain);
+//     double _set_tx_amp_by_gain(const double gain);
+//     // Inputs from user/API
+//     uhd::experts::data_reader_t<double> _gain_in;
+//     // Inputs for DSA calibration
+//     uhd::experts::data_reader_t<std::string> _profile;
+//     uhd::experts::data_reader_t<double> _frequency;
 
-    // Output to user/API
-    uhd::experts::data_writer_t<double> _gain_out;
-    // Outputs to CPLD programming expert
-    uhd::experts::data_writer_t<double> _dsa1;
-    uhd::experts::data_writer_t<double> _dsa2;
-    uhd::experts::data_writer_t<double> _amp_gain;
+//     // Output to user/API
+//     uhd::experts::data_writer_t<double> _gain_out;
+//     // Outputs to CPLD programming expert
+//     uhd::experts::data_writer_t<double> _dsa1;
+//     uhd::experts::data_writer_t<double> _dsa2;
+//     uhd::experts::data_writer_t<double> _amp_gain;
 
-    uhd::usrp::pwr_cal_mgr::sptr _power_mgr;
-    uhd::usrp::cal::zbx_tx_dsa_cal::sptr _dsa_cal;
-    const size_t _chan;
-};
+//     uhd::usrp::pwr_cal_mgr::sptr _power_mgr;
+//     uhd::usrp::cal::zbx_tx_dsa_cal::sptr _dsa_cal;
+//     const size_t _chan;
+// };
 
 /*!---------------------------------------------------------
  * thinbx_rx_gain_expert (RX Gain Expert)
@@ -277,55 +259,55 @@ private:
  * One instance of this expert is required for each RX Channel (0,1); two total
  * --------------------------------------------------------
  */
-class thinbx_rx_gain_expert : public uhd::experts::worker_node_t
-{
-public:
-    thinbx_rx_gain_expert(const uhd::experts::node_retriever_t& db,
-        const uhd::fs_path fe_path,
-        uhd::usrp::pwr_cal_mgr::sptr power_mgr,
-        uhd::usrp::cal::zbx_rx_dsa_cal::sptr dsa_cal)
-        : uhd::experts::worker_node_t(fe_path / "thinbx_gain_expert")
-        , _gain_in(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "desired")
-        , _profile(db, fe_path / "gains" / "all" / "profile")
-        , _frequency(db, fe_path / "freq" / "coerced")
-        , _gain_out(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "coerced")
-        , _dsa1(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "desired")
-        , _dsa2(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "desired")
-        , _dsa3a(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3A / "value" / "desired")
-        , _dsa3b(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3B / "value" / "desired")
-        , _power_mgr(power_mgr)
-        , _dsa_cal(dsa_cal)
-    {
-        bind_accessor(_gain_in);
-        bind_accessor(_profile);
-        bind_accessor(_frequency);
-        bind_accessor(_gain_out);
-        bind_accessor(_dsa1);
-        bind_accessor(_dsa2);
-        bind_accessor(_dsa3a);
-        bind_accessor(_dsa3b);
-    }
+// class thinbx_rx_gain_expert : public uhd::experts::worker_node_t
+// {
+// public:
+//     thinbx_rx_gain_expert(const uhd::experts::node_retriever_t& db,
+//         const uhd::fs_path fe_path,
+//         uhd::usrp::pwr_cal_mgr::sptr power_mgr,
+//         uhd::usrp::cal::zbx_rx_dsa_cal::sptr dsa_cal)
+//         : uhd::experts::worker_node_t(fe_path / "thinbx_gain_expert")
+//         , _gain_in(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "desired")
+//         , _profile(db, fe_path / "gains" / "all" / "profile")
+//         , _frequency(db, fe_path / "freq" / "coerced")
+//         , _gain_out(db, fe_path / "gains" / ZBX_GAIN_STAGE_ALL / "value" / "coerced")
+//         , _dsa1(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA1 / "value" / "desired")
+//         , _dsa2(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA2 / "value" / "desired")
+//         , _dsa3a(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3A / "value" / "desired")
+//         , _dsa3b(db, fe_path / "gains" / ZBX_GAIN_STAGE_DSA3B / "value" / "desired")
+//         , _power_mgr(power_mgr)
+//         , _dsa_cal(dsa_cal)
+//     {
+//         bind_accessor(_gain_in);
+//         bind_accessor(_profile);
+//         bind_accessor(_frequency);
+//         bind_accessor(_gain_out);
+//         bind_accessor(_dsa1);
+//         bind_accessor(_dsa2);
+//         bind_accessor(_dsa3a);
+//         bind_accessor(_dsa3b);
+//     }
 
-private:
-    void resolve() override;
+// private:
+//     void resolve() override;
 
-    // Inputs from user/API
-    uhd::experts::data_reader_t<double> _gain_in;
-    uhd::experts::data_reader_t<std::string> _profile;
-    // Inputs for dsa calibration
-    uhd::experts::data_reader_t<double> _frequency;
+//     // Inputs from user/API
+//     uhd::experts::data_reader_t<double> _gain_in;
+//     uhd::experts::data_reader_t<std::string> _profile;
+//     // Inputs for dsa calibration
+//     uhd::experts::data_reader_t<double> _frequency;
 
-    // Output to user/API
-    uhd::experts::data_writer_t<double> _gain_out;
-    // Outputs to CPLD programming expert
-    uhd::experts::data_writer_t<double> _dsa1;
-    uhd::experts::data_writer_t<double> _dsa2;
-    uhd::experts::data_writer_t<double> _dsa3a;
-    uhd::experts::data_writer_t<double> _dsa3b;
+//     // Output to user/API
+//     uhd::experts::data_writer_t<double> _gain_out;
+//     // Outputs to CPLD programming expert
+//     uhd::experts::data_writer_t<double> _dsa1;
+//     uhd::experts::data_writer_t<double> _dsa2;
+//     uhd::experts::data_writer_t<double> _dsa3a;
+//     uhd::experts::data_writer_t<double> _dsa3b;
 
-    uhd::usrp::pwr_cal_mgr::sptr _power_mgr;
-    uhd::usrp::cal::zbx_rx_dsa_cal::sptr _dsa_cal;
-};
+//     uhd::usrp::pwr_cal_mgr::sptr _power_mgr;
+//     uhd::usrp::cal::zbx_rx_dsa_cal::sptr _dsa_cal;
+// };
 
 /*!---------------------------------------------------------
  * thinbx_band_inversion_expert

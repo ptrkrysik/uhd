@@ -34,21 +34,6 @@ using namespace uhd::rfnoc;
 // can be added to our expert graph
 namespace uhd { namespace usrp { namespace thinbx {
 
-std::ostream& operator<<(
-    std::ostream& os, const ::uhd::usrp::thinbx::thinbx_lo_source_t& lo_source)
-{
-    switch (lo_source) {
-        case ::uhd::usrp::thinbx::thinbx_lo_source_t::internal:
-            os << "internal";
-            return os;
-        case ::uhd::usrp::thinbx::thinbx_lo_source_t::external:
-            os << "external";
-            return os;
-        default:
-            UHD_THROW_INVALID_CODE_PATH();
-    }
-}
-
 void thinbx_dboard_impl::_init_peripherals()
 {
     RFNOC_LOG_TRACE("Initializing peripherals...");
@@ -93,7 +78,7 @@ void thinbx_dboard_impl::_init_prop_tree()
     auto subtree = get_tree()->subtree(fs_path("dboard"));
 
     // Construct RX frontend
-    for (size_t chan_idx = 0; chan_idx < ZBX_NUM_CHANS; chan_idx++) {
+    for (size_t chan_idx = 0; chan_idx < THINBX_NUM_CHANS; chan_idx++) {
         const fs_path fe_path = fs_path("rx_frontends") / chan_idx;
 
         // Command time needs to be shadowed into the property tree so we can use
@@ -120,7 +105,7 @@ void thinbx_dboard_impl::_init_prop_tree()
     // Construct TX frontend
     // Note: the TX frontend uses the RX property tree, this must
     // be constructed after the RX frontend
-    for (size_t chan_idx = 0; chan_idx < ZBX_NUM_CHANS; chan_idx++) {
+    for (size_t chan_idx = 0; chan_idx < THINBX_NUM_CHANS; chan_idx++) {
         const fs_path fe_path = fs_path("tx_frontends") / chan_idx;
         _init_frontend_subtree(subtree, TX_DIRECTION, chan_idx, fe_path);
     }
@@ -156,73 +141,71 @@ void thinbx_dboard_impl::_init_frontend_subtree(uhd::property_tree::sptr subtree
     _init_gain_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
     _init_antenna_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
     _init_lo_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
-    // _init_programming_prop_tree(subtree, _expert_container, fe_path);
-    _init_experts(subtree, _expert_container, trx, chan_idx, fe_path);
+    _init_experts(_expert_container, trx, chan_idx, fe_path);
 }
 
 
-uhd::usrp::pwr_cal_mgr::sptr thinbx_dboard_impl::_init_power_cal(
-    uhd::property_tree::sptr subtree,
-    const uhd::direction_t trx,
-    const size_t chan_idx,
-    const fs_path fe_path)
-{
-    const std::string DIR = (trx == TX_DIRECTION) ? "TX" : "RX";
+// uhd::usrp::pwr_cal_mgr::sptr thinbx_dboard_impl::_init_power_cal(
+//     uhd::property_tree::sptr subtree,
+//     const uhd::direction_t trx,
+//     const size_t chan_idx,
+//     const fs_path fe_path)
+// {
+//     const std::string DIR = (trx == TX_DIRECTION) ? "TX" : "RX";
 
-    uhd::eeprom_map_t eeprom_map = get_db_eeprom();
-    /* The cal serial is the DB serial plus the FE name */
-    const std::string db_serial(eeprom_map["serial"].begin(), eeprom_map["serial"].end());
-    const std::string cal_serial =
-        db_serial + "#" + subtree->access<std::string>(fe_path / "name").get();
-    /* Now create a gain group for this. */
-    /* _?x_gain_groups won't work, because it doesn't group the */
-    /* gains the way we want them to be grouped. */
-    auto ggroup = uhd::gain_group::make();
-    ggroup->register_fcns(HW_GAIN_STAGE,
-        {[this, trx, chan_idx]() {
-             return trx == TX_DIRECTION ? get_tx_gain_range(chan_idx)
-                                        : get_rx_gain_range(chan_idx);
-         },
-            [this, trx, chan_idx]() {
-                return trx == TX_DIRECTION ? get_tx_gain(ZBX_GAIN_STAGE_ALL, chan_idx)
-                                           : get_rx_gain(ZBX_GAIN_STAGE_ALL, chan_idx);
-            },
-            [this, trx, chan_idx](const double gain) {
-                trx == TX_DIRECTION ? set_tx_gain(gain, chan_idx)
-                                    : set_rx_gain(gain, chan_idx);
-            }},
-        10 /* High priority */);
-    /* If we had a digital (baseband) gain, we would register it here,*/
-    /* so that the power manager would know to use it as a */
-    /* backup gain stage. */
-    /* Note that such a baseband gain might not be available */
-    /* on the LV version. */
-    return uhd::usrp::pwr_cal_mgr::make(
-        cal_serial,
-        "X400-CAL-" + DIR,
-        [this, trx, chan_idx]() {
-            return trx == TX_DIRECTION ? get_tx_frequency(chan_idx)
-                                       : get_rx_frequency(chan_idx);
-        },
-        [trx_str = (trx == TX_DIRECTION ? "tx" : "rx"),
-            fe_path,
-            subtree,
-            chan_str = std::to_string(chan_idx)]() -> std::string {
-            const std::string antenna = pwr_cal_mgr::sanitize_antenna_name(
-                subtree->access<std::string>(fe_path / "antenna/value").get());
-            // The lookup key for X410 + ZBX shall start with x4xx_pwr_thinbx.
-            // Should we rev the ZBX in a way that would make generic cal data
-            // unsuitable between revs, then we need to check the rev (or PID)
-            // here and generate a different key prefix (e.g. x4xx_pwr_thinbxD_ or
-            // something like that).
-            return std::string("x4xx_pwr_thinbx_") + trx_str + "_" + chan_str + "_"
-                   + antenna;
-        },
-        ggroup);
-}
+//     uhd::eeprom_map_t eeprom_map = get_db_eeprom();
+//     /* The cal serial is the DB serial plus the FE name */
+//     const std::string db_serial(eeprom_map["serial"].begin(),
+//     eeprom_map["serial"].end()); const std::string cal_serial =
+//         db_serial + "#" + subtree->access<std::string>(fe_path / "name").get();
+//     /* Now create a gain group for this. */
+//     /* _?x_gain_groups won't work, because it doesn't group the */
+//     /* gains the way we want them to be grouped. */
+//     auto ggroup = uhd::gain_group::make();
+//     ggroup->register_fcns(HW_GAIN_STAGE,
+//         {[this, trx, chan_idx]() {
+//              return trx == TX_DIRECTION ? get_tx_gain_range(chan_idx)
+//                                         : get_rx_gain_range(chan_idx);
+//          },
+//             [this, trx, chan_idx]() {
+//                 return trx == TX_DIRECTION ? get_tx_gain(ZBX_GAIN_STAGE_ALL, chan_idx)
+//                                            : get_rx_gain(ZBX_GAIN_STAGE_ALL, chan_idx);
+//             },
+//             [this, trx, chan_idx](const double gain) {
+//                 trx == TX_DIRECTION ? set_tx_gain(gain, chan_idx)
+//                                     : set_rx_gain(gain, chan_idx);
+//             }},
+//         10 /* High priority */);
+//     /* If we had a digital (baseband) gain, we would register it here,*/
+//     /* so that the power manager would know to use it as a */
+//     /* backup gain stage. */
+//     /* Note that such a baseband gain might not be available */
+//     /* on the LV version. */
+//     return uhd::usrp::pwr_cal_mgr::make(
+//         cal_serial,
+//         "X400-CAL-" + DIR,
+//         [this, trx, chan_idx]() {
+//             return trx == TX_DIRECTION ? get_tx_frequency(chan_idx)
+//                                        : get_rx_frequency(chan_idx);
+//         },
+//         [trx_str = (trx == TX_DIRECTION ? "tx" : "rx"),
+//             fe_path,
+//             subtree,
+//             chan_str = std::to_string(chan_idx)]() -> std::string {
+//             const std::string antenna = pwr_cal_mgr::sanitize_antenna_name(
+//                 subtree->access<std::string>(fe_path / "antenna/value").get());
+//             // The lookup key for X410 + ZBX shall start with x4xx_pwr_thinbx.
+//             // Should we rev the ZBX in a way that would make generic cal data
+//             // unsuitable between revs, then we need to check the rev (or PID)
+//             // here and generate a different key prefix (e.g. x4xx_pwr_thinbxD_ or
+//             // something like that).
+//             return std::string("x4xx_pwr_thinbx_") + trx_str + "_" + chan_str + "_"
+//                    + antenna;
+//         },
+//         ggroup);
+// }
 
-void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
-    expert_container::sptr expert,
+void thinbx_dboard_impl::_init_experts(expert_container::sptr expert,
     const uhd::direction_t trx,
     const size_t chan_idx,
     const fs_path fe_path)
@@ -260,8 +243,6 @@ void thinbx_dboard_impl::_init_experts(uhd::property_tree::sptr subtree,
         _db_idx,
         _mb_rpcc);
 
-    // const double lo_step_size = _prc_rate / ZBX_RELATIVE_LO_STEP_SIZE;
-    // RFNOC_LOG_DEBUG("LO step size: " << (lo_step_size / 1e6) << " MHz.")
     expert_factory::add_worker_node<thinbx_freq_fe_expert>(
         expert, expert->node_retriever(), fe_path, trx, _rfdc_rate);
     RFNOC_LOG_TRACE(fe_path + ", Experts created");
@@ -272,22 +253,22 @@ void thinbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subt
     const fs_path fe_path)
 {
     expert_factory::add_dual_prop_node<double>(
-        expert, subtree, fe_path / "freq", ZBX_DEFAULT_FREQ, AUTO_RESOLVE_ON_WRITE);
+        expert, subtree, fe_path / "freq", THINBX_DEFAULT_FREQ, AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_dual_prop_node<double>(
         expert, subtree, fe_path / "if_freq", 0.0, AUTO_RESOLVE_ON_WRITE);
     expert_factory::add_data_node<bool>(
         expert, fe_path / "band_inverted", false, AUTO_RESOLVE_ON_WRITE);
 
     subtree->create<double>(fe_path / "bandwidth" / "value")
-        .set(ZBX_DEFAULT_BANDWIDTH)
-        .set_coercer([](const double) { return ZBX_DEFAULT_BANDWIDTH; });
+        .set(THINBX_DEFAULT_BANDWIDTH)
+        .set_coercer([](const double) { return THINBX_DEFAULT_BANDWIDTH; });
     subtree->create<meta_range_t>(fe_path / "bandwidth" / "range")
-        .set({ZBX_DEFAULT_BANDWIDTH, ZBX_DEFAULT_BANDWIDTH})
+        .set({THINBX_DEFAULT_BANDWIDTH, THINBX_DEFAULT_BANDWIDTH})
         .set_coercer([](const meta_range_t&) {
-            return meta_range_t(ZBX_DEFAULT_BANDWIDTH, ZBX_DEFAULT_BANDWIDTH);
+            return meta_range_t(THINBX_DEFAULT_BANDWIDTH, THINBX_DEFAULT_BANDWIDTH);
         });
     subtree->create<meta_range_t>(fe_path / "freq" / "range")
-        .set(ZBX_FREQ_RANGE)
+        .set(THINBX_FREQ_RANGE)
         .add_coerced_subscriber([](const meta_range_t&) {
             throw uhd::runtime_error("Attempting to update freq range!");
         });
@@ -301,7 +282,8 @@ void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
 {
     // Create gain node with 0dB gain
 
-    const uhd::gain_range_t gain_range(0.0, 0.0, 1.0);
+    const uhd::gain_range_t gain_range(
+        THINBX_MIN_GAIN, THINBX_MAX_GAIN, THINBX_GAIN_STEP);
     subtree->create<meta_range_t>(fe_path / "gains" / "all" / "range")
         .set(gain_range)
         .add_coerced_subscriber([](const meta_range_t&) {
@@ -364,12 +346,6 @@ void thinbx_dboard_impl::_init_lo_prop_tree(uhd::property_tree::sptr subtree,
         fe_path / "los" / RFDC_NCO / "freq" / "value",
         // Initialize with current value
         _mb_rpcc->rfdc_get_nco_freq(trx == TX_DIRECTION ? "tx" : "rx", _db_idx, chan_idx),
-        AUTO_RESOLVE_ON_WRITE);
-
-    expert_factory::add_prop_node<thinbx_lo_source_t>(expert,
-        subtree,
-        fe_path / "ch" / RFDC_NCO / "source",
-        ZBX_DEFAULT_LO_SOURCE,
         AUTO_RESOLVE_ON_WRITE);
 
     // LO lock sensor

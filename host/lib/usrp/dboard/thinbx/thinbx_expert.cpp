@@ -24,28 +24,6 @@ namespace {
 /*********************************************************************
  *   Misc/calculative helper functions
  **********************************************************************/
-bool _is_band_highband(const tune_map_item_t tune_setting)
-{
-    // Lowband frequency paths do not utilize an RF filter
-    return tune_setting.rf_fir == 0;
-}
-
-tune_map_item_t _get_tune_settings(const double freq, const uhd::direction_t trx)
-{
-    auto tune_setting = trx == RX_DIRECTION ? rx_tune_map.begin() : tx_tune_map.begin();
-
-    auto tune_settings_end = trx == RX_DIRECTION ? rx_tune_map.end() : tx_tune_map.end();
-
-    for (; tune_setting != tune_settings_end; ++tune_setting) {
-        if (tune_setting->max_band_freq >= freq) {
-            return *tune_setting;
-        }
-    }
-    // Didn't find a tune setting.  This frequency should have been clipped, this is an
-    // internal error.
-    UHD_THROW_INVALID_CODE_PATH();
-}
-
 bool _is_band_inverted(
     const uhd::direction_t trx, const double if2_freq, const double rfdc_rate)
 // const tune_map_item_t tune_setting)
@@ -91,39 +69,6 @@ std::string _get_trx_string(const direction_t dir)
     }
 }
 
-// For various RF performance considerations (such as spur reduction), different bands
-// vary between using fixed IF1 and/or IF2 or using variable IF1 and/or IF2. Bands with a
-// fixed IF1/IF2 have ifX_freq_min == IFX_freq_max, and _calc_ifX_freq() will return that
-// single value. Bands with variable IF1/IF2 will shift the IFX based on where in the RF
-// band we are tuning by using linear interpolation. (if1 calculation takes place only if
-// tune frequency is lowband)
-double _calc_if1_freq(const double tune_freq, const tune_map_item_t tune_setting)
-{
-    if (tune_setting.if1_freq_min == tune_setting.if1_freq_max) {
-        return tune_setting.if1_freq_min;
-    }
-
-    return uhd::math::linear_interp(tune_freq,
-        tune_setting.min_band_freq,
-        tune_setting.if1_freq_min,
-        tune_setting.max_band_freq,
-        tune_setting.if1_freq_max);
-}
-
-double _calc_ideal_if2_freq(const double tune_freq, const tune_map_item_t tune_setting)
-{
-    // linear_interp() wants to interpolate and will throw if these are identical:
-    if (tune_setting.if2_freq_min == tune_setting.if2_freq_max) {
-        return tune_setting.if2_freq_min;
-    }
-
-    return uhd::math::linear_interp(tune_freq,
-        tune_setting.min_band_freq,
-        tune_setting.if2_freq_min,
-        tune_setting.max_band_freq,
-        tune_setting.if2_freq_max);
-}
-
 } // namespace
 
 /*!---------------------------------------------------------
@@ -143,7 +88,7 @@ void thinbx_scheduling_expert::resolve()
 
 void thinbx_freq_fe_expert::resolve()
 {
-    const double tune_freq = ZBX_FREQ_RANGE.clip(_desired_frequency);
+    const double tune_freq = THINBX_FREQ_RANGE.clip(_desired_frequency);
     _rfdc_freq_desired     = tune_freq;
     _band_inverted         = _is_band_inverted(_trx, _rfdc_freq_desired, _rfdc_rate);
 }
@@ -157,8 +102,8 @@ void thinbx_freq_be_expert::resolve()
     // the output frequency out of range. We have to stop here so that the gain API
     // doesn't panic (Clipping here would have no effect on the actual output signal)
     using namespace uhd::math::fp_compare;
-    if (fp_compare_delta<double>(_coerced_frequency.get()) < ZBX_MIN_FREQ
-        || fp_compare_delta<double>(_coerced_frequency.get()) > ZBX_MAX_FREQ) {
+    if (fp_compare_delta<double>(_coerced_frequency.get()) < THINBX_MIN_FREQ
+        || fp_compare_delta<double>(_coerced_frequency.get()) > THINBX_MAX_FREQ) {
         UHD_LOG_WARNING(get_name(),
             "Resulting coerced frequency " << _coerced_frequency.get()
                                            << " is out of range!");
@@ -170,62 +115,62 @@ void thinbx_gain_coercer_expert::resolve()
     _gain_coerced = _valid_range.clip(_gain_desired, true);
 }
 
-void thinbx_tx_gain_expert::resolve()
-{
-    if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
-        return;
-    }
+// void thinbx_tx_gain_expert::resolve()
+// {
+//     if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
+//         return;
+//     }
 
-    // If a user passes in a gain value, we have to set the Power API tracking mode
-    if (_gain_in.is_dirty()) {
-        _power_mgr->set_tracking_mode(uhd::usrp::pwr_cal_mgr::tracking_mode::TRACK_GAIN);
-    }
+//     // If a user passes in a gain value, we have to set the Power API tracking mode
+//     if (_gain_in.is_dirty()) {
+//         _power_mgr->set_tracking_mode(uhd::usrp::pwr_cal_mgr::tracking_mode::TRACK_GAIN);
+//     }
 
-    // Now we do the overall gain setting
-    // Look up DSA values by gain
-    _gain_out             = ZBX_TX_GAIN_RANGE.clip(_gain_in, true);
-    const size_t gain_idx = _gain_out / TX_GAIN_STEP;
-    // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-    // manually configures LO frequencies and causes an illegal overall frequency
-    auto dsa_settings =
-        _dsa_cal->get_dsa_setting(ZBX_FREQ_RANGE.clip(_frequency), gain_idx);
-    // Now write to downstream nodes, converting attenuations to gains:
-    _dsa1 = static_cast<double>(ZBX_TX_DSA_MAX_ATT - dsa_settings[0]);
-    _dsa2 = static_cast<double>(ZBX_TX_DSA_MAX_ATT - dsa_settings[1]);
-    // Convert amp index to gain
-    _amp_gain = ZBX_TX_AMP_GAIN_MAP.at(static_cast<tx_amp>(dsa_settings[2]));
-}
+//     // Now we do the overall gain setting
+//     // Look up DSA values by gain
+//     _gain_out             = THINBX_TX_GAIN_RANGE.clip(_gain_in, true);
+//     const size_t gain_idx = _gain_out / TX_GAIN_STEP;
+//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
+//     // manually configures LO frequencies and causes an illegal overall frequency
+//     auto dsa_settings =
+//         _dsa_cal->get_dsa_setting(THINBX_FREQ_RANGE.clip(_frequency), gain_idx);
+//     // Now write to downstream nodes, converting attenuations to gains:
+//     _dsa1 = static_cast<double>(ZBX_TX_DSA_MAX_ATT - dsa_settings[0]);
+//     _dsa2 = static_cast<double>(ZBX_TX_DSA_MAX_ATT - dsa_settings[1]);
+//     // Convert amp index to gain
+//     _amp_gain = ZBX_TX_AMP_GAIN_MAP.at(static_cast<tx_amp>(dsa_settings[2]));
+// }
 
-void thinbx_rx_gain_expert::resolve()
-{
-    if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
-        return;
-    }
+// void thinbx_rx_gain_expert::resolve()
+// {
+//     if (_profile != ZBX_GAIN_PROFILE_DEFAULT) {
+//         return;
+//     }
 
-    // If a user passes in a gain value, we have to set the Power API tracking mode
-    if (_gain_in.is_dirty()) {
-        _power_mgr->set_tracking_mode(uhd::usrp::pwr_cal_mgr::tracking_mode::TRACK_GAIN);
-    }
+//     // If a user passes in a gain value, we have to set the Power API tracking mode
+//     if (_gain_in.is_dirty()) {
+//         _power_mgr->set_tracking_mode(uhd::usrp::pwr_cal_mgr::tracking_mode::TRACK_GAIN);
+//     }
 
-    // Now we do the overall gain setting
-    if (_frequency.get() <= RX_LOW_FREQ_MAX_GAIN_CUTOFF) {
-        _gain_out = ZBX_RX_LOW_FREQ_GAIN_RANGE.clip(_gain_in, true);
-    } else {
-        _gain_out = ZBX_RX_GAIN_RANGE.clip(_gain_in, true);
-    }
-    // Now we do the overall gain setting
-    // Look up DSA values by gain
-    const size_t gain_idx = _gain_out / RX_GAIN_STEP;
-    // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
-    // manually configures LO frequencies and causes an illegal overall frequency
-    auto dsa_settings =
-        _dsa_cal->get_dsa_setting(ZBX_FREQ_RANGE.clip(_frequency), gain_idx);
-    // Now write to downstream nodes, converting attenuation to gains:
-    _dsa1  = ZBX_RX_DSA_MAX_ATT - dsa_settings[0];
-    _dsa2  = ZBX_RX_DSA_MAX_ATT - dsa_settings[1];
-    _dsa3a = ZBX_RX_DSA_MAX_ATT - dsa_settings[2];
-    _dsa3b = ZBX_RX_DSA_MAX_ATT - dsa_settings[3];
-}
+//     // Now we do the overall gain setting
+//     if (_frequency.get() <= RX_LOW_FREQ_MAX_GAIN_CUTOFF) {
+//         _gain_out = ZBX_RX_LOW_FREQ_GAIN_RANGE.clip(_gain_in, true);
+//     } else {
+//         _gain_out = THINBX_RX_GAIN_RANGE.clip(_gain_in, true);
+//     }
+//     // Now we do the overall gain setting
+//     // Look up DSA values by gain
+//     const size_t gain_idx = _gain_out / RX_GAIN_STEP;
+//     // Clip _frequency to valid ZBX range to avoid errors in the scenario when user
+//     // manually configures LO frequencies and causes an illegal overall frequency
+//     auto dsa_settings =
+//         _dsa_cal->get_dsa_setting(THINBX_FREQ_RANGE.clip(_frequency), gain_idx);
+//     // Now write to downstream nodes, converting attenuation to gains:
+//     _dsa1  = ZBX_RX_DSA_MAX_ATT - dsa_settings[0];
+//     _dsa2  = ZBX_RX_DSA_MAX_ATT - dsa_settings[1];
+//     _dsa3a = ZBX_RX_DSA_MAX_ATT - dsa_settings[2];
+//     _dsa3b = ZBX_RX_DSA_MAX_ATT - dsa_settings[3];
+// }
 
 void thinbx_band_inversion_expert::resolve()
 {
@@ -259,7 +204,7 @@ void thinbx_sync_expert::resolve()
     // ** Find NCOs to synchronize ********************************************
     // Same rules apply as for LOs.
     std::set<rfdc_control::rfdc_type> ncos_to_sync;
-    for (const size_t chan : ZBX_CHANNELS) {
+    for (const size_t chan : THINBX_CHANNELS) {
         if (chan_needs_sync[chan]) {
             for (const auto& nco_idx : ncos[chan]) {
                 if (_nco_freqs.at(nco_idx).is_dirty()) {
@@ -312,9 +257,8 @@ void thinbx_sync_expert::resolve()
     // for that, and calculate different times for different events there.
     if (times_match) {
         UHD_LOG_TRACE(get_name(),
-            "Syncing all channels: " //<< los_to_sync.size() << " LO(s), "
-                << ncos_to_sync.size() << " NCO(s), and " << gearboxes_to_sync.size()
-                << " gearbox(es).")
+            "Syncing all channels: " << ncos_to_sync.size() << " NCO(s), and "
+                                     << gearboxes_to_sync.size() << " gearbox(es).")
         if (!gearboxes_to_sync.empty()) {
             _rfdcc->reset_gearboxes(
                 std::vector<rfdc_control::rfdc_type>(
@@ -334,8 +278,6 @@ void thinbx_sync_expert::resolve()
         const auto sync_order = (first_sync_chan == 0) ? std::vector<size_t>{0, 1}
                                                        : std::vector<size_t>{1, 0};
         for (const size_t chan : sync_order) {
-            std::vector<thinbx_lo_t> this_chan_los;
-
             std::vector<rfdc_control::rfdc_type> this_chan_ncos;
             for (const auto nco_idx : ncos[chan]) {
                 if (ncos_to_sync.count(nco_idx)) {
@@ -349,8 +291,7 @@ void thinbx_sync_expert::resolve()
                 }
             }
             UHD_LOG_TRACE(get_name(),
-                "Syncing channel " << chan << ": " << this_chan_los.size()
-                                   << " LO(s) and " << this_chan_ncos.size()
+                "Syncing channel " << chan << ": " << this_chan_ncos.size()
                                    << " NCO(s).");
             if (!this_chan_gearboxes.empty()) {
                 UHD_LOG_TRACE(get_name(),
