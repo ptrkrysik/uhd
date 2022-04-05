@@ -7,13 +7,19 @@
 include(FindPkgConfig)
 PKG_CHECK_MODULES(SYSTEMD "systemd" REQUIRED)
 
-PKG_GET_VARIABLE(SYSTEMD_SYSTEM_UNITDIR systemd systemdsystemunitdir)
+if(NOT SYSTEMD_SYSTEM_UNITDIR)
+    PKG_GET_VARIABLE(SYSTEMD_SYSTEM_UNITDIR systemd systemdsystemunitdir)
+endif()
 message(STATUS "Systemd system unit directory ${SYSTEMD_SYSTEM_UNITDIR}")
 
-PKG_GET_VARIABLE(SYSTEMD_SYSCTLDIR systemd sysctldir)
+if(NOT SYSTEMD_SYSCTLDIR)
+    PKG_GET_VARIABLE(SYSTEMD_SYSCTLDIR systemd sysctldir)
+endif()
 message(STATUS "Systemd sysctl directory ${SYSTEMD_SYSCTLDIR}")
 
-PKG_GET_VARIABLE(UDEV_UDEVDIR udev udevdir)
+if(NOT UDEV_UDEVDIR)
+    PKG_GET_VARIABLE(UDEV_UDEVDIR udev udevdir)
+endif()
 message(STATUS "Udev directory ${UDEV_UDEVDIR}")
 
 configure_file(
