@@ -35,6 +35,10 @@ if(ENABLE_REGMAPS)
         ${CMAKE_CURRENT_BINARY_DIR}/lmk04816_regs.py
     )
     REG_MAPS_GEN_SOURCE(
+        ${UHD_SOURCE_DIR}/lib/ic_reg_maps/gen_lmk04208_regs.py
+        ${CMAKE_CURRENT_BINARY_DIR}/lmk04208_regs.py
+    )
+    REG_MAPS_GEN_SOURCE(
         ${UHD_SOURCE_DIR}/lib/ic_reg_maps/gen_lmx2572_regs.py
         ${CMAKE_CURRENT_BINARY_DIR}/lmx2572_regs.py
     )
