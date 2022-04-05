@@ -38,6 +38,7 @@ from usrp_mpm.periph_manager.x4xx_gps_mgr import X4xxGPSMgr
 from usrp_mpm.periph_manager.x4xx_rfdc_ctrl import X4xxRfdcCtrl
 from usrp_mpm.dboard_manager.x4xx_db_iface import X4xxDboardIface
 from usrp_mpm.dboard_manager.zbx import ZBX
+from usrp_mpm.dboard_manager.thinbx import ThinBX
 from usrp_mpm.dboard_manager.x4xx_debug_db import X4xxDebugDboard
 
 X400_DEFAULT_EXT_CLOCK_FREQ = 10e6
