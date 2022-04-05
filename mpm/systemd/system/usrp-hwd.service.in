@@ -2,7 +2,7 @@
 Description=USRP Hardware Daemon (MPM)
 
 [Service]
-ExecStart=@CMAKE_INSTALL_PREFIX@/bin/usrp_hwd.py
+ExecStart=/usr/bin/usrp_hwd.py
 WatchdogSec=30
 Type=notify
 Restart=on-failure
