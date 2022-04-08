@@ -56,7 +56,7 @@ public:
         const std::string& rpc_prefix,
         const std::string& unique_id,
         uhd::usrp::x400_rpc_iface::sptr mb_rpcc,
-        uhd::usrp::zbx_rpc_iface::sptr rpcc,
+        uhd::usrp::thinbx_rpc_iface::sptr rpcc,
         uhd::rfnoc::x400::rfdc_control::sptr rfdcc,
         uhd::property_tree::sptr tree);
     virtual ~thinbx_dboard_impl();
@@ -362,7 +362,7 @@ private:
 
     //! Reference to the RPC client
     uhd::usrp::x400_rpc_iface::sptr _mb_rpcc;
-    uhd::usrp::zbx_rpc_iface::sptr _rpcc;
+    uhd::usrp::thinbx_rpc_iface::sptr _rpcc;
 
     //! Reference to the RFDC controller
     uhd::rfnoc::x400::rfdc_control::sptr _rfdcc;

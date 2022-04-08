@@ -154,9 +154,9 @@ x400_radio_control_impl::x400_radio_control_impl(make_args_ptr make_args)
     } else {
         RFNOC_LOG_WARNING("Couldn't detect Daughterboard PID. Initializing ThinBX.");
         auto thinbx_rpc_sptr =
-            _mb_control->dynamic_cast_rpc_as<uhd::usrp::zbx_rpc_iface>();
+            _mb_control->dynamic_cast_rpc_as<uhd::usrp::thinbx_rpc_iface>();
         if (!thinbx_rpc_sptr) {
-            thinbx_rpc_sptr = std::make_shared<uhd::usrp::zbx_rpc>(
+            thinbx_rpc_sptr = std::make_shared<uhd::usrp::thinbx_rpc>(
                 _mb_control->get_rpc_client(), _rpc_prefix);
         }
         _daughterboard = std::make_shared<uhd::usrp::thinbx::thinbx_dboard_impl>(

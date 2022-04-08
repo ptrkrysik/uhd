@@ -328,7 +328,7 @@ public:
         const uhd::fs_path fe_path,
         const uhd::direction_t trx,
         const size_t chan,
-        uhd::usrp::zbx_rpc_iface::sptr rpcc)
+        uhd::usrp::thinbx_rpc_iface::sptr rpcc)
         : uhd::experts::worker_node_t(fe_path / "thinbx_band_inversion_expert")
         , _is_band_inverted(db, fe_path / "band_inverted")
         , _rpcc(rpcc)
@@ -344,7 +344,7 @@ private:
     // Inputs from Frequency FE expert
     uhd::experts::data_reader_t<bool> _is_band_inverted;
 
-    uhd::usrp::zbx_rpc_iface::sptr _rpcc;
+    uhd::usrp::thinbx_rpc_iface::sptr _rpcc;
     const uhd::direction_t _trx;
     const size_t _chan;
 };
