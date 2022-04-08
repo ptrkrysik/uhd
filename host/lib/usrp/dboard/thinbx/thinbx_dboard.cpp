@@ -249,11 +249,21 @@ double thinbx_dboard_impl::set_tx_lo_freq(
     double freq, const std::string& name, const size_t chan)
 {
     RFNOC_LOG_TRACE("set_tx_lo_freq(freq=" << freq << ", name=" << name << ")");
+    const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
+    assert_has(THINBX_LOS, name);
+
+    return _tree->access<double>(fe_path / "los" / name / "freq" / "value")
+        .set(freq)
+        .get();
 }
 
 double thinbx_dboard_impl::get_tx_lo_freq(const std::string& name, const size_t chan)
 {
-    return 0;
+    RFNOC_LOG_TRACE("get_tx_lo_freq(name=" << name << ")");
+    const fs_path fe_path = _get_frontend_path(TX_DIRECTION, chan);
+    assert_has(THINBX_LOS, name);
+
+    return _tree->access<double>(fe_path / "los" / name / "freq" / "value").get();
 }
 
 freq_range_t thinbx_dboard_impl::_get_lo_freq_range(
