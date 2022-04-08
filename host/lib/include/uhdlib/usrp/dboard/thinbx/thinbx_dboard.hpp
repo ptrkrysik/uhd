@@ -368,10 +368,10 @@ private:
     uhd::rfnoc::x400::rfdc_control::sptr _rfdcc;
 
     //! Reference to the TX Cal data
-    std::shared_ptr<uhd::usrp::cal::zbx_tx_dsa_cal> _tx_dsa_cal;
+    // std::shared_ptr<uhd::usrp::cal::zbx_tx_dsa_cal> _tx_dsa_cal;
 
     //! Reference to the RX Cal data
-    std::shared_ptr<uhd::usrp::cal::zbx_rx_dsa_cal> _rx_dsa_cal;
+    // std::shared_ptr<uhd::usrp::cal::zbx_rx_dsa_cal> _rx_dsa_cal;
 
     //! Reference to this block's subtree
     //

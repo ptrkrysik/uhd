@@ -34,44 +34,44 @@ using namespace uhd::rfnoc;
 // can be added to our expert graph
 namespace uhd { namespace usrp { namespace thinbx {
 
-void thinbx_dboard_impl::_init_peripherals()
-{
-    RFNOC_LOG_TRACE("Initializing peripherals...");
-    // Load DSA cal data (rx and tx)
-    constexpr char dsa_step_filename_tx[] = "thinbx_dsa_tx";
-    constexpr char dsa_step_filename_rx[] = "thinbx_dsa_rx";
-    uhd::eeprom_map_t eeprom_map          = get_db_eeprom();
-    const std::string db_serial(eeprom_map["serial"].begin(), eeprom_map["serial"].end());
-    if (uhd::usrp::cal::database::has_cal_data(
-            dsa_step_filename_tx, db_serial, uhd::usrp::cal::source::ANY)) {
-        RFNOC_LOG_TRACE("load binary TX DSA steps from database...");
-        const auto tx_dsa_data = uhd::usrp::cal::database::read_cal_data(
-            dsa_step_filename_tx, db_serial, uhd::usrp::cal::source::ANY);
-        RFNOC_LOG_TRACE("create TX DSA object...");
-        _tx_dsa_cal = uhd::usrp::cal::zbx_tx_dsa_cal::make();
-        RFNOC_LOG_TRACE("store deserialized TX DSA data into object...");
-        _tx_dsa_cal->deserialize(tx_dsa_data);
-    } else {
-        RFNOC_LOG_ERROR("Could not find TX DSA cal data!");
-        throw uhd::runtime_error("Could not find TX DSA cal data!");
-    }
-    if (uhd::usrp::cal::database::has_cal_data(
-            dsa_step_filename_rx, db_serial, uhd::usrp::cal::source::ANY)) {
-        // read binary blob without knowledge about content
-        RFNOC_LOG_TRACE("load binary RX DSA steps from database...");
-        const auto rx_dsa_data = uhd::usrp::cal::database::read_cal_data(
-            dsa_step_filename_rx, db_serial, uhd::usrp::cal::source::ANY);
+// void thinbx_dboard_impl::_init_peripherals()
+// {
+//     RFNOC_LOG_TRACE("Initializing peripherals...");
+//     // Load DSA cal data (rx and tx)
+//     constexpr char dsa_step_filename_tx[] = "thinbx_dsa_tx";
+//     constexpr char dsa_step_filename_rx[] = "thinbx_dsa_rx";
+//     uhd::eeprom_map_t eeprom_map          = get_db_eeprom();
+//     const std::string db_serial(eeprom_map["serial"].begin(),
+//     eeprom_map["serial"].end()); if (uhd::usrp::cal::database::has_cal_data(
+//             dsa_step_filename_tx, db_serial, uhd::usrp::cal::source::ANY)) {
+//         RFNOC_LOG_TRACE("load binary TX DSA steps from database...");
+//         const auto tx_dsa_data = uhd::usrp::cal::database::read_cal_data(
+//             dsa_step_filename_tx, db_serial, uhd::usrp::cal::source::ANY);
+//         RFNOC_LOG_TRACE("create TX DSA object...");
+//         _tx_dsa_cal = uhd::usrp::cal::zbx_tx_dsa_cal::make();
+//         RFNOC_LOG_TRACE("store deserialized TX DSA data into object...");
+//         _tx_dsa_cal->deserialize(tx_dsa_data);
+//     } else {
+//         RFNOC_LOG_ERROR("Could not find TX DSA cal data!");
+//         throw uhd::runtime_error("Could not find TX DSA cal data!");
+//     }
+//     if (uhd::usrp::cal::database::has_cal_data(
+//             dsa_step_filename_rx, db_serial, uhd::usrp::cal::source::ANY)) {
+//         // read binary blob without knowledge about content
+//         RFNOC_LOG_TRACE("load binary RX DSA steps from database...");
+//         const auto rx_dsa_data = uhd::usrp::cal::database::read_cal_data(
+//             dsa_step_filename_rx, db_serial, uhd::usrp::cal::source::ANY);
 
-        RFNOC_LOG_TRACE("create RX DSA object...");
-        _rx_dsa_cal = uhd::usrp::cal::zbx_rx_dsa_cal::make();
+//         RFNOC_LOG_TRACE("create RX DSA object...");
+//         _rx_dsa_cal = uhd::usrp::cal::zbx_rx_dsa_cal::make();
 
-        RFNOC_LOG_TRACE("store deserialized RX DSA data into object...");
-        _rx_dsa_cal->deserialize(rx_dsa_data);
-    } else {
-        RFNOC_LOG_ERROR("Could not find RX DSA cal data!");
-        throw uhd::runtime_error("Could not find RX DSA cal data!");
-    }
-}
+//         RFNOC_LOG_TRACE("store deserialized RX DSA data into object...");
+//         _rx_dsa_cal->deserialize(rx_dsa_data);
+//     } else {
+//         RFNOC_LOG_ERROR("Could not find RX DSA cal data!");
+//         throw uhd::runtime_error("Could not find RX DSA cal data!");
+//     }
+// }
 
 void thinbx_dboard_impl::_init_prop_tree()
 {

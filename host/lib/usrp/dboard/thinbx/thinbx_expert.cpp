@@ -30,32 +30,13 @@ bool _is_band_inverted(
 {
     const bool is_if2_nyquist2 = if2_freq > (rfdc_rate / 2);
 
-    // We count the number of inversions introduced by the signal chain, starting
-    // at the RFDC
-    const int num_inversions =
-        // If we're in the second Nyquist zone, we're inverted
-        int(is_if2_nyquist2); // +
-
     // In the RX direction, an extra inversion is needed
     // TODO: We don't know where this is coming from
-    const bool num_inversions_is_odd = num_inversions % 2 != 0;
     if (trx == RX_DIRECTION) {
-        return !num_inversions_is_odd;
+        return !is_if2_nyquist2;
     } else {
-        return num_inversions_is_odd;
+        return is_if2_nyquist2;
     }
-}
-
-double _calc_lo2_freq(
-    const double if1_freq, const double if2_freq, const int mix2_m, const int mix2_n)
-{
-    return (if2_freq - (mix2_m * if1_freq)) / mix2_n;
-}
-
-double _calc_if2_freq(
-    const double if1_freq, const double lo2_freq, const int mix2_m, const int mix2_n)
-{
-    return mix2_n * lo2_freq + mix2_m * if1_freq;
 }
 
 std::string _get_trx_string(const direction_t dir)
