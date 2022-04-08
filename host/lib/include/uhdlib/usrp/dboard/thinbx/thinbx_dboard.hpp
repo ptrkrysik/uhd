@@ -37,7 +37,7 @@ namespace uhd { namespace usrp { namespace thinbx {
 
 const static uint16_t THIN_PID = 0x4012;
 
-/*! Provide access to a ZBX radio.
+/*! Provide access to a ThinBX radio.
  */
 class thinbx_dboard_impl : public uhd::usrp::x400::x400_dboard_iface
 {
@@ -165,8 +165,6 @@ public:
     }
     uhd::gain_range_t get_rx_gain_range(const size_t /*chan*/) const override
     {
-        // FIXME This should return a ZBX_RX_LOW_FREQ_GAIN_RANGE when freq is
-        // low, but this function is const
         return THINBX_GAIN_RANGE;
     }
 
