@@ -280,15 +280,8 @@ void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
     const size_t chan_idx,
     const fs_path fe_path)
 {
-    // Create gain node with 0dB gain
-
-    const uhd::gain_range_t gain_range(
-        THINBX_MIN_GAIN, THINBX_MAX_GAIN, THINBX_GAIN_STEP);
-    subtree->create<meta_range_t>(fe_path / "gains" / "all" / "range")
-        .set(gain_range)
-        .add_coerced_subscriber([](const meta_range_t&) {
-            throw uhd::runtime_error("Attempting to update gain range!");
-        });
+    // Create empty gain node
+    subtree->create<meta_range_t>(fe_path / "gains");
 }
 
 void thinbx_dboard_impl::_init_antenna_prop_tree(uhd::property_tree::sptr subtree,
