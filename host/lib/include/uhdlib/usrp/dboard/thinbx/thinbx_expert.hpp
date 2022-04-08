@@ -86,11 +86,11 @@ public:
         // const size_t chan,
         : experts::worker_node_t(fe_path / "thinbx_freq_fe_expert")
         , _desired_frequency(db, fe_path / "freq" / "desired")
+        , _rfdc_freq_desired(
+              db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
         , _band_inverted(db, fe_path / "band_inverted")
         , _rfdc_rate(rfdc_rate)
         , _trx(trx)
-        , _rfdc_freq_desired(
-              db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "desired")
     {
         //  Inputs
         bind_accessor(_desired_frequency);

@@ -169,80 +169,74 @@ double thinbx_dboard_impl::get_rx_bandwidth(size_t chan)
         .get();
 }
 
-double thinbx_dboard_impl::set_tx_gain(
-    const double gain, const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::set_tx_gain(const double, const std::string&, const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::set_rx_gain(
-    const double gain, const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::set_rx_gain(const double, const std::string&, const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::set_tx_gain(const double gain, const size_t chan)
+double thinbx_dboard_impl::set_tx_gain(const double, const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::set_rx_gain(const double gain, const size_t chan)
+double thinbx_dboard_impl::set_rx_gain(const double, const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::get_tx_gain(const size_t chan)
+double thinbx_dboard_impl::get_tx_gain(const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::get_rx_gain(const size_t chan)
+double thinbx_dboard_impl::get_rx_gain(const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::get_tx_gain(const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::get_tx_gain(const std::string&, const size_t)
 {
     return 0;
 }
 
-double thinbx_dboard_impl::get_rx_gain(const std::string& name_, const size_t chan)
+double thinbx_dboard_impl::get_rx_gain(const std::string&, const size_t)
 {
     return 0;
 }
 
-std::vector<std::string> thinbx_dboard_impl::get_tx_gain_names(const size_t chan) const
+std::vector<std::string> thinbx_dboard_impl::get_tx_gain_names(const size_t) const
 {
     return {""};
 }
 
-std::vector<std::string> thinbx_dboard_impl::get_rx_gain_names(const size_t chan) const
+std::vector<std::string> thinbx_dboard_impl::get_rx_gain_names(const size_t) const
 {
     return {""};
 }
 
-const std::string thinbx_dboard_impl::get_tx_lo_source(
-    const std::string& name, const size_t chan)
+const std::string thinbx_dboard_impl::get_tx_lo_source(const std::string&, const size_t)
 {
     return "";
 }
 
-const std::string thinbx_dboard_impl::get_rx_lo_source(
-    const std::string& name, const size_t chan)
+const std::string thinbx_dboard_impl::get_rx_lo_source(const std::string&, const size_t)
 {
     return "";
 }
 
 void thinbx_dboard_impl::set_rx_lo_source(
-    const std::string& src, const std::string& name, const size_t chan)
+    const std::string&, const std::string&, const size_t)
 {
-    RFNOC_LOG_TRACE("set_rx_lo_source(name=" << name << ", src=" << src << ")");
 }
 
 void thinbx_dboard_impl::set_tx_lo_source(
-    const std::string& src, const std::string& name, const size_t chan)
+    const std::string&, const std::string&, const size_t)
 {
-    RFNOC_LOG_TRACE("set_tx_lo_source(name=" << name << ", src=" << src << ")");
 }
 
 double thinbx_dboard_impl::set_tx_lo_freq(

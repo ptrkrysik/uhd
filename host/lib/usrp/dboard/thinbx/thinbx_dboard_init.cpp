@@ -138,7 +138,7 @@ void thinbx_dboard_impl::_init_frontend_subtree(uhd::property_tree::sptr subtree
     subtree->create<std::string>(fe_path / "connection").set("IQ");
 
     _init_frequency_prop_tree(subtree, _expert_container, fe_path);
-    _init_gain_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
+    _init_gain_prop_tree(subtree, fe_path);
     _init_antenna_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
     _init_lo_prop_tree(subtree, _expert_container, trx, chan_idx, fe_path);
     _init_experts(_expert_container, trx, chan_idx, fe_path);
@@ -274,11 +274,8 @@ void thinbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subt
         });
 }
 
-void thinbx_dboard_impl::_init_gain_prop_tree(uhd::property_tree::sptr subtree,
-    expert_container::sptr expert,
-    const uhd::direction_t trx,
-    const size_t chan_idx,
-    const fs_path fe_path)
+void thinbx_dboard_impl::_init_gain_prop_tree(
+    uhd::property_tree::sptr subtree, const fs_path fe_path)
 {
     // Create empty gain node
     subtree->create<meta_range_t>(fe_path / "gains");

@@ -284,11 +284,7 @@ private:
     void _init_frequency_prop_tree(uhd::property_tree::sptr subtree,
         uhd::experts::expert_container::sptr expert,
         const fs_path fe_path);
-    void _init_gain_prop_tree(uhd::property_tree::sptr subtree,
-        uhd::experts::expert_container::sptr,
-        const uhd::direction_t trx,
-        const size_t chan_idx,
-        const fs_path fe_path);
+    void _init_gain_prop_tree(uhd::property_tree::sptr subtree, const fs_path fe_path);
     void _init_antenna_prop_tree(uhd::property_tree::sptr subtree,
         uhd::experts::expert_container::sptr,
         const uhd::direction_t trx,
