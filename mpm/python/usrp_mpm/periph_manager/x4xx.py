@@ -549,9 +549,10 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             self.ctrlport_regs.enable_cable_present_forwarding(True)
 
         # Init QSFP modules
+        qsfp_has_gpios = (self.mboard_info.get('product') != 'x411')
         for idx, config in enumerate(X400_QSFP_I2C_CONFIGS):
             attr = QSFPModule(
-                config.modprs, config.modsel, config.devsymbol, self.log)
+                config.modprs, config.modsel, config.devsymbol, self.log, qsfp_has_gpios)
             setattr(self, "_qsfp_module{}".format(idx), attr)
             self._add_public_methods(attr, "qsfp{}".format(idx))
 
