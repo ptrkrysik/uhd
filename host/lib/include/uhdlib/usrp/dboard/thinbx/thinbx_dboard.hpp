@@ -35,7 +35,7 @@ using namespace uhd::rfnoc;
 
 namespace uhd { namespace usrp { namespace thinbx {
 
-const static uint16_t THIN_PID = 0x4012;
+const static uint16_t THINBX_PID = 0x4012;
 
 /*! Provide access to a ThinBX radio.
  */
