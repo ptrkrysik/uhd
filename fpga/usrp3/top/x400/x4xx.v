@@ -136,9 +136,9 @@ module x4xx (
   inout  wire [19:0] DB1_GPIO,
   output wire        DB1_SYNTH_SYNC,
 
-  output wire        LMK_SYNC,
+  output wire        LMK_SYNC,*/
   input  wire        PPS_IN,
-  output wire        PL_CPLD_SCLK,    // Dual-purpose CPLD JTAG TCK
+/*  output wire        PL_CPLD_SCLK,    // Dual-purpose CPLD JTAG TCK
   output wire        PL_CPLD_MOSI,    // Dual-purpose CPLD JTAG TDI
   input  wire        PL_CPLD_MISO,    // Dual-purpose CPLD JTAG TDO
 
@@ -164,9 +164,8 @@ module x4xx (
 
   input  wire        PLL_REFCLK_FPGA_P,
   input  wire        PLL_REFCLK_FPGA_N,
-//  input  wire        BASE_REFCLK_FPGA_P,
-//  input  wire        BASE_REFCLK_FPGA_N,
-
+  input  wire        BASE_REFCLK_FPGA_P,
+  input  wire        BASE_REFCLK_FPGA_N,
   input  wire        SYSREF_FABRIC_P,
   input  wire        SYSREF_FABRIC_N,
 
@@ -182,7 +181,7 @@ module x4xx (
 
 //  output wire        CPLD_JTAG_OE_n,
 
-//  output wire        PPS_LED,
+  output wire        PPS_LED,
 //  inout  wire        TRIG_IO,
 //  output wire        PL_CPLD_JTAGEN,
 //  output wire        PL_CPLD_CS0_n,    // Dual-purpose CPLD JTAG TMS
@@ -312,16 +311,20 @@ module x4xx (
   wire [11:0] DIOB_FPGA;
 
   wire        LMK_SYNC;
-  wire        PPS_IN;
-  assign PPS_IN = 1'b0;
-  wire PPS_LED;
+//  wire        PPS_IN;
+//  assign PPS_IN = 1'b0;
+//  wire PPS_LED;
   wire TRIG_IO;
 
   // Clocking and sync signals for RFDC
   wire pll_ref_clk_in, pll_ref_clk;
   wire sysref_pl;
   wire base_ref_clk;
-  assign base_ref_clk = 1'b0; //PK: disconnected the reference clock for now
+//  assign base_ref_clk = 1'b0; //PK: disconnected the reference clock for now
+  wire QSFP0_MODPRS_n;
+  wire QSFP1_MODPRS_n;
+  assign QSFP0_MODPRS_n = 1'b0; //PK: module present lines are not connected on ZCU111
+  assign QSFP1_MODPRS_n = 1'b0;
 
   //turn on tx on SFP+ modules in associated with QSFP0 port
   assign qsfp0_tx_enable = 4'b1111;
@@ -344,11 +347,11 @@ module x4xx (
   );
 
   // Buffer the incoming base reference clock
-//IBUFGDS ibufgds_base_ref_clk (
-//  .O  (base_ref_clk),
-//  .I  (BASE_REFCLK_FPGA_P),
-//  .IB (BASE_REFCLK_FPGA_N)
-//);
+  IBUFGDS ibufgds_base_ref_clk (
+    .O  (base_ref_clk),
+    .I  (BASE_REFCLK_FPGA_P),
+    .IB (BASE_REFCLK_FPGA_N)
+  );
 
   // Clocking signals for RF data processing/moving
   wire rfdc_clk, rfdc_clk_2x;
@@ -392,13 +395,13 @@ module x4xx (
     .reset_in  (areset),
     .reset_out (radio_rst)
   );
-/*
+
   reset_sync reset_sync_brc (
     .clk       (base_ref_clk),
     .reset_in  (areset),
     .reset_out (brc_rst)
   );
-*/
+
   reset_sync reset_sync_prc (
     .clk       (pll_ref_clk),
     .reset_in  (areset),
@@ -424,7 +427,7 @@ module x4xx (
   wire [25:0] pps_prc_delay;
   wire [ 1:0] prc_rc_divider;
   wire        pps_rc_enabled;
-/*
+
   x4xx_pps_sync x4xx_pps_sync_i (
     .base_ref_clk     (base_ref_clk),
     .pll_ref_clk      (pll_ref_clk),
@@ -451,10 +454,9 @@ module x4xx (
   //
   // SW must ensure that any downstream device receiving TRIG_IO ignores or
   // re-synchronizes after enabling this port.
-  wire [1:0] trig_io_select;
-  assign TRIG_IO = (trig_io_select == TRIG_IO_PPS_OUTPUT) ? pps_refclk : 1'bz;
+//  wire [1:0] trig_io_select;
+//  assign TRIG_IO = (trig_io_select == TRIG_IO_PPS_OUTPUT) ? pps_refclk : 1'bz;
   assign PPS_LED = pps_refclk;
-*/
 
   //---------------------------------------------------------------------------
   // Processor System (PS) + RF Data Converter (RFDC)
@@ -587,8 +589,8 @@ module x4xx (
   wire [3:0]  eth0_link_up, eth0_activity;
   wire [3:0]  eth1_link_up, eth1_activity;
 
-//  wire [31:0] gpio_0_tri_i;
-//  wire [31:0] gpio_0_tri_o;
+  wire [31:0] gpio_0_tri_i;
+  wire [31:0] gpio_0_tri_o;
 
   // RFDC AXI4-Stream interfaces
   //
@@ -736,7 +738,7 @@ module x4xx (
   assign pl_ps_irq1[5] = eth0_tx_irq[0] || eth0_tx_irq[1] || eth0_tx_irq[2] || eth0_tx_irq[3];
   assign pl_ps_irq1[6] = eth1_rx_irq[0] || eth1_rx_irq[1] || eth1_rx_irq[2] || eth1_rx_irq[3];
   assign pl_ps_irq1[7] = eth1_tx_irq[0] || eth1_tx_irq[1] || eth1_tx_irq[2] || eth1_tx_irq[3];
-/*
+
   // GPIO inputs (assigned from 31 decreasing)
   //
   // Make the current PPS signal available to the PS.
@@ -759,7 +761,7 @@ module x4xx (
   assign gpio_0_tri_i[11:10] = user_led_ctrl[1];
   assign gpio_0_tri_i[9:8]   = user_led_ctrl[0];
   assign gpio_0_tri_i[7:0]   = 8'b0; // unused
-*/
+
   // GPIO outputs (assigned from 0 increasing)
   //
   // Drive the JTAG level translator enable line (active low) with GPIO[0] from
@@ -971,9 +973,9 @@ module x4xx (
     .dac0_clk_clk_p                (DAC_CLK_P[0]),
     .dac1_clk_clk_n                (DAC_CLK_N[1]),
     .dac1_clk_clk_p                (DAC_CLK_P[1]),
-//    .gpio_0_tri_i                  (gpio_0_tri_i),
-//    .gpio_0_tri_o                  (gpio_0_tri_o),
-//    .gpio_0_tri_t                  (),
+    .gpio_0_tri_i                  (gpio_0_tri_i),
+    .gpio_0_tri_o                  (gpio_0_tri_o),
+    .gpio_0_tri_t                  (),
     .m_axi_eth_internal_awaddr     (axi_eth_internal_awaddr),
     .m_axi_eth_internal_awprot     (),
     .m_axi_eth_internal_awvalid    (axi_eth_internal_awvalid),

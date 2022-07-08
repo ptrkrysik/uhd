@@ -115,12 +115,12 @@ set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 # #set_property IOSTANDARD LVCMOS18 [get_ports {DB0_SYNTH_SYNC}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {DB0_SYNTH_SYNC}] ; #zmiana napiecia by pozbyc sie errora
 
-# set_property PACKAGE_PIN H17   [get_ports {LMK_SYNC}] ; #PMOD0_3_LS
+# set_property PACKAGE_PIN H17   [get_ports {LMK_SYNC}] ; #PMOD0_3_LS - already used for BASE_REFCLK
 # set_property IOB         TRUE [get_ports {LMK_SYNC}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC}]
 
 # set_property PACKAGE_PIN J16 [get_ports {TRIG_IO}] ; #PMOD0_4_LS
-# set_property PACKAGE_PIN AP14  [get_ports {PPS_IN}] ; #AMS_FPGA_REF_CLK
+set_property PACKAGE_PIN AP14  [get_ports {PPS_IN}] ; #AMS_FPGA_REF_CLK
 # set_property PACKAGE_PIN AR7 [get_ports {PL_CPLD_SCLK}] ; #ADCIO_03
 # set_property PACKAGE_PIN AR6 [get_ports {PL_CPLD_MOSI}] ; #ADCIO_02
 # set_property PACKAGE_PIN AP6 [get_ports {PL_CPLD_MISO}] ; #ADCIO_01
@@ -128,6 +128,7 @@ set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC TRIG_IO PPS_IN PL_CPLD_SCLK PL_CPLD_MOSI PL_CPLD_MISO}]
 # set_property DRIVE      16     [get_ports {PL_CPLD_SCLK}]
 
+set_property IOSTANDARD LVCMOS18 [get_ports {PPS_IN}]
 
 ###############################################################################
 # Pin constraints for the other PL pins (1.2 V)
@@ -137,9 +138,9 @@ set_property PACKAGE_PIN AL16 [get_ports {PLL_REFCLK_FPGA_P}] ; #FPGA_REFCLK_OUT
 set_property PACKAGE_PIN AL15 [get_ports {PLL_REFCLK_FPGA_N}] ; #FPGA_REFCLK_OUT_C_N
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {PLL_REFCLK_FPGA_*}]
 
-# set_property PACKAGE_PIN T31  [get_ports {BASE_REFCLK_FPGA_P}] ; #USER_SMA_MGT_CLOCK_C_P
-# set_property PACKAGE_PIN T32  [get_ports {BASE_REFCLK_FPGA_N}] ; #USER_SMA_MGT_CLOCK_C_N
-# set_property IOSTANDARD DIFF_SSTL12 [get_ports {BASE_REFCLK_FPGA_*}]
+set_property PACKAGE_PIN H17  [get_ports {BASE_REFCLK_FPGA_P}] ; #PMOD0_3_LS
+set_property PACKAGE_PIN H16  [get_ports {BASE_REFCLK_FPGA_N}] ; #PMOD0_2_LS
+set_property IOSTANDARD DIFF_SSTL12 [get_ports {BASE_REFCLK_FPGA_*}]
 
 set_property PACKAGE_PIN AK17 [get_ports {SYSREF_FABRIC_P}] ; #SYSREF_FPGA_C_P
 set_property PACKAGE_PIN AK16 [get_ports {SYSREF_FABRIC_N}] ; #SYSREF_FPGA_C_N
@@ -173,8 +174,8 @@ set_property IOSTANDARD DIFF_SSTL12 [get_ports {SYSREF_FABRIC_*}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {DIO*_FPGA[*]}]
 # set_property PULLDOWN   true     [get_ports {DIO*_FPGA[*]}]
 
-# set_property PACKAGE_PIN AR13 [get_ports {PPS_LED}] ; #GPIO_LED_0_LS
-# set_property IOSTANDARD LVCMOS12 [get_ports {PPS_LED}]
+set_property PACKAGE_PIN AR13 [get_ports {PPS_LED}] ; #GPIO_LED_0_LS
+set_property IOSTANDARD LVCMOS18 [get_ports {PPS_LED}]
 
 # set_property PACKAGE_PIN B23  [get_ports {PL_CPLD_JTAGEN}] ; #NC
 # set_property PACKAGE_PIN N21  [get_ports {PL_CPLD_CS0_n}] ; #NC

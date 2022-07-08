@@ -805,7 +805,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
      catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
-  
+
   set_property -dict [ list \
    CONFIG.FREQ_HZ {61440000} \
    CONFIG.PHASE {0} \
@@ -828,7 +828,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
      catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
-  
+
   # Create instance: const_1, and set properties
   set const_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 const_1 ]
 
@@ -1205,7 +1205,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
      catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
-  
+
   # Create instance: rf_reset_controller_0, and set properties
   set block_name rf_reset_controller
   set block_cell_name rf_reset_controller_0
@@ -1216,7 +1216,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
      catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
-  
+
   # Create instance: slice_15_8, and set properties
   set slice_15_8 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 slice_15_8 ]
   set_property -dict [ list \
@@ -2000,7 +2000,9 @@ proc create_hier_cell_ps { parentCell nameHier } {
    CONFIG.PSU__GPIO0_MIO__PERIPHERAL__ENABLE {1} \
    CONFIG.PSU__GPIO1_MIO__IO {MIO 26 .. 51} \
    CONFIG.PSU__GPIO1_MIO__PERIPHERAL__ENABLE {1} \
-   CONFIG.PSU__GPIO_EMIO_WIDTH {1} \
+   CONFIG.PSU__GPIO_EMIO_WIDTH {32} \
+   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
+   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {32} \
    CONFIG.PSU__GPIO_EMIO__WIDTH {[91:0]} \
    CONFIG.PSU__GT__LINK_SPEED {<Select>} \
    CONFIG.PSU__GT__PRE_EMPH_LVL_4 {} \
@@ -2174,7 +2176,7 @@ proc create_hier_cell_ps { parentCell nameHier } {
   connect_bd_intf_net -intf_net axi_interconnect_common_m_axi_mpm_ep [get_bd_intf_pins m_axi_mpm_ep] [get_bd_intf_pins axi_interconnect_common/m_axi_mpm_ep]
   connect_bd_intf_net -intf_net axi_interconnect_common_m_axi_rpu [get_bd_intf_pins m_axi_rpu] [get_bd_intf_pins axi_interconnect_common/m_axi_rpu]
   connect_bd_intf_net -intf_net axi_interconnect_common_m_axi_uhd [get_bd_intf_pins m_axi_app] [get_bd_intf_pins axi_interconnect_common/m_axi_app]
-#  connect_bd_intf_net -intf_net inst_zynq_ps_GPIO_0 [get_bd_intf_pins gpio_0] [get_bd_intf_pins inst_zynq_ps/GPIO_0]
+  connect_bd_intf_net -intf_net inst_zynq_ps_GPIO_0 [get_bd_intf_pins gpio_0] [get_bd_intf_pins inst_zynq_ps/GPIO_0]
   connect_bd_intf_net -intf_net inst_zynq_ps_M_AXI_HPM0_FPD [get_bd_intf_pins axi_interconnect_common/s_axi_common] [get_bd_intf_pins inst_zynq_ps/M_AXI_HPM0_FPD]
   connect_bd_intf_net -intf_net inst_zynq_ps_M_AXI_HPM0_LPD [get_bd_intf_pins axi_interconnect_common/s_axi_lpd] [get_bd_intf_pins inst_zynq_ps/M_AXI_HPM0_LPD]
   connect_bd_intf_net -intf_net s_axi_hp0_1 [get_bd_intf_pins s_axi_hp0] [get_bd_intf_pins inst_zynq_ps/S_AXI_HP0_FPD]
@@ -2366,7 +2368,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile229_ch1_vout [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 dac_tile229_ch1_vout ]
 
-#  set gpio_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_0 ]
+  set gpio_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_0 ]
 
   set m_axi_app [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 m_axi_app ]
   set_property -dict [ list \
@@ -2711,7 +2713,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_interconnect_common_m_axi_uhd [get_bd_intf_ports m_axi_app] [get_bd_intf_pins ps/m_axi_app]
   connect_bd_intf_net -intf_net dac0_clk_0_1 [get_bd_intf_ports dac0_clk] [get_bd_intf_pins rfdc/dac0_clk]
   connect_bd_intf_net -intf_net dac1_clk_0_1 [get_bd_intf_ports dac1_clk] [get_bd_intf_pins rfdc/dac1_clk]
-#  connect_bd_intf_net -intf_net inst_zynq_ps_GPIO_0 [get_bd_intf_ports gpio_0] [get_bd_intf_pins ps/gpio_0]
+  connect_bd_intf_net -intf_net inst_zynq_ps_GPIO_0 [get_bd_intf_ports gpio_0] [get_bd_intf_pins ps/gpio_0]
   connect_bd_intf_net -intf_net ps_M07_AXI_0 [get_bd_intf_ports m_axi_eth_internal] [get_bd_intf_pins ps/m_axi_eth_internal]
   connect_bd_intf_net -intf_net ps_M_AXIS_MM2S_1 [get_bd_intf_ports m_axis_eth_dma] [get_bd_intf_pins ps/m_axis_eth_dma]
   connect_bd_intf_net -intf_net ps_M_AXI_0 [get_bd_intf_ports m_axi_rpu] [get_bd_intf_pins ps/m_axi_rpu]
@@ -2858,5 +2860,4 @@ proc create_root_design { parentCell } {
 ##################################################################
 
 create_root_design ""
-
 

@@ -1,4 +1,3 @@
-#
 # Copyright 2021 Ettus Research, a National Instruments Brand
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
@@ -14,7 +13,7 @@
 # 10/25 MHz reference clock from rear panel connector.
 # Constrain to the fastest possible clock rate.
 set ref_clk_period 40.00
-# create_clock -name ref_clk     -period $ref_clk_period     [get_ports BASE_REFCLK_FPGA_P]
+create_clock -name ref_clk     -period $ref_clk_period     [get_ports BASE_REFCLK_FPGA_P]
 
 # PLL Reference Clock. Used to derive data clocks.
 # Constrain to the fastest possible clock rate supported in the driver.
@@ -166,12 +165,12 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 # TRIG_IO_1V8 trace length MB = 4.050 + 1.190 inch = 5.240 inch
 # TRIG_IO_1V8 trace length DB = 2.401 + 0.120 + 0.457 + 0.261 inch = 3.239 inch
 # TRIG_IO buffer max switching time = 3.3
-#set trig_max_out_delay [expr {8.479 * 0.17 + 3.3}]
+set trig_max_out_delay [expr {8.479 * 0.17 + 3.3}]
 
 # Set minimum output delay hold time to a small amount to grant external
 # devices some hold time. Delay should be simple to achieve as there is no PLL
 # in the clocking path and some combinatorial logic.
-#set trig_min_out_delay 2.000
+set trig_min_out_delay 2.000
 
 # 2) set_output_delay for assigning clocks to TRIG_IO. Use zero for delay to
 # avoid adding extra delay requirements on top of the set_max|min_delay
@@ -180,10 +179,10 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 
 # 3) Min and max delays make constraining driver agnostic. We just make sure
 # the critical timing for PPS export is met though.
-#set_max_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
-#  [expr {$ref_clk_period - $trig_max_out_delay}]
-#set_min_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
-#  $trig_min_out_delay
+set_max_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
+  [expr {$ref_clk_period - $trig_max_out_delay}]
+set_min_delay -through [get_port {TRIG_IO}] -to [get_clocks {virtual_ref_clk}] \
+  $trig_min_out_delay
 
 # Treat TRIG_IO input as asynchronous.
 # set_false_path -from [get_ports {TRIG_IO}]
@@ -197,7 +196,7 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 
 # Account for the PPS min output delay only (for the case two X410 are directly
 # connected to each other).
-#set pps_min_in_delay $trig_min_out_delay
+set pps_min_in_delay $trig_min_out_delay
 
 # PPS_IN trace length DB = 0.535 + 0.133 + 0.117 + 0.061 + 2.745 inch = 3.591 inch
 # PPS_IN trace length MB = 5.726 inch
@@ -206,17 +205,18 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 # Assume 50% of the clock period is used for external PPS clock distribution as
 # the PPS out is used to synchronize one X410 (master) with another X410
 # (slave) the PPS out (trig_io) delay is added to the PPS input.
-#set pps_max_in_delay [expr {9.317 * 0.17 + 3.6 + 0.5 * $ref_clk_period + $trig_max_out_delay}]
+# TODO PK: This will have to be adjusted for ZCU111
+set pps_max_in_delay [expr {9.317 * 0.17 + 3.6 + 0.5 * $ref_clk_period + $trig_max_out_delay}]
 
 # Apply PPS input constraints.
-# set_input_delay -clock [get_clocks ref_clk] -min $pps_min_in_delay [get_ports {PPS_IN}]
-# set_input_delay -clock [get_clocks ref_clk] -max $pps_max_in_delay [get_ports {PPS_IN}]
+set_input_delay -clock [get_clocks ref_clk] -min $pps_min_in_delay [get_ports {PPS_IN}]
+set_input_delay -clock [get_clocks ref_clk] -max $pps_max_in_delay [get_ports {PPS_IN}]
 
 # PPS clock domain crossing BRC -> PRC on the aligned edge.
 # Use a data path of half PLL reference clock period to make sure the value is
 # captured without metastability.
-#set_max_delay -from [get_cells -hierarchical pps_delayed_brc_reg] \
-#  -to [get_clocks pll_ref_clk*] [expr {$pll_ref_clk_period/2}]
+set_max_delay -from [get_cells -hierarchical pps_delayed_brc_reg] \
+ -to [get_clocks pll_ref_clk*] [expr {$pll_ref_clk_period/2}]
 
 
 ###############################################################################
@@ -409,8 +409,8 @@ set_false_path -to [get_pins -hierarchical -filter {NAME =~ */rfdc/rf_nco_reset_
 
 
 #set async_outputs [get_ports {FABRIC_CLK_OUT_P PPS_LED}]
-# set async_outputs [get_ports {PPS_LED}]
+set async_outputs [get_ports {PPS_LED}]
 
-# set_output_delay -clock [get_clocks async_out_clk] 0.000 $async_outputs
-# set_max_delay -to $async_outputs 50.000
-# set_min_delay -to $async_outputs 0.000
+set_output_delay -clock [get_clocks async_out_clk] 0.000 $async_outputs
+set_max_delay -to $async_outputs 50.000
+set_min_delay -to $async_outputs 0.000
