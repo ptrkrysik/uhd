@@ -62,7 +62,18 @@ EDGE_FILE ?= $(DEFAULT_EDGE_FILE)
 ##################################################
 TOP_SRCS =
 
+CONSTRAINTS_SUBDIR=""
+
 ifdef X410
+  X4XX=1
+endif
+
+ifdef X411
+  CONSTRAINTS_SUBDIR = x411/
+  X4XX=1
+endif
+
+ifdef X4XX
 TOP_SRCS += \
 x4xx.v \
 x4xx_qsfp_wrapper_temp.sv \
@@ -94,10 +105,10 @@ $(IMAGE_CORE)
 endif
 
 MB_XDC = \
-constraints/pins/common.xdc \
-constraints/pins/rfdc_2x2.xdc \
-constraints/timing/shared_constants.sdc \
-constraints/timing/common.xdc
+constraints/pins/$(CONSTRAINTS_SUBDIR)common.xdc \
+constraints/pins/$(CONSTRAINTS_SUBDIR)rfdc_2x2.xdc \
+constraints/timing/$(CONSTRAINTS_SUBDIR)shared_constants.sdc \
+constraints/timing/$(CONSTRAINTS_SUBDIR)common.xdc
 
 # Definitions
 # MGT Types from x4xx_mgt_type.vh
@@ -106,36 +117,38 @@ MGT_Aurora   = 3
 MGT_10GbE    = 2
 MGT_Disabled = 0
 
+ifdef X4XX
 # Check if any of the ports are set to 10Gbe
 ifneq (,$(findstring =$(MGT_10GbE),$(EXTRA_DEFS)))
-  MB_XDC += constraints/timing/qsfp_10gbe.xdc
+  MB_XDC += constraints/timing/$(CONSTRAINTS_SUBDIR)qsfp_10gbe.xdc
 endif
 
 # Add pin constraints for QSFP pins
 ifneq (,$(findstring QSFP0_0,"$(EXTRA_DEFS)"))
-  MB_XDC += constraints/pins/qsfp0_0.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp0_0.xdc
 endif
 ifneq (,$(findstring QSFP0_1,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp0_1.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp0_1.xdc
 endif
 ifneq (,$(findstring QSFP0_2,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp0_2.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp0_2.xdc
 endif
 ifneq (,$(findstring QSFP0_3,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp0_3.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp0_3.xdc
 endif
 
 ifneq (,$(findstring QSFP1_0,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp1_0.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp1_0.xdc
 endif
 ifneq (,$(findstring QSFP1_1,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp1_1.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp1_1.xdc
 endif
 ifneq (,$(findstring QSFP1_2,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp1_2.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp1_2.xdc
 endif
 ifneq (,$(findstring QSFP1_3,$(EXTRA_DEFS)))
-  MB_XDC += constraints/pins/qsfp1_3.xdc
+  MB_XDC += constraints/pins/$(CONSTRAINTS_SUBDIR)qsfp1_3.xdc
+endif
 endif
 
 ifndef NO_DRAM_FIFOS
@@ -144,7 +157,7 @@ else
 DRAM_SRCS =
 endif
 
-ifdef X410
+ifdef X4XX
 DESIGN_SRCS = $(abspath $(MB_XDC))
 endif
 

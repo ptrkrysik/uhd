@@ -26,9 +26,15 @@ synchronizer_impl.v \
 ) \
 $(addprefix $(BASE_DIR)/x400/regmap/, PkgRFDC_REGS_REGMAP.vhd )
 
+ifdef X411
+IP_X4XX_PS_RFDC_BDTCL_SRCS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
+x411_ps_rfdc_bd.tcl \
+)
+else
 IP_X4XX_PS_RFDC_BDTCL_SRCS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
 x4xx_ps_rfdc_bd.tcl \
 )
+endif
 
 IP_X4XX_PS_RFDC_BD_SRCS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
 x4xx_ps_rfdc_bd/x4xx_ps_rfdc_bd.bd \
