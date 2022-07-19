@@ -90,6 +90,14 @@ PACKAGE_MAPPING = {
                   "usrp_x410_fpga_CG_400.rpt",
                  ]
     },
+    "x411": {
+        "type": "x4xx",
+        "package_name": "x4xx_x411_fpga_default-g{}.zip",
+        "files": ["usrp_x411_fpga_X4_200.bit",
+                  "usrp_x411_fpga_X4_200.bit.md5",
+                  "usrp_x411_fpga_X4_200.dts",
+                  "usrp_x411_fpga_X4_200.dts.md5"]
+    },
     "x410_cpld": {
         "type": "x4xx",
         "package_name": "x4xx_x410_cpld_default-g{}.zip",
