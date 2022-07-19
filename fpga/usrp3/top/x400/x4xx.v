@@ -2044,10 +2044,17 @@ module x4xx (
   assign radio_clk    = data_clk;
   assign radio_clk_2x = data_clk_2x;
 
+`ifndef X411
   assign rx_data_qi = { adc_data_out_tdata [2], adc_data_out_tdata [3],
                         adc_data_out_tdata [0], adc_data_out_tdata [1] };
   assign rx_stb     = { adc_data_out_tvalid[2], adc_data_out_tvalid[3],
                         adc_data_out_tvalid[0], adc_data_out_tvalid[1] };
+`else
+  assign rx_data_qi = { adc_data_out_tdata [3], adc_data_out_tdata [2],
+                        adc_data_out_tdata [1], adc_data_out_tdata [0] };
+  assign rx_stb     = { adc_data_out_tvalid[3], adc_data_out_tvalid[2],
+                        adc_data_out_tvalid[1], adc_data_out_tvalid[0] };
+`endif
 
    assign { dac_data_in_tdata[3], dac_data_in_tdata[2],
             dac_data_in_tdata[1], dac_data_in_tdata[0] } = tx_data_qi;
