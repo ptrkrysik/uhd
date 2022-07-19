@@ -1,5 +1,6 @@
 #
 # Copyright 2021 Ettus Research, a National Instruments Brand
+# Copyright 2022 Piotr Krysik <ptrkrysik@gmail.com>
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #
