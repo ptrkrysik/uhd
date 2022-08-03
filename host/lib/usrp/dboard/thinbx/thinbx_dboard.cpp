@@ -44,7 +44,7 @@ thinbx_dboard_impl::thinbx_dboard_impl(register_iface& reg_iface,
     , _rfdcc(rfdcc)
     , _tree(tree)
     , _rfdc_rate(_rpcc->get_dboard_sample_rate())
-    , _prc_rate(_rpcc->get_dboard_prc_rate())
+// , _prc_rate(_rpcc->get_dboard_prc_rate())
 {
     RFNOC_LOG_TRACE("Entering thinbx_dboard_impl ctor...");
     RFNOC_LOG_TRACE("Radio slot: " << _radio_slot);

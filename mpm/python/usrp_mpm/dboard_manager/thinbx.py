@@ -87,8 +87,8 @@ class ThinBX(DboardManagerBase):
         """
         return self.db_iface.get_sample_rate()
 
-    def get_dboard_prc_rate(self):
-        """
-        Return the PRC rate. The CPLD and LOs are clocked with this.
-        """
-        return self.db_iface.get_prc_rate()
+    # def get_dboard_prc_rate(self):
+    #     """
+    #     Return the PRC rate. The CPLD and LOs are clocked with this.
+    #     """
+    #     return self.db_iface.get_prc_rate()

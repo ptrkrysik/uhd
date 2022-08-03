@@ -390,7 +390,7 @@ private:
     const double _rfdc_rate;
 
     //! The PLL reference rate, typically something in the 50 - 64 MHz range
-    const double _prc_rate;
+    // const double _prc_rate;
 };
 
 }}} // namespace uhd::usrp::thinbx
