@@ -79,6 +79,31 @@ public:
         return uint32_t(rx[1] << 8 | rx[2]);
     }
 
+    uint32_t transfer32_32(const uint64_t data_)
+    {
+        uint32_t data    = data_;
+        uint8_t* tx_data = reinterpret_cast<uint8_t*>(&data);
+
+        // Create tx and rx buffers:
+        /* Address and TX data only represents up to 6 out of 8 bytes to
+           transfer. The remaining bytes are buffer for processing gap
+           and response status. */
+        uint8_t tx[] = {tx_data[3], tx_data[2], tx_data[1], tx_data[0]};
+        uint8_t rx[4]; // Buffer length must match tx buffer
+
+        if (transfer(_fd, &tx[0], &rx[0], 4, _speed, _bits, _delay) != 0) {
+            throw mpm::runtime_error(str(boost::format("SPI Transaction failed!")));
+        }
+
+        uint64_t result = rx[0];
+
+        result = (result << 8) | rx[1];
+        result = (result << 8) | rx[2];
+        result = (result << 8) | rx[3];
+
+        return result;
+    }
+
     uint64_t transfer64_40(const uint64_t data_)
     {
         uint64_t data    = data_;
