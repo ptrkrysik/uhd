@@ -1414,7 +1414,7 @@ class QSFPModule:
     SFF-8486 rev 4.9 specification.
     """
 
-    def __init__(self, gpio_modprs, gpio_modsel, devsymbol, log, has_gpios):
+    def __init__(self, gpio_modprs, gpio_modsel, devsymbol, log):
         """
         modprs: Name of the GPIO pin that reports module presence
         modsel: Name of the GPIO pin that controls ModSel of QSFP module
@@ -1422,17 +1422,21 @@ class QSFPModule:
         """
 
         self.log = log.getChild('QSFP')
-        self.has_gpios = has_gpios
 
-        if self.has_gpios:
-            # Hold the ModSelL GPIO low for communication over I2C. Because X4xx
-            # uses a I2C switch to communicate with the QSFP modules we can keep
-            # ModSelL low all the way long, because each QSFP module has
-            # its own I2C address (see SFF-8486 rev 4.9, chapter 4.1.1.1).
+        # Hold the ModSelL GPIO low for communication over I2C. Because X4xx
+        # uses a I2C switch to communicate with the QSFP modules we can keep
+        # ModSelL low all the way long, because each QSFP module has
+        # its own I2C address (see SFF-8486 rev 4.9, chapter 4.1.1.1).
+        if gpio_modsel is not None:
             self.modsel = Gpio(gpio_modsel, Gpio.OUTPUT, 0)
+        else:
+            self.modsel = None
 
-            # ModPrs pin read pin MODPRESL from QSFP connector
+        # ModPrs pin read pin MODPRESL from QSFP connector
+        if gpio_modprs is not None:
             self.modprs = Gpio(gpio_modprs, Gpio.INPUT, 0)
+        else:
+            self.modprs = None
 
         # resolve device node name for I2C communication
         devname = i2c_dev.dt_symbol_get_i2c_bus(devsymbol)
@@ -1475,7 +1479,7 @@ class QSFPModule:
         Checks whether QSFP adapter is available by checking modprs pin
         """
 
-        if self.has_gpios:
+        if self.modprs is not None:
             return self.modprs.get() == 0 #modprs is active low
         else:
             return True
@@ -1488,7 +1492,8 @@ class QSFPModule:
         I2C communication leads to unwanted result when query module
         state even if the module reports availability.
         """
-        self.modsel.set("0" if enable else "1") #modsel is active low
+        if self.modsel is not None:
+            self.modsel.set("0" if enable else "1") #modsel is active low
 
     def adapter_id(self):
         """
