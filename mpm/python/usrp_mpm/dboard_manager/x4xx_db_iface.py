@@ -145,10 +145,7 @@ class X4xxDboardIface(DboardIface):
         """
         Gets the sample rate of the RFDCs.
         """
-        if self.mboard.mboard_info.get('product') != 'x411':
-            self.mboard.get_spll_freq()
-        else:
-            return 2.94912e9 #TODO PK: remove this hack when clock managment will be ready
+        return self.mboard.get_spll_freq()
 
     def get_prc_rate(self):
         """
@@ -157,7 +154,4 @@ class X4xxDboardIface(DboardIface):
         Note: The ref clock will change if the sample clock frequency
         is modified.
         """
-        if self.mboard.mboard_info.get('product') != 'x411':
-            self.mboard.get_prc_rate()
-        else:
-            return 61.44e6 #TODO PK: remove this hack when clock managment will be ready
+        return self.mboard.get_prc_rate()
