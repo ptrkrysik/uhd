@@ -287,6 +287,11 @@ class x4xx(ZynqComponents, PeriphManagerBase):
 
         # Changes of constants for X411
         if (self.mboard_info.get('product') == 'x411'):
+            # Remove QSFP related GPIOs that are absent on x411 (ZCU111)
+            global X400_QSFP_I2C_CONFIGS
+            X400_QSFP_I2C_CONFIGS = [
+                QSFPModuleConfig(modprs=None, modsel=None, devsymbol='qsfp0_i2c'),
+                QSFPModuleConfig(modprs=None, modsel=None, devsymbol='qsfp1_i2c')]
             # Change default clock source
             global X400_DEFAULT_CLOCK_SOURCE
             X400_DEFAULT_CLOCK_SOURCE = X4xxClockMgr.CLOCK_SOURCE_MBOARD
@@ -563,10 +568,9 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             self.ctrlport_regs.enable_cable_present_forwarding(True)
 
         # Init QSFP modules
-        qsfp_has_gpios = (self.mboard_info.get('product') != 'x411')
         for idx, config in enumerate(X400_QSFP_I2C_CONFIGS):
             attr = QSFPModule(
-                config.modprs, config.modsel, config.devsymbol, self.log, qsfp_has_gpios)
+                config.modprs, config.modsel, config.devsymbol, self.log)
             setattr(self, "_qsfp_module{}".format(idx), attr)
             self._add_public_methods(attr, "qsfp{}".format(idx))
 
