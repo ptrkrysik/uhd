@@ -25,6 +25,7 @@ set(USRP_MPM_PERIPHMGR_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_dio_control.py
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_sample_pll.py
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_reference_pll.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/zcu111_reference_pll.py
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_update_cpld.py
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_gps_mgr.py
     ${CMAKE_CURRENT_SOURCE_DIR}/x4xx_mb_cpld.py
