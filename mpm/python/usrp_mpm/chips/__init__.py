@@ -8,6 +8,7 @@ Chips submodule
 """
 
 from .adf400x import ADF400x
+from .lmk04208 import LMK04208
 from .lmk04828 import LMK04828
 from .lmk04832 import LMK04832
 from .lmk03328 import LMK03328
