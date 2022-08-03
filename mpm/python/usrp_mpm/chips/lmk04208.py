@@ -20,13 +20,13 @@ class LMK04208:
     """
 
     def __init__(self, regs_iface, parent_log=None):
-        # self.log = \
-        #     parent_log.getChild("LMK04208") if parent_log is not None \
-        #     else get_logger("LMK04208")
+        self.log = \
+            parent_log.getChild("LMK04208") if parent_log is not None \
+            else get_logger("LMK04208")
         self.regs_iface = regs_iface
         assert hasattr(self.regs_iface, 'peek32')
         assert hasattr(self.regs_iface, 'poke32')
-        self.poke32 = regs_iface.poke32
+        self._poke32 = regs_iface.poke32
         self._peek32 = regs_iface.peek32
         self.lmk04208_regs = lmk04208_regs_t()
 
@@ -42,18 +42,23 @@ class LMK04208:
         """
         Reads value of a register from addr
         """
-        #select addr of the register
+        # Select addr of the register
         self.lmk04208_regs.READBACK_ADDR = addr
         self.lmk04208_regs.READBACK_LE = self.lmk04208_regs.READBACK_LE_t.READBACK_LE_LE_LOW
-        sel_reg_addr = self.lmk04208_regs.READBACK_ADDR_addr
-        reg = self.lmk04208_regs.get_reg(sel_reg_addr)
-        # reg2 = reg << 5
-        # print(f"reg31 {reg2:08x}")
-        self.poke32(sel_reg_addr, reg)
+        # Set oldest bit to run univeral 32 bit tranfser
+        # instead of following X410 CPLD's specific protocol
+        sel_reg_addr = self.lmk04208_regs.READBACK_ADDR_addr| 0x8000000000000000
+        self.poke32(sel_reg_addr, self.lmk04208_regs.get_reg(sel_reg_addr))
         #read selected register
-        result = self._peek32(sel_reg_addr)
-        # print(f"result {result:08x}")
-        return result
+        return self._peek32(sel_reg_addr)
+
+    def poke32(self, addr, data):
+        """
+        Wrapper adding flag to run univeral 32 bit tranfser
+        instead of following X410 CPLD's specific protocol
+        """
+        addr_and_flag = addr | 0x8000000000000000
+        self._poke32(addr_and_flag, data)
 
     def _set_holdover_mux(
             self,
