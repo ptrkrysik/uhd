@@ -36,6 +36,15 @@ public:
      */
     virtual uint32_t transfer24_16(const uint32_t data) = 0;
 
+    /*! Convenience function: SPI xfer is 32 bits write, 32 bits read.
+     *
+     * \param data The write data for this xfer
+     *
+     * \return 32 bits worth of the return xfer
+     */
+
+    virtual uint32_t transfer32_32(const uint64_t data) = 0;
+
     /*! Convenience function: SPI xfer is 64 bits write, 40 bits read.
      *
      * \param data The write data for this xfer
