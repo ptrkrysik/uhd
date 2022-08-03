@@ -78,41 +78,58 @@ public:
          * TX portion of the message (first 2 bytes) rather than the
          * end of the message as is done with smaller transfers.
          */
-        uint64_t transaction = 0 | (addr << _addr_shift) | _read_flags;
+        uint64_t data;
 
-        uint64_t data = _spi_iface->transfer64_40(transaction);
+        uint64_t address = addr & 0x7FFFFFFFFFFFFFFF;
 
-        // Actual RX data is the last 5 bytes
-        if ((data & 0xFFFFFF00000000F8) != 0) {
-            throw mpm::runtime_error("SPI read returned too much data");
+        uint64_t transaction = 0 | (address << _addr_shift) | _read_flags;
+
+        bool x410_cpld_specific = ((addr >> 63) == 0);
+        if (x410_cpld_specific) {
+            data = _spi_iface->transfer64_40(transaction);
+
+            // Actual RX data is the last 5 bytes
+            if ((data & 0xFFFFFF00000000F8) != 0) {
+                throw mpm::runtime_error("SPI read returned too much data");
+            }
+
+            // Status data is the last byte
+            bool ack       = (data >> 2) & 0x1;
+            uint8_t status = data & 0x3;
+            if (!ack) {
+                throw mpm::runtime_error("Ctrlport SPI read had no ACK");
+            }
+            if (status != 0) {
+                // TODO: Differentiate error codes
+                throw mpm::runtime_error("Ctrlport SPI error");
+            }
+
+            // Register data is the 4 bytes above the last one
+            data = (data >> 8) & 0xFFFFFFFF;
+        } else {
+            data = _spi_iface->transfer32_32(transaction);
         }
 
-        // Status data is the last byte
-        bool ack = (data >> 2) & 0x1;
-        uint8_t status = data & 0x3;
-        if (!ack) {
-            throw mpm::runtime_error("Ctrlport SPI read had no ACK");
-        }
-        if (status != 0) {
-            // TODO: Differentiate error codes
-            throw mpm::runtime_error("Ctrlport SPI error");
-        }
-
-        // Register data is the 4 bytes above the last one
-        data = (data >> 8) & 0xFFFFFFFF;
         return data;
     }
 
     void poke32(const uint64_t addr, const uint32_t data)
     {
-        /* Note: _addr_shift and _write_flags will be offset from the
-         * TX portion of the message (first 6 bytes) rather than the
-         * end of the message as is done with smaller transfers.
-         */
-        uint64_t transaction = 0 | _write_flags | (addr << _addr_shift)
+        uint64_t address = addr & 0x7FFFFFFFFFFFFFFF;
+
+        uint64_t transaction = 0 | _write_flags | (address << _addr_shift)
                                | (data << _data_shift);
 
-        _spi_iface->transfer64_40(transaction);
+        bool x410_cpld_specific = ((addr >> 63) == 0);
+        if (x410_cpld_specific) {
+            /* Note: _addr_shift and _write_flags will be offset from the
+             * TX portion of the message (first 6 bytes) rather than the
+             * end of the message as is done with smaller transfers.
+             */
+            _spi_iface->transfer64_40(transaction);
+        } else {
+            _spi_iface->transfer32_32(transaction);
+        }
     }
 
 private:
