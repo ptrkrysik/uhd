@@ -297,6 +297,10 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             # Change default clock source
             global X400_DEFAULT_CLOCK_SOURCE
             X400_DEFAULT_CLOCK_SOURCE = X4xxClockMgr.CLOCK_SOURCE_MBOARD
+            #Change list of available sensors
+            self.mboard_sensor_callback_map = {
+                'ref_locked': 'get_ref_lock_sensor',
+            }
 
         self._tear_down = False
         self._rpu_initialized = False
