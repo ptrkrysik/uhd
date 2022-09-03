@@ -26,17 +26,12 @@ namespace uhd { namespace usrp { namespace thinbx {
 // The ZBX has a non-configurable analog bandwidth of 400 MHz. At lower
 // frequency, the usable bandwidth may be smaller though. For those smaller
 // bandwidths, see the tune maps.
-// TODO PK: as thinbx's bandwidth depends on master-clock, compute this value
-// instead of showing a constant
+// TODO PK: decide what value to report as thinbx analog bandwidth
+//          as thinbx consist of bare converters without analog part
 static constexpr double THINBX_DEFAULT_BANDWIDTH = 400e6; // Hz
 
 static constexpr double THINBX_MIN_FREQ = 0; // Hz
-static constexpr double THINBX_MAX_FREQ = 3e9; // TODO PK: compute this value based
-                                               // on master-clock instead of
-                                               // showing a constant
-// constant
 static constexpr double THINBX_DEFAULT_FREQ = 0; // Hz
-static const uhd::freq_range_t THINBX_FREQ_RANGE(THINBX_MIN_FREQ, THINBX_MAX_FREQ);
 
 // constexpr char HW_GAIN_STAGE[] = "hw";
 

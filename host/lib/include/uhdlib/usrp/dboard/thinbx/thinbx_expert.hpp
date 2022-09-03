@@ -131,12 +131,14 @@ private:
 class thinbx_freq_be_expert : public uhd::experts::worker_node_t
 {
 public:
-    thinbx_freq_be_expert(
-        const uhd::experts::node_retriever_t& db, const uhd::fs_path fe_path)
+    thinbx_freq_be_expert(const uhd::experts::node_retriever_t& db,
+        const uhd::fs_path fe_path,
+        double rfdc_rate)
         : uhd::experts::worker_node_t(fe_path / "thinbx_freq_be_expert")
         , _rfdc_freq_coerced(
               db, fe_path / "los" / RFDC_NCO / "freq" / "value" / "coerced")
         , _coerced_frequency(db, fe_path / "freq" / "coerced")
+        , _rfdc_rate(rfdc_rate)
     {
         //  Inputs
         bind_accessor(_rfdc_freq_coerced);
@@ -153,6 +155,8 @@ private:
 
     // Output to user/API
     uhd::experts::data_writer_t<double> _coerced_frequency;
+
+    const double _rfdc_rate;
 };
 
 /*! DSA coercer expert

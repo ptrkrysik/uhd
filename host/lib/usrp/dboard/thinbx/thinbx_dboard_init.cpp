@@ -226,7 +226,7 @@ void thinbx_dboard_impl::_init_experts(expert_container::sptr expert,
     //    as we only change one property at a time.
 
     expert_factory::add_worker_node<thinbx_freq_be_expert>(
-        expert, expert->node_retriever(), fe_path);
+        expert, expert->node_retriever(), fe_path, _rfdc_rate);
 
     expert_factory::add_worker_node<thinbx_band_inversion_expert>(
         expert, expert->node_retriever(), fe_path, trx, chan_idx, _rpcc);
@@ -267,7 +267,7 @@ void thinbx_dboard_impl::_init_frequency_prop_tree(uhd::property_tree::sptr subt
             return meta_range_t(THINBX_DEFAULT_BANDWIDTH, THINBX_DEFAULT_BANDWIDTH);
         });
     subtree->create<meta_range_t>(fe_path / "freq" / "range")
-        .set(THINBX_FREQ_RANGE)
+        .set(uhd::freq_range_t(THINBX_MIN_FREQ, _rfdc_rate))
         .add_coerced_subscriber([](const meta_range_t&) {
             throw uhd::runtime_error("Attempting to update freq range!");
         });

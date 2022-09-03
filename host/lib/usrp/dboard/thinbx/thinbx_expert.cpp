@@ -69,7 +69,8 @@ void thinbx_scheduling_expert::resolve()
 
 void thinbx_freq_fe_expert::resolve()
 {
-    const double tune_freq = THINBX_FREQ_RANGE.clip(_desired_frequency);
+    uhd::freq_range_t thinbx_freq_range(THINBX_MIN_FREQ, _rfdc_rate);
+    const double tune_freq = thinbx_freq_range.clip(_desired_frequency);
     _rfdc_freq_desired     = tune_freq;
     _band_inverted         = _is_band_inverted(_trx, _rfdc_freq_desired, _rfdc_rate);
 }
@@ -84,7 +85,7 @@ void thinbx_freq_be_expert::resolve()
     // doesn't panic (Clipping here would have no effect on the actual output signal)
     using namespace uhd::math::fp_compare;
     if (fp_compare_delta<double>(_coerced_frequency.get()) < THINBX_MIN_FREQ
-        || fp_compare_delta<double>(_coerced_frequency.get()) > THINBX_MAX_FREQ) {
+        || fp_compare_delta<double>(_coerced_frequency.get()) > _rfdc_rate) {
         UHD_LOG_WARNING(get_name(),
             "Resulting coerced frequency " << _coerced_frequency.get()
                                            << " is out of range!");

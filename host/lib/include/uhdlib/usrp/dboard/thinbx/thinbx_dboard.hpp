@@ -128,11 +128,11 @@ public:
     double set_rx_frequency(const double freq, const size_t chan) override;
     uhd::freq_range_t get_tx_frequency_range(const size_t /*chan*/) const override
     {
-        return THINBX_FREQ_RANGE;
+        return uhd::freq_range_t(THINBX_MIN_FREQ, _rfdc_rate);
     }
     uhd::freq_range_t get_rx_frequency_range(const size_t /*chan*/) const override
     {
-        return THINBX_FREQ_RANGE;
+        return uhd::freq_range_t(THINBX_MIN_FREQ, _rfdc_rate);
     }
 
     double set_tx_bandwidth(const double bandwidth, const size_t chan) override;
