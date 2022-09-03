@@ -58,6 +58,7 @@ X410_X1_400:  DEFS += $(QSFP0_10GBE)                   RFBW_400M=1 DRAM_CH=4*$(D
 X410_XG_400:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_X4_400:  DEFS += $(QSFP0_4X10GBE)                 RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_C1_400:  DEFS += $(QSFP0_100GBE)                  RFBW_400M=1 DRAM_CH=0
+X411_C1_400:  DEFS += $(QSFP0_100GBE)                  RFBW_400M=1 DRAM_CH=0
 X410_CG_400:  DEFS += $(QSFP0_100GBE)  $(QSFP1_100GBE) RFBW_400M=1 DRAM_CH=0
 
 # DRAM IP inclusion. Set to 1 to include DRAM memory controller in design, 0 to
@@ -72,6 +73,7 @@ X410_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_200_rfnoc_image_core
 X410_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_200_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_200_static_router.hex)
 X411_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x411_200_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x411_200_static_router.hex)
 X410_400_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_400_static_router.hex)
+X411_400_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_400_static_router.hex)
 X410_400_128_DEFAULTS := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_128_rfnoc_image_core.v DEFAULT_EDGE_FILE=$(abspath x410_400_128_static_router.hex)
 
 
@@ -120,6 +122,7 @@ endif
 ##X410_XG_400 | 400 MHz   | 10 GbE (Lane 0) | 10 GbE (Lane 0) | 128b x 4 ch
 ##X410_X4_400 | 400 MHz   | 4 x 10 GbE      | None            | 128b x 4 Ch
 ##X410_C1_400 | 400 MHz   | 100 GbE         | None            | None
+##X411_C1_400 | 400 MHz   | 100 GbE         | None            | None
 ##X410_CG_400 | 400 MHz   | 100 GbE         | 100 GbE         | None
 ##* Note: Not all targets are shipped with UHD
 
@@ -166,6 +169,10 @@ X410_X4_400: X410_IP build/usrp_x410_fpga_X4_400.dts
 X410_C1_400: X410_IP build/usrp_x410_fpga_C1_400.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_400_DEFAULTS))
 	$(call post_build,X410,C1_400)
+
+X411_C1_400: X411_IP build/usrp_x411_fpga_C1_400.dts
+	$(call vivado_build,X411,$(DEFS) X411=1,$(X410_400_DEFAULTS))
+	$(call post_build,X411,C1_400)
 
 X410_CG_400: X410_IP build/usrp_x410_fpga_CG_400.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_400_DEFAULTS))
