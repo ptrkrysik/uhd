@@ -57,6 +57,7 @@ X410_X4C_200: DEFS += $(QSFP0_4X10GBE) $(QSFP1_100GBE) RFBW_200M=1 DRAM_CH=0
 X410_X1_400:  DEFS += $(QSFP0_10GBE)                   RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_XG_400:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_X4_400:  DEFS += $(QSFP0_4X10GBE)                 RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
+X411_X4_400:  DEFS += $(QSFP0_4X10GBE)                 RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_C1_400:  DEFS += $(QSFP0_100GBE)                  RFBW_400M=1 DRAM_CH=0
 X411_C1_400:  DEFS += $(QSFP0_100GBE)                  RFBW_400M=1 DRAM_CH=0
 X410_CG_400:  DEFS += $(QSFP0_100GBE)  $(QSFP1_100GBE) RFBW_400M=1 DRAM_CH=0
@@ -73,6 +74,7 @@ X410_200_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_200_rfnoc_image_core
 X410_400_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_400_static_router.hex)
 X411_400_DEFAULTS     := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_rfnoc_image_core.v     DEFAULT_EDGE_FILE=$(abspath x410_400_static_router.hex)
 X410_400_128_DEFAULTS := DEFAULT_RFNOC_IMAGE_CORE_FILE=x410_400_128_rfnoc_image_core.v DEFAULT_EDGE_FILE=$(abspath x410_400_128_static_router.hex)
+X411_400_64_DEFAULTS  := DEFAULT_RFNOC_IMAGE_CORE_FILE=x411_400_64_rfnoc_image_core.v  DEFAULT_EDGE_FILE=$(abspath x411_400_64_static_router.hex)
 
 
 # Option to stop after RTL elaboration. Use this flag as a synthesis check.
@@ -121,6 +123,7 @@ vivado_ip = make -f Makefile.x4xx.inc viv_ip NAME=$@ ARCH=$(XIL_ARCH_$1) PART_ID
 ##X410_X1_400 | 400 MHz   | 10 GbE (Lane 0) | None            | 128b x 4 Ch
 ##X410_XG_400 | 400 MHz   | 10 GbE (Lane 0) | 10 GbE (Lane 0) | 128b x 4 ch
 ##X410_X4_400 | 400 MHz   | 4 x 10 GbE      | None            | 128b x 4 Ch
+##X411_X4_400 | 400 MHz   | 4 x 10 GbE      | None            | 64b x 4 Ch
 ##X410_C1_400 | 400 MHz   | 100 GbE         | None            | None
 ##X411_C1_400 | 400 MHz   | 100 GbE         | None            | None
 ##X410_CG_400 | 400 MHz   | 100 GbE         | 100 GbE         | None
@@ -165,6 +168,10 @@ X410_XG_400: build/usrp_x410_fpga_XG_400.dts
 X410_X4_400: build/usrp_x410_fpga_X4_400.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_400_128_DEFAULTS))
 	$(call post_build,X410,X4_400)
+
+X411_X4_400: build/usrp_x411_fpga_X4_400.dts
+	$(call vivado_build,X411,$(DEFS) X411=1,$(X411_400_64_DEFAULTS))
+	$(call post_build,X411,X4_400)
 
 X410_C1_400: build/usrp_x410_fpga_C1_400.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_400_DEFAULTS))
