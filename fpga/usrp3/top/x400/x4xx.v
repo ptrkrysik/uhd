@@ -186,6 +186,8 @@ module x4xx (
   inout  wire [11:0] DIOB_FPGA,
 
   output wire        CPLD_JTAG_OE_n,
+`else
+  inout wire [11:0]               DIOA_FPGA,
 `endif
 
   output wire        PPS_LED,
