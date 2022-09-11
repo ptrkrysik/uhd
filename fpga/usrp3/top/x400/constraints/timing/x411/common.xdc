@@ -132,10 +132,10 @@ set_max_delay -from [get_clocks clk100] -to [get_clocks -of_objects [get_pins -h
 ###############################################################################
 
 # Ignore paths from "slow" PS interface to not interfere with user constraints.
-#set dio_ports     [get_ports {DIOA_FPGA[*] DIOB_FPGA[*]}]
-#set dio_registers [get_cells -hierarchical -filter {NAME =~ *x4xx_dio_i* && IS_SEQUENTIAL && IS_PRIMITIVE}]
-#set_false_path -from $dio_registers -to $dio_ports
-#set_false_path -from $dio_ports     -to $dio_registers
+set dio_ports     [get_ports {DIOA_FPGA[*]}] ; # DIOB_FPGA[*]}]
+set dio_registers [get_cells -hierarchical -filter {NAME =~ *x4xx_dio_i* && IS_SEQUENTIAL && IS_PRIMITIVE}]
+set_false_path -from $dio_registers -to $dio_ports
+set_false_path -from $dio_ports     -to $dio_registers
 
 
 ###############################################################################
