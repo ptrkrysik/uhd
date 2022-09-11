@@ -12,7 +12,7 @@
 # Pin constraints for the MGTs reference clocks
 ###############################################################################
 
-set_property PACKAGE_PIN U33 [get_ports {MGT_REFCLK_LMK3_P}] ; #zamienione lmk0 i lmk3
+set_property PACKAGE_PIN U33 [get_ports {MGT_REFCLK_LMK3_P}] ; # lmk0 i lmk3 have swapped pins on X411
 set_property PACKAGE_PIN U34 [get_ports {MGT_REFCLK_LMK3_N}]
 
 set_property PACKAGE_PIN T31 [get_ports {MGT_REFCLK_LMK1_P}]
@@ -21,7 +21,7 @@ set_property PACKAGE_PIN T32 [get_ports {MGT_REFCLK_LMK1_N}]
 set_property PACKAGE_PIN W33 [get_ports {MGT_REFCLK_LMK2_P}]
 set_property PACKAGE_PIN W34 [get_ports {MGT_REFCLK_LMK2_N}]
 
-set_property PACKAGE_PIN V31 [get_ports {MGT_REFCLK_LMK0_P}] ; #ten zdaje się jest dobrze podłączony na zcu111
+set_property PACKAGE_PIN V31 [get_ports {MGT_REFCLK_LMK0_P}]
 set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 
 
@@ -29,7 +29,7 @@ set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 # Common pin constraints for the QSFP28 ports
 ###############################################################################
 
-# set_property PACKAGE_PIN AJ15 [get_ports {QSFP0_MODPRS_n}] ; #GPIO_DIP_SW - tego nie ma gdzie podlaczyc - ustawiam na stale w kodzie
+# set_property PACKAGE_PIN AJ15 [get_ports {QSFP0_MODPRS_n}] ; #GPIO_DIP_SW
 # set_property PACKAGE_PIN AH16 [get_ports {QSFP0_RESET_n}] ; #GPIO_DIP_SW3
 # set_property PACKAGE_PIN AH15 [get_ports {QSFP0_LPMODE_n}] ; #GPIO_DIP_SW2
 
@@ -147,6 +147,19 @@ set_property PACKAGE_PIN AK17 [get_ports {SYSREF_FABRIC_P}] ; #SYSREF_FPGA_C_P
 set_property PACKAGE_PIN AK16 [get_ports {SYSREF_FABRIC_N}] ; #SYSREF_FPGA_C_N
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {SYSREF_FABRIC_*}]
 
+set_property PACKAGE_PIN L14  [get_ports {DIOA_FPGA[0]}] ; #PMOD1_0_LS
+set_property PACKAGE_PIN L15  [get_ports {DIOA_FPGA[1]}] ; #PMOD1_1_LS
+set_property PACKAGE_PIN M13  [get_ports {DIOA_FPGA[2]}] ; #PMOD1_2_LS
+set_property PACKAGE_PIN N13  [get_ports {DIOA_FPGA[3]}] ; #PMOD1_3_LS
+set_property PACKAGE_PIN M15  [get_ports {DIOA_FPGA[4]}] ; #PMOD1_4_LS
+set_property PACKAGE_PIN N15  [get_ports {DIOA_FPGA[5]}] ; #PMOD1_5_LS
+set_property PACKAGE_PIN M14  [get_ports {DIOA_FPGA[6]}] ; #PMOD1_6_LS
+set_property PACKAGE_PIN N14  [get_ports {DIOA_FPGA[7]}] ; #PMOD1_7_LS
+set_property PACKAGE_PIN J16  [get_ports {DIOA_FPGA[8]}] ; #PMOD0_4_LS
+set_property PACKAGE_PIN K16  [get_ports {DIOA_FPGA[9]}] ; #PMOD0_5_LS
+set_property PACKAGE_PIN H15  [get_ports {DIOA_FPGA[10]}] ; #PMOD0_6_LS
+set_property PACKAGE_PIN M18  [get_ports {DIOA_FPGA[11]}] ; #PMOD0_1_LS
+
 # set_property PACKAGE_PIN K16  [get_ports {DIOA_FPGA[0]}] ; #PMOD0_5_LS
 # set_property PACKAGE_PIN H15  [get_ports {DIOA_FPGA[1]}] ; #PMOD0_6_LS
 # set_property PACKAGE_PIN J15  [get_ports {DIOA_FPGA[2]}] ; #PMOD0_7_LS
@@ -172,8 +185,8 @@ set_property IOSTANDARD DIFF_SSTL12 [get_ports {SYSREF_FABRIC_*}]
 # set_property PACKAGE_PIN AW5  [get_ports {DIOB_FPGA[10]}] ; #GPIO_SW_C
 # set_property PACKAGE_PIN AW6  [get_ports {DIOB_FPGA[11]}] ; #GPIO_SW_W
 
-# set_property IOSTANDARD LVCMOS12 [get_ports {DIO*_FPGA[*]}]
-# set_property PULLDOWN   true     [get_ports {DIO*_FPGA[*]}]
+set_property IOSTANDARD LVCMOS12 [get_ports {DIO*_FPGA[*]}]
+set_property PULLDOWN   true     [get_ports {DIO*_FPGA[*]}]
 
 set_property PACKAGE_PIN AR13 [get_ports {PPS_LED}] ; #GPIO_LED_0_LS
 set_property IOSTANDARD LVCMOS18 [get_ports {PPS_LED}]
