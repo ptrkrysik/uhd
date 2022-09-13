@@ -37,6 +37,7 @@ from usrp_mpm.periph_manager.x4xx_clk_mgr import X4xxClockMgr
 from usrp_mpm.periph_manager.zcu111_clk_mgr import ZCU111ClockMgr
 from usrp_mpm.periph_manager.x4xx_gps_mgr import X4xxGPSMgr
 from usrp_mpm.periph_manager.x4xx_rfdc_ctrl import X4xxRfdcCtrl
+from usrp_mpm.periph_manager.zcu111_dio_control import ZCU111DioControl
 from usrp_mpm.dboard_manager.x4xx_db_iface import X4xxDboardIface
 from usrp_mpm.dboard_manager.zbx import ZBX
 from usrp_mpm.dboard_manager.thinbx import ThinBX
@@ -322,8 +323,8 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             self.init_dboards(args)
             # We need to init dio_control separately from peripherals
             # since it needs information about available dboards
+            self._init_dio_control(args)
             if self.mboard_info.get('product') != 'x411':
-                self._init_dio_control(args)
                 self._clk_mgr.set_dboard_reset_cb(
                    lambda enable: [db.reset_clock(enable) for db in self.dboards])
         except Exception as ex:
@@ -617,11 +618,17 @@ class x4xx(ZynqComponents, PeriphManagerBase):
         Turn on gpio peripherals. This may throw an error on failure, so make
         sure to catch it.
         """
-        if self._check_compat_aux_board(DIOAUX_EEPROM, DIOAUX_PID):
-            self.dio_control = DioControl(self.mboard_regs_control,
-                                          self.cpld_control, self.log,
-                                          self.dboards)
-            # add dio_control public methods to MPM API
+        if self.mboard_info.get('product') != 'x411':
+            if self._check_compat_aux_board(DIOAUX_EEPROM, DIOAUX_PID):
+                self.dio_control = DioControl(self.mboard_regs_control,
+                                            self.cpld_control, self.log,
+                                            self.dboards)
+                # add dio_control public methods to MPM API
+                self._add_public_methods(self.dio_control, "dio")
+        else:
+            self.dio_control = ZCU111DioControl(self.mboard_regs_control,
+                                                self.log,
+                                                self.dboards)
             self._add_public_methods(self.dio_control, "dio")
 
     def _check_compat_aux_board(self, name, pid):

@@ -93,9 +93,10 @@ class ZCU111DioControl:
     # pylint: disable=bad-whitespace
 
     # Available DIO ports
-    DIO_PORTS = ("PORTA") #, "PORTB")
+    DIO_PORTS = ("PORTA", "PORTB")
     # Available voltage levels
-    DIO_VOLTAGE_LEVELS = ("OFF", "1V8", "2V5", "3V3")
+    # DIO_VOLTAGE_LEVELS = ("OFF", "1V8", "2V5", "3V3")
+    DIO_VOLTAGE_LEVELS = ("3V3")
 
     # For each mapping supported by DioControl the class needs the following
     # information
@@ -150,7 +151,7 @@ class ZCU111DioControl:
     FULL_SPI_FPGA_COMPAT = (7, 7)
 
     # DIO registers addresses in CPLD
-    CPLD_DIO_DIRECTION_REGISTER = 0x30
+    # CPLD_DIO_DIRECTION_REGISTER = 0x30
 
     # GPIO attributes
     X4XX_GPIO_BANKS        = ["GPIO0", "GPIO1"]
@@ -176,19 +177,19 @@ class ZCU111DioControl:
             self.first_pin = first_pin
 
 
-    class _PortControl:
-        """
-        Helper class for controlling ports on the I2C expander
-        """
-        def __init__(self, port):
-            assert port in DioControl.DIO_PORTS
-            prefix = "DIOAUX_%s" % port
+    # class _PortControl:
+    #     """
+    #     Helper class for controlling ports on the I2C expander
+    #     """
+    #     def __init__(self, port):
+    #         assert port in DioControl.DIO_PORTS
+    #         prefix = "DIOAUX_%s" % port
 
-            self.enable = Gpio('%s_ENABLE' % prefix, Gpio.OUTPUT)
-            self.en_3v3 = Gpio('%s_3V3' % prefix, Gpio.OUTPUT)
-            self.en_2v5 = Gpio('%s_2V5' % prefix, Gpio.OUTPUT)
-            self.ext_pwr = Gpio('%s_ENABLE_EXT_PWR' % prefix, Gpio.OUTPUT)
-            self.power_good = Gpio('%s_PWR_GOOD' % prefix, Gpio.INPUT)
+    #         self.enable = Gpio('%s_ENABLE' % prefix, Gpio.OUTPUT)
+    #         self.en_3v3 = Gpio('%s_3V3' % prefix, Gpio.OUTPUT)
+    #         self.en_2v5 = Gpio('%s_2V5' % prefix, Gpio.OUTPUT)
+    #         self.ext_pwr = Gpio('%s_ENABLE_EXT_PWR' % prefix, Gpio.OUTPUT)
+    #         self.power_good = Gpio('%s_PWR_GOOD' % prefix, Gpio.INPUT)
 
 
     class _GpioReg:
@@ -217,16 +218,16 @@ class ZCU111DioControl:
             self.mboard_regs.poke32(self.offset, self.value)
 
 
-    def __init__(self, mboard_regs, mboard_cpld, log, dboards):
+    def __init__(self, mboard_regs, log, dboards):
         """
         Initializes access to hardware components as well as creating known
         port mappings
         :param log: logger to be used for output
         """
         self.log = log.getChild(self.__class__.__name__)
-        self.port_control = {port: self._PortControl(port) for port in self.DIO_PORTS}
+        # self.port_control = {port: self._PortControl(port) for port in self.DIO_PORTS}
         self.mboard_regs = mboard_regs
-        self.mboard_cpld = mboard_cpld
+        # self.mboard_cpld = mboard_cpld
         if self.mboard_regs.get_compat_number() < self.FULL_DIO_FPGA_COMPAT:
             self.log.warning("DIO board does not support the full feature set.")
         if self.mboard_regs.get_compat_number() < self.FULL_SPI_FPGA_COMPAT:
@@ -247,17 +248,17 @@ class ZCU111DioControl:
             "PORTA": Value('b', 0),
             "PORTB": Value('b', 0),
         }
-        self._dio0_fault_monitor = Process(
-            target=self._monitor_dio_fault,
-            args=('A', "DIO_INT0", self._tear_down_monitor, self._dio_fault["PORTA"])
-        )
-        self._dio1_fault_monitor = Process(
-            target=self._monitor_dio_fault,
-            args=('B', "DIO_INT1", self._tear_down_monitor, self._dio_fault["PORTB"])
-        )
-        signal.signal(signal.SIGINT, self._monitor_int_handler)
-        self._dio0_fault_monitor.start()
-        self._dio1_fault_monitor.start()
+        # self._dio0_fault_monitor = Process(
+        #     target=self._monitor_dio_fault,
+        #     args=('A', "DIO_INT0", self._tear_down_monitor, self._dio_fault["PORTA"])
+        # )
+        # self._dio1_fault_monitor = Process(
+        #     target=self._monitor_dio_fault,
+        #     args=('B', "DIO_INT1", self._tear_down_monitor, self._dio_fault["PORTB"])
+        # )
+        # signal.signal(signal.SIGINT, self._monitor_int_handler)
+        # self._dio0_fault_monitor.start()
+        # self._dio1_fault_monitor.start()
 
         # Init GPIO sources
         gpio_srcs = [
@@ -281,38 +282,38 @@ class ZCU111DioControl:
             "PORTA": "3V3",
             "PORTB": "3V3",
         }
-        self.set_voltage_level("PORTA", "3V3")
-        self.set_voltage_level("PORTB", "3V3")
+        # self.set_voltage_level("PORTA", "3V3")
+        # self.set_voltage_level("PORTB", "3V3")
 
-    def _monitor_dio_fault(self, dio_port, fault, tear_down, fault_state):
-        """
-        Monitor the DIO_INT lines to detect an external power fault.
-        If there is a fault, turn off external power.
-        """
-        self.log.trace("Launching monitor loop...")
-        fault_line = Gpio(fault, Gpio.FALLING_EDGE)
-        while True:
-            try:
-                if fault_line.event_wait():
-                    # If we saw a fault, disable the external power
-                    self.log.warning(
-                        f"DIO fault occurred on port {dio_port} - "
-                        "turning off external power")
-                    self.set_external_power(dio_port, 0)
-                    fault_state.value = 1
-            # If the event wait gets interrupted because we are trying to tear
-            # down then stop the monitoring process. If not, keep monitoring
-            except InterruptedError:
-                pass
-            if tear_down.is_set():
-                break
+    # def _monitor_dio_fault(self, dio_port, fault, tear_down, fault_state):
+    #     """
+    #     Monitor the DIO_INT lines to detect an external power fault.
+    #     If there is a fault, turn off external power.
+    #     """
+    #     self.log.trace("Launching monitor loop...")
+    #     fault_line = Gpio(fault, Gpio.FALLING_EDGE)
+    #     while True:
+    #         try:
+    #             if fault_line.event_wait():
+    #                 # If we saw a fault, disable the external power
+    #                 self.log.warning(
+    #                     f"DIO fault occurred on port {dio_port} - "
+    #                     "turning off external power")
+    #                 self.set_external_power(dio_port, 0)
+    #                 fault_state.value = 1
+    #         # If the event wait gets interrupted because we are trying to tear
+    #         # down then stop the monitoring process. If not, keep monitoring
+    #         except InterruptedError:
+    #             pass
+    #         if tear_down.is_set():
+    #             break
 
-    def _monitor_int_handler(self, _signum, _frame):
-        """
-        If we see an expected interrupt signal, mark the DIO fault monitors
-        for tear down.
-        """
-        self._tear_down_monitor.set()
+    # def _monitor_int_handler(self, _signum, _frame):
+    #     """
+    #     If we see an expected interrupt signal, mark the DIO fault monitors
+    #     for tear down.
+    #     """
+    #     self._tear_down_monitor.set()
 
     # --------------------------------------------------------------------------
     # Helper methods
@@ -450,20 +451,21 @@ class ZCU111DioControl:
         """
         Format voltage table cell value.
         """
-        port_control = self.port_control[port]
+        # port_control = self.port_control[port]
         result = ""
-        if port_control.enable.get() == 0:
-            result += self.DIO_VOLTAGE_LEVELS[0]
-        elif port_control.en_2v5.get() == 1:
-            result += self.DIO_VOLTAGE_LEVELS[2]
-        elif port_control.en_3v3.get() == 1:
-            result += self.DIO_VOLTAGE_LEVELS[3]
-        else:
-            result += self.DIO_VOLTAGE_LEVELS[1]
-        result += " - PG:"
-        result += "YES" if port_control.power_good.get() else "NO"
-        result += " - EXT:"
-        result += "ON" if port_control.ext_pwr.get() else "OFF"
+        # if port_control.enable.get() == 0:
+        #     result += self.DIO_VOLTAGE_LEVELS[0]
+        # elif port_control.en_2v5.get() == 1:
+        #     result += self.DIO_VOLTAGE_LEVELS[2]
+        # elif port_control.en_3v3.get() == 1:
+        #     result += self.DIO_VOLTAGE_LEVELS[3]
+        # else:
+        #     result += self.DIO_VOLTAGE_LEVELS[1]
+        result += self.DIO_VOLTAGE_LEVELS[0]
+        # result += " - PG:"
+        # result += "YES" if port_control.power_good.get() else "NO"
+        # result += " - EXT:"
+        # result += "ON" if port_control.ext_pwr.get() else "OFF"
         return result
 
     def _get_voltage(self):
@@ -634,7 +636,7 @@ class ZCU111DioControl:
                 False
             )
             radio_srcs = [
-                item for sublist in self.X4XX_GPIO_SRC_RADIO for item in sublist]
+                item for sublist in (self.X4XX_GPIO_SRC_RADIO + self.X4XX_GPIO_SPI_SRC_RADIO) for item in sublist]
             if src_name in radio_srcs:
                 source_reg.set_pin(pin_index, 1)
                 slot = int(src_name[2])
@@ -716,18 +718,22 @@ class ZCU111DioControl:
         # first that will get the driver disabled.
         # This ensures that there wont be two drivers active at a time.
         if value == 1:  # FPGA is driver => write DIO register first
-            self.mboard_cpld.poke32(self.CPLD_DIO_DIRECTION_REGISTER, content)
+            # self.mboard_cpld.poke32(self.CPLD_DIO_DIRECTION_REGISTER, content)
             self.mboard_regs.poke32(self.FPGA_DIO_DIRECTION_REGISTER, content)
         else:  # DIO is driver => write FPGA register first
             self.mboard_regs.poke32(self.FPGA_DIO_DIRECTION_REGISTER, content)
-            self.mboard_cpld.poke32(self.CPLD_DIO_DIRECTION_REGISTER, content)
+            # self.mboard_cpld.poke32(self.CPLD_DIO_DIRECTION_REGISTER, content)
         # Read back values to ensure registers are in sync
-        cpld_content = self.mboard_cpld.peek32(self.CPLD_DIO_DIRECTION_REGISTER)
+        # cpld_content = self.mboard_cpld.peek32(self.CPLD_DIO_DIRECTION_REGISTER)
         mbrd_content = self.mboard_regs.peek32(self.FPGA_DIO_DIRECTION_REGISTER)
-        if not ((cpld_content == content) and (mbrd_content == content)):
+        # if not ((cpld_content == content) and (mbrd_content == content)):
+        if not mbrd_content == content:
             raise RuntimeError("Direction register content mismatch. Expected:"
-                               "0x%0.8X, CPLD: 0x%0.8X, FPGA: 0x%0.8X." %
-                               (content, cpld_content, mbrd_content))
+                               "0x%0.8X, FPGA: 0x%0.8X." %
+                               (content, mbrd_content))
+            # raise RuntimeError("Direction register content mismatch. Expected:"
+            #                    "0x%0.8X, CPLD: 0x%0.8X, FPGA: 0x%0.8X." %
+            #                    (content, cpld_content, mbrd_content))
 
     def set_pin_directions(self, port, values):
         """
@@ -826,29 +832,30 @@ class ZCU111DioControl:
         :param level: new power level
         :raises RuntimeError: power good pin did not go high
         """
-        port = self._normalize_port_name(port)
-        level = level.upper()
-        assert port in self.DIO_PORTS
-        assert level in self.DIO_VOLTAGE_LEVELS
-        port_control = self.port_control[port]
+        pass
+        # port = self._normalize_port_name(port)
+        # level = level.upper()
+        # assert port in self.DIO_PORTS
+        # assert level in self.DIO_VOLTAGE_LEVELS
+        # port_control = self.port_control[port]
 
-        self._current_voltage_level[port] = level
+        # self._current_voltage_level[port] = level
 
-        port_control.enable.set(0)
-        port_control.en_2v5.set(0)
-        port_control.en_3v3.set(0)
-        if level == self.DIO_VOLTAGE_LEVELS[2]:
-            port_control.en_2v5.set(1)
-        elif level == self.DIO_VOLTAGE_LEVELS[3]:
-            port_control.en_3v3.set(1)
+        # port_control.enable.set(0)
+        # port_control.en_2v5.set(0)
+        # port_control.en_3v3.set(0)
+        # if level == self.DIO_VOLTAGE_LEVELS[2]:
+        #     port_control.en_2v5.set(1)
+        # elif level == self.DIO_VOLTAGE_LEVELS[3]:
+        #     port_control.en_3v3.set(1)
 
-        # wait for <port>_PG to go high
-        if not level == self.DIO_VOLTAGE_LEVELS[0]: # off
-            port_control.enable.set(1)
-            if not poll_with_timeout(
-                    lambda: port_control.power_good.get() == 1, 1000, 10):
-                raise RuntimeError(
-                    "Power good pin did not go high after power up")
+        # # wait for <port>_PG to go high
+        # if not level == self.DIO_VOLTAGE_LEVELS[0]: # off
+        #     port_control.enable.set(1)
+        #     if not poll_with_timeout(
+        #             lambda: port_control.power_good.get() == 1, 1000, 10):
+        #         raise RuntimeError(
+        #             "Power good pin did not go high after power up")
 
     def get_voltage_level(self, port):
         """
@@ -865,11 +872,11 @@ class ZCU111DioControl:
         :param value: 1 to enable external power, 0 to disable
         :raise RuntimeError: port or pin value could not be mapped
         """
-        port = self._normalize_port_name(port)
-        value = int(value)
-        assert value in (0, 1)
-        assert port in self.DIO_PORTS
-        self.port_control[port].ext_pwr.set(value)
+        # port = self._normalize_port_name(port)
+        # value = int(value)
+        # assert value in (0, 1)
+        # assert port in self.DIO_PORTS
+        # self.port_control[port].ext_pwr.set(value)
         self._dio_fault[port].value = 0
 
     def get_external_power_state(self, port):
@@ -879,12 +886,13 @@ class ZCU111DioControl:
         Usage:
         > get_external_power_state PORTA
         """
-        port = self._normalize_port_name(port)
-        if self._dio_fault[port].value == 1:
-            return "FAULT"
-        if self.port_control[port].ext_pwr.get() == 1:
-            return "ON"
-        return "OFF"
+        # port = self._normalize_port_name(port)
+        # if self._dio_fault[port].value == 1:
+        #     return "FAULT"
+        # if self.port_control[port].ext_pwr.get() == 1:
+        #     return "ON"
+        # return "OFF"
+        return "ON"
 
     def get_supported_voltage_levels(self, port):
         """
@@ -893,7 +901,8 @@ class ZCU111DioControl:
         simply validate that the given port name is valid.
         """
         _ = self._normalize_port_name(port)
-        return ["OFF", "1V8", "2V5", "3V3"]
+        # return ["OFF", "1V8", "2V5", "3V3"]
+        return ["3V3"]
 
     def status(self):
         """
