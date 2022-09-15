@@ -10,6 +10,9 @@ x4xx_common_sdk_default         meta-ettus-v4.4.0.0  x4xx/meta-ettus-v4.4.0.0/x4
 x4xx_common_mender_default      meta-ettus-v4.4.0.0  x4xx/meta-ettus-v4.4.0.0/x4xx_common_mender_default-v4.4.0.0.zip    0
 x4xx_common_sdimg_default       meta-ettus-v4.4.0.0  x4xx/meta-ettus-v4.4.0.0/x4xx_common_sdimg_default-v4.4.0.0.zip     0
 
+# X411-Series
+x4xx_x411_fpga_default          uhd-aa51a82       x4xx/uhd-aa51a82/x4xx_x411_fpga_default-gaa51a82.zip       8690b2536df93638a9c5f68949295a4081f737ab341d9b03037a7760f53f5f6f
+
 # X300-Series
 x3xx_x310_fpga_default          uhd-92c09f7       x3xx/uhd-92c09f7/x3xx_x310_fpga_default-g92c09f7.zip                  55ee7c8da86060a0ce57f9120ebcd058dba9119e57a1ef10fd723fd9e3269b50
 x3xx_x300_fpga_default          uhd-92c09f7       x3xx/uhd-92c09f7/x3xx_x300_fpga_default-g92c09f7.zip                  2b0d3a4f63864c70ca9909a5092dc6ab0f21409bf7bbd0d0d3d471c1a37cd820
