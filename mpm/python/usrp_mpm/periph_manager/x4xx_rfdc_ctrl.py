@@ -98,7 +98,7 @@ class X4xxRfdcCtrl:
                     'dac': [(1, 0), (1, 1)],
                 },
             ]
-
+        self._mboard_type = mboard_type
     @no_rpc
     def tear_down(self):
         """
@@ -173,8 +173,17 @@ class X4xxRfdcCtrl:
         """
         # These numbers are determined from the procedure mentioned in
         # PG269 section "Advanced Multi-Tile Synchronization API use".
-        adc_latency = 1228  # ADC delay in sample clocks
-        dac_latency = 800   # DAC delay in sample clocks
+        if self._mboard_type == "x411":
+            # PK: the values are measured by setting target latency to -1
+            # and reading sync_config->Latency[*tile] value.
+            # For DAC constant value 16 is added.
+            # For ADC I didn't know, so I added 16 to the result
+            # and it worked.
+            adc_latency = 632   # ADC delay in sample clocks
+            dac_latency = 864   # DAC delay in sample clocks
+        else:
+            adc_latency = 1228  # ADC delay in sample clocks
+            dac_latency = 800   # DAC delay in sample clocks
 
         # Ideally, this would be a set to avoiding duplicate indices,
         # but we need to use a list for compatibility with the rfdc_ctrl
