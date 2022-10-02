@@ -879,6 +879,8 @@ static u32 XRFdc_MTS_Latency(XRFdc *InstancePtr, u32 Type,
 	u32 Factor = 1U;
 	u32 Write_Words = 0U;
 	u32 Read_Words = 1U;
+	XRFdc_Mixer_Settings Mixer_Settings;
+	u32 IQFactor = 1U;
 
 	Status = XRFDC_MTS_OK;
 	if (Type == XRFDC_ADC_TILE) {
@@ -886,6 +888,12 @@ static u32 XRFdc_MTS_Latency(XRFdc *InstancePtr, u32 Type,
 	} else {
 		(void)XRFdc_GetInterpolationFactor(InstancePtr, ConfigPtr->RefTile, 0, &Factor);
 		(void)XRFdc_GetFabWrVldWords(InstancePtr, Type, ConfigPtr->RefTile, 0, &Write_Words);
+        	XRFdc_GetMixerSettings(InstancePtr, Type, ConfigPtr->RefTile, 0, &Mixer_Settings);
+		if (Mixer_Settings.MixerMode == (XRFDC_MIXER_MODE_C2R)) {
+			IQFactor = 2U;
+        	} else {
+			IQFactor = 1U;
+		}
 	}
 	(void)XRFdc_GetFabRdVldWords(InstancePtr, Type, ConfigPtr->RefTile, 0, &Read_Words);
 	Count_W = Read_Words * Factor;
@@ -926,7 +934,7 @@ static u32 XRFdc_MTS_Latency(XRFdc *InstancePtr, u32 Type,
 			 * DAC marker counter is on the tile clock domain so need
 			 * to update SysRef period accordingly
 			 */
-			SysRefT1Period = (SysRefT1Period * Write_Words) / Read_Words;
+			SysRefT1Period = ((SysRefT1Period * Write_Words) / Read_Words) / IQFactor;
 		}
 		metal_log(METAL_LOG_INFO, "SysRef period in terms of %s T1s = %d\n",
 			(Type == XRFDC_ADC_TILE) ? "ADC" : "DAC", SysRefT1Period);
