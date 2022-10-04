@@ -79,7 +79,7 @@ public:
 
     bool is_adc_self_cal_supported() override
     {
-        return true;
+        return false;
     }
 
     uhd::usrp::x400::adc_self_cal_params_t get_adc_self_cal_params(
