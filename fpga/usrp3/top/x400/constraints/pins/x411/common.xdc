@@ -139,51 +139,40 @@ set_property PACKAGE_PIN AL16 [get_ports {PLL_REFCLK_FPGA_P}] ; #FPGA_REFCLK_OUT
 set_property PACKAGE_PIN AL15 [get_ports {PLL_REFCLK_FPGA_N}] ; #FPGA_REFCLK_OUT_C_N
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {PLL_REFCLK_FPGA_*}]
 
-set_property PACKAGE_PIN H17  [get_ports {BASE_REFCLK_FPGA_P}] ; #PMOD0_3_LS
-set_property PACKAGE_PIN H16  [get_ports {BASE_REFCLK_FPGA_N}] ; #PMOD0_2_LS
+set_property PACKAGE_PIN AT7  [get_ports {BASE_REFCLK_FPGA_P}] ; #ADCIO_09
+set_property PACKAGE_PIN AT6  [get_ports {BASE_REFCLK_FPGA_N}] ; #ADCIO_08
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {BASE_REFCLK_FPGA_*}]
 
 set_property PACKAGE_PIN AK17 [get_ports {SYSREF_FABRIC_P}] ; #SYSREF_FPGA_C_P
 set_property PACKAGE_PIN AK16 [get_ports {SYSREF_FABRIC_N}] ; #SYSREF_FPGA_C_N
 set_property IOSTANDARD DIFF_SSTL12 [get_ports {SYSREF_FABRIC_*}]
 
-set_property PACKAGE_PIN L14  [get_ports {DIOA_FPGA[0]}] ; #PMOD1_0_LS
-set_property PACKAGE_PIN L15  [get_ports {DIOA_FPGA[1]}] ; #PMOD1_1_LS
-set_property PACKAGE_PIN M13  [get_ports {DIOA_FPGA[2]}] ; #PMOD1_2_LS
-set_property PACKAGE_PIN N13  [get_ports {DIOA_FPGA[3]}] ; #PMOD1_3_LS
-set_property PACKAGE_PIN M15  [get_ports {DIOA_FPGA[4]}] ; #PMOD1_4_LS
-set_property PACKAGE_PIN N15  [get_ports {DIOA_FPGA[5]}] ; #PMOD1_5_LS
-set_property PACKAGE_PIN M14  [get_ports {DIOA_FPGA[6]}] ; #PMOD1_6_LS
-set_property PACKAGE_PIN N14  [get_ports {DIOA_FPGA[7]}] ; #PMOD1_7_LS
-set_property PACKAGE_PIN J16  [get_ports {DIOA_FPGA[8]}] ; #PMOD0_4_LS
-set_property PACKAGE_PIN K16  [get_ports {DIOA_FPGA[9]}] ; #PMOD0_5_LS
-set_property PACKAGE_PIN H15  [get_ports {DIOA_FPGA[10]}] ; #PMOD0_6_LS
-set_property PACKAGE_PIN M18  [get_ports {DIOA_FPGA[11]}] ; #PMOD0_1_LS
+set_property PACKAGE_PIN C17  [get_ports {DIOA_FPGA[0]}] ;  #PMOD0_0_LS
+set_property PACKAGE_PIN M18  [get_ports {DIOA_FPGA[1]}] ;  #PMOD0_1_LS
+set_property PACKAGE_PIN H16  [get_ports {DIOA_FPGA[2]}] ;  #PMOD0_2_LS
+set_property PACKAGE_PIN H17  [get_ports {DIOA_FPGA[3]}] ;  #PMOD0_3_LS
+set_property PACKAGE_PIN J16  [get_ports {DIOA_FPGA[4]}] ;  #PMOD0_4_LS
+set_property PACKAGE_PIN K16  [get_ports {DIOA_FPGA[5]}] ;  #PMOD0_5_LS
+set_property PACKAGE_PIN H15  [get_ports {DIOA_FPGA[6]}] ;  #PMOD0_6_LS
+set_property PACKAGE_PIN J15  [get_ports {DIOA_FPGA[7]}] ;  #PMOD0_7_LS
+set_property PACKAGE_PIN L14  [get_ports {DIOA_FPGA[8]}] ;  #PMOD1_0_LS
+set_property PACKAGE_PIN L15  [get_ports {DIOA_FPGA[9]}] ;  #PMOD1_1_LS
+set_property PACKAGE_PIN M13  [get_ports {DIOA_FPGA[10]}] ; #PMOD1_2_LS
+set_property PACKAGE_PIN N13  [get_ports {DIOA_FPGA[11]}] ; #PMOD1_3_LS
+# set_property PACKAGE_PIN L14  [get_ports {DIOB_FPGA[0]}] ; #PMOD1_0_LS
+# set_property PACKAGE_PIN L15  [get_ports {DIOB_FPGA[1]}] ; #PMOD1_1_LS
+# set_property PACKAGE_PIN M13  [get_ports {DIOB_FPGA[2]}] ; #PMOD1_2_LS
+# set_property PACKAGE_PIN N13  [get_ports {DIOB_FPGA[3]}] ; #PMOD1_3_LS
+# set_property PACKAGE_PIN M15  [get_ports {DIOB_FPGA[4]}] ; #PMOD1_4_LS
+# set_property PACKAGE_PIN N15  [get_ports {DIOB_FPGA[5]}] ; #PMOD1_5_LS
+# set_property PACKAGE_PIN M14  [get_ports {DIOB_FPGA[6]}] ; #PMOD1_6_LS
+# set_property PACKAGE_PIN N14  [get_ports {DIOB_FPGA[7]}] ; #PMOD1_7_LS
+# set_property PACKAGE_PIN J16  [get_ports {DIOB_FPGA[8]}] ; #PMOD0_4_LS
+# set_property PACKAGE_PIN K16  [get_ports {DIOB_FPGA[9]}] ; #PMOD0_5_LS
+# set_property PACKAGE_PIN H15  [get_ports {DIOB_FPGA[10]}] ; #PMOD0_6_LS
+# set_property PACKAGE_PIN M18  [get_ports {DIOB_FPGA[11]}] ; #PMOD0_1_LS
 
-# set_property PACKAGE_PIN K16  [get_ports {DIOA_FPGA[0]}] ; #PMOD0_5_LS
-# set_property PACKAGE_PIN H15  [get_ports {DIOA_FPGA[1]}] ; #PMOD0_6_LS
-# set_property PACKAGE_PIN J15  [get_ports {DIOA_FPGA[2]}] ; #PMOD0_7_LS
-# set_property PACKAGE_PIN E8   [get_ports {DIOA_FPGA[3]}] ; #GPIO_SW_S
-# set_property PACKAGE_PIN L14  [get_ports {DIOA_FPGA[4]}] ; #PMOD1_0_LS
-# set_property PACKAGE_PIN L15  [get_ports {DIOA_FPGA[5]}] ; #PMOD1_1_LS
-# set_property PACKAGE_PIN M13  [get_ports {DIOA_FPGA[6]}] ; #PMOD1_2_LS
-# set_property PACKAGE_PIN N13  [get_ports {DIOA_FPGA[7]}] ; #PMOD1_3_LS
-# set_property PACKAGE_PIN M15  [get_ports {DIOA_FPGA[8]}] ; #PMOD1_4_LS
-# set_property PACKAGE_PIN N15  [get_ports {DIOA_FPGA[9]}] ; #PMOD1_5_LS
-# set_property PACKAGE_PIN M14  [get_ports {DIOA_FPGA[10]}] ; #PMOD1_6_LS
-# set_property PACKAGE_PIN N14  [get_ports {DIOA_FPGA[11]}] ; #PMOD1_7_LS
-# set_property PACKAGE_PIN AF16 [get_ports {DIOB_FPGA[0]}] ; #GPIO_DIP_SW0
-# set_property PACKAGE_PIN AF17 [get_ports {DIOB_FPGA[1]}] ; #GPIO_DIP_SW1
-# set_property PACKAGE_PIN AH15 [get_ports {DIOB_FPGA[2]}] ; #GPIO_DIP_SW2
-# set_property PACKAGE_PIN AH16 [get_ports {DIOB_FPGA[3]}] ; #GPIO_DIP_SW3
-# set_property PACKAGE_PIN AH17 [get_ports {DIOB_FPGA[4]}] ; #GPIO_DIP_SW4
-# set_property PACKAGE_PIN AG17 [get_ports {DIOB_FPGA[5]}] ; #GPIO_DIP_SW5
-# set_property PACKAGE_PIN AJ15 [get_ports {DIOB_FPGA[6]}] ; #GPIO_DIP_SW6
-# set_property PACKAGE_PIN AJ16 [get_ports {DIOB_FPGA[7]}] ; #GPIO_DIP_SW7
-# set_property PACKAGE_PIN AW3  [get_ports {DIOB_FPGA[8]}] ; #GPIO_SW_N
-# set_property PACKAGE_PIN AW4  [get_ports {DIOB_FPGA[9]}] ; #GPIO_SW_E
-# set_property PACKAGE_PIN AW5  [get_ports {DIOB_FPGA[10]}] ; #GPIO_SW_C
-# set_property PACKAGE_PIN AW6  [get_ports {DIOB_FPGA[11]}] ; #GPIO_SW_W
+set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports DIOA_FPGA[7]]
 
 set_property IOSTANDARD LVCMOS12 [get_ports {DIO*_FPGA[*]}]
 set_property PULLDOWN   true     [get_ports {DIO*_FPGA[*]}]
