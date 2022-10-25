@@ -39,8 +39,8 @@ constexpr size_t NUM_PINS_PER_PORT = 12;
 constexpr size_t PORT_NUMBER_OFFSET = 16;
 
 // These values should match the values in MPM's x4xx_periphs.py "DIO_PORT_MAP"
-constexpr uint32_t PORTA_MAPPING[12] = {1, 0, 2, 3, 5, 4, 6, 7, 9, 8, 10, 11};
-constexpr uint32_t PORTB_MAPPING[12] = {10, 11, 9, 8, 6, 7, 5, 4, 2, 3, 1, 0};
+constexpr uint32_t PORTA_MAPPING[12] = {0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11};
+constexpr uint32_t PORTB_MAPPING[12] = {0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11};
 } // namespace
 
 const char* uhd::rfnoc::x400::GPIO_BANK_NAME = "GPIO";

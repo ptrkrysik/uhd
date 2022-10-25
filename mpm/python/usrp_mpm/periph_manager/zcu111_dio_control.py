@@ -110,24 +110,24 @@ class ZCU111DioControl:
     # * first_pin: index of the first pin for the mapping
 
     # HDMI mapping constants
-    HDMI_MAP_NAME = "HDMI"
-    HDMI_PIN_NAMES = ("Data2+", "Data2_SHD", "Data2-", "Data1+", "Data1_SHD",
-                      "Data1-", "Data0+", "Data0_SHD", "Data0-", "CLK+",
-                      "CLK_SHD", "CLK-", "RESERVED", "HEC_Data-", "SCL",
-                      "SDA", "HEC_GND", "V+", "HEC_Data+")
-    HDMI_PORT_MAP = {
-        DIO_PORTS[0]: ( 3,  1,  4,  6,  9,  7, 10, 12, 15, 13, 16, 19),
-        DIO_PORTS[1]: (16, 19, 15, 13, 10, 12,  9,  7,  4,  6,  3,  1)
-    }
-    HDMI_FIRST_PIN = 1
+#    HDMI_MAP_NAME = "HDMI"
+#    HDMI_PIN_NAMES = ("Data2+", "Data2_SHD", "Data2-", "Data1+", "Data1_SHD",
+#                      "Data1-", "Data0+", "Data0_SHD", "Data0-", "CLK+",
+#                      "CLK_SHD", "CLK-", "RESERVED", "HEC_Data-", "SCL",
+#                      "SDA", "HEC_GND", "V+", "HEC_Data+")
+#    HDMI_PORT_MAP = {
+#        DIO_PORTS[0]: ( 3,  1,  4,  6,  9,  7, 10, 12, 15, 13, 16, 19),
+#        DIO_PORTS[1]: (16, 19, 15, 13, 10, 12,  9,  7,  4,  6,  3,  1)
+#    }
+#    HDMI_FIRST_PIN = 1
 
     # DIO mapping constants
     DIO_MAP_NAME = "DIO"
     DIO_PIN_NAMES = ("DIO0", "DIO1", "DIO2", "DIO3", "DIO4", "DIO5",
                      "DIO6", "DIO7", "DIO8", "DIO9", "DIO10", "DIO11")
     DIO_PORT_MAP = {
-        DIO_PORTS[0]: (1, 0, 2, 3, 5, 4, 6, 7, 9, 8, 10, 11),
-        DIO_PORTS[1]: (10, 11, 9, 8, 6, 7, 5, 4, 2, 3, 1, 0)
+        DIO_PORTS[0]: (0, 1, 2, 3, 5, 4, 6, 7, 9, 8, 10, 11),
+        DIO_PORTS[1]: (0, 1, 2, 3, 5, 4, 6, 7, 9, 8, 10, 11)
     }
     DIO_FIRST_PIN = 0
 
@@ -235,13 +235,13 @@ class ZCU111DioControl:
         # initialize port mapping for HDMI and DIO
         self.port_mappings = {}
         self.mapping = None
-        self.port_mappings[self.HDMI_MAP_NAME] = self._PortMapDescriptor(
-            self.HDMI_MAP_NAME, self.HDMI_PIN_NAMES,
-            self.HDMI_PORT_MAP, self.HDMI_FIRST_PIN)
+        # self.port_mappings[self.HDMI_MAP_NAME] = self._PortMapDescriptor(
+        #     self.HDMI_MAP_NAME, self.HDMI_PIN_NAMES,
+        #     self.HDMI_PORT_MAP, self.HDMI_FIRST_PIN)
         self.port_mappings[self.DIO_MAP_NAME] = self._PortMapDescriptor(
             self.DIO_MAP_NAME, self.DIO_PIN_NAMES,
             self.DIO_PORT_MAP, self.DIO_FIRST_PIN)
-        self.set_port_mapping(self.HDMI_MAP_NAME)
+        self.set_port_mapping(self.DIO_MAP_NAME)
         self.log.trace("Spawning DIO fault monitors...")
         self._tear_down_monitor = Event()
         self._dio_fault = {
