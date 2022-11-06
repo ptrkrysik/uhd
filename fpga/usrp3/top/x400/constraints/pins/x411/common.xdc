@@ -120,7 +120,7 @@ set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 # set_property IOB         TRUE [get_ports {LMK_SYNC}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC}]
 
-# set_property PACKAGE_PIN J16 [get_ports {TRIG_IO}] ; #PMOD0_4_LS
+set_property PACKAGE_PIN N14 [get_ports {TRIG_IO}] ; #PMOD1_7
 set_property PACKAGE_PIN AP14  [get_ports {PPS_IN}] ; #AMS_FPGA_REF_CLK
 # set_property PACKAGE_PIN AR7 [get_ports {PL_CPLD_SCLK}] ; #ADCIO_03
 # set_property PACKAGE_PIN AR6 [get_ports {PL_CPLD_MOSI}] ; #ADCIO_02
@@ -129,6 +129,7 @@ set_property PACKAGE_PIN AP14  [get_ports {PPS_IN}] ; #AMS_FPGA_REF_CLK
 # set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC TRIG_IO PPS_IN PL_CPLD_SCLK PL_CPLD_MOSI PL_CPLD_MISO}]
 # set_property DRIVE      16     [get_ports {PL_CPLD_SCLK}]
 
+set_property IOSTANDARD LVCMOS12 [get_ports {TRIG_IO}]
 set_property IOSTANDARD LVCMOS18 [get_ports {PPS_IN}]
 
 ###############################################################################

@@ -191,8 +191,8 @@ module x4xx (
 `endif
 
   output wire        PPS_LED,
-`ifndef X411
   inout  wire        TRIG_IO,
+`ifndef X411
   output wire        PL_CPLD_JTAGEN,
   output wire        PL_CPLD_CS0_n,    // Dual-purpose CPLD JTAG TMS
   output wire        PL_CPLD_CS1_n,
@@ -326,11 +326,11 @@ module x4xx (
   wire DB0_SYNTH_SYNC;
   wire DB1_SYNTH_SYNC;
 
-//  wire [11:0] DIOA_FPGA;
+  // wire [11:0] DIOA_FPGA;
   wire [11:0] DIOB_FPGA;
 
   wire LMK_SYNC;
-  wire TRIG_IO;
+  // wire TRIG_IO;
 
   wire QSFP0_MODPRS_n;
   wire QSFP1_MODPRS_n;
@@ -475,10 +475,8 @@ module x4xx (
   //
   // SW must ensure that any downstream device receiving TRIG_IO ignores or
   // re-synchronizes after enabling this port.
-`ifndef X411
   wire [1:0] trig_io_select;
   assign TRIG_IO = (trig_io_select == TRIG_IO_PPS_OUTPUT) ? pps_refclk : 1'bz;
-`endif
   assign PPS_LED = pps_refclk;
 
 
@@ -2183,9 +2181,7 @@ module x4xx (
     .s_axi_rready                  (axi_core_rready),
     .pps_radioclk                  (pps_radioclk),
     .pps_select                    (pps_select),
-`ifndef X411
     .trig_io_select                (trig_io_select),
-`endif
     .pll_sync_trigger              (pll_sync_trigger),
     .pll_sync_delay                (pll_sync_delay),
     .pll_sync_done                 (pll_sync_done),
