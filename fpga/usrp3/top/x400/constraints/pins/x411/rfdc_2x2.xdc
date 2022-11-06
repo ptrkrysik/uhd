@@ -23,10 +23,10 @@ set_property PACKAGE_PIN AD5 [get_ports {ADC_CLK_P[1]}]
 set_property PACKAGE_PIN AD4 [get_ports {ADC_CLK_N[1]}]
 
 # ADC Reference Clocks for Slot 1 (DBB)
-set_property PACKAGE_PIN AB5 [get_ports {ADC_CLK_P[2]}]
-set_property PACKAGE_PIN AB4 [get_ports {ADC_CLK_N[2]}]
-set_property PACKAGE_PIN Y5  [get_ports {ADC_CLK_P[3]}]
-set_property PACKAGE_PIN Y4  [get_ports {ADC_CLK_N[3]}]
+set_property PACKAGE_PIN AD5 [get_ports {ADC_CLK_P[2]}]
+set_property PACKAGE_PIN AD4 [get_ports {ADC_CLK_N[2]}]
+set_property PACKAGE_PIN AF5  [get_ports {ADC_CLK_P[3]}]
+set_property PACKAGE_PIN AF4  [get_ports {ADC_CLK_N[3]}]
 
 # ADC Inputs for Slot 0 (DBA)
 # Note: numbering here does NOT match schematic, but it is the right order
@@ -47,10 +47,10 @@ set_property PACKAGE_PIN AP1 [get_ports {DB0_RX_N[0]}]
 # set_property PACKAGE_PIN Y1  [get_ports {DB1_RX_N[3]}]
 # set_property PACKAGE_PIN AB2 [get_ports {DB1_RX_P[2]}]
 # set_property PACKAGE_PIN AB1 [get_ports {DB1_RX_N[2]}]
-set_property PACKAGE_PIN AD2 [get_ports {DB1_RX_P[1]}]
-set_property PACKAGE_PIN AD1 [get_ports {DB1_RX_N[1]}]
-set_property PACKAGE_PIN AF2 [get_ports {DB1_RX_P[0]}]
-set_property PACKAGE_PIN AF1 [get_ports {DB1_RX_N[0]}]
+set_property PACKAGE_PIN AH2 [get_ports {DB1_RX_P[1]}]
+set_property PACKAGE_PIN AH1 [get_ports {DB1_RX_N[1]}]
+set_property PACKAGE_PIN AK2 [get_ports {DB1_RX_P[0]}]
+set_property PACKAGE_PIN AK1 [get_ports {DB1_RX_N[0]}]
 
 
 ###############################################################################

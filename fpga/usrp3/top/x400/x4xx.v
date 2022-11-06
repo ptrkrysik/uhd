@@ -990,8 +990,13 @@ module x4xx (
     .s_axi_hpc0_arqos              (),
     .adc0_clk_clk_n                (ADC_CLK_N[0]),
     .adc0_clk_clk_p                (ADC_CLK_P[0]),
+`ifdef X411
+    .adc2_clk_clk_n                (ADC_CLK_N[1]),
+    .adc2_clk_clk_p                (ADC_CLK_P[1]),
+`else
     .adc2_clk_clk_n                (ADC_CLK_N[2]),
     .adc2_clk_clk_p                (ADC_CLK_P[2]),
+`endif
     .m_axi_app_awaddr              (m_axi_app_awaddr),
     .m_axi_app_awprot              (m_axi_app_awprot),
     .m_axi_app_awvalid             (m_axi_app_awvalid),
