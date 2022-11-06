@@ -227,3 +227,9 @@ set_property PACKAGE_PIN K12      [get_ports { QSFP0_TX_ENABLE[2] }] ;
 set_property IOSTANDARD  LVCMOS12 [get_ports { QSFP0_TX_ENABLE[2] }] ;
 set_property PACKAGE_PIN J7       [get_ports { QSFP0_TX_ENABLE[3] }] ;
 set_property IOSTANDARD  LVCMOS12 [get_ports { QSFP0_TX_ENABLE[3] }] ;
+
+###############################################################################
+# Temporary test connections
+###############################################################################
+set_property PACKAGE_PIN M14  [get_ports {BASE_REF_CLK_OUT_TMP}] ; #PMOD1_6_LS
+set_property IOSTANDARD LVCMOS12 [get_ports {BASE_REF_CLK_OUT_TMP}]

@@ -252,7 +252,8 @@ module x4xx (
   // output wire       TDC_SPARE_0,
   // output wire       TDC_SPARE_1
 `ifdef X411
-  output wire [3:0] QSFP0_TX_ENABLE
+  output wire [3:0] QSFP0_TX_ENABLE,
+  output wire       BASE_REF_CLK_OUT_TMP
 `endif
 );
 
@@ -343,6 +344,9 @@ module x4xx (
 
   //turn on tx on SFP+ modules in associated with QSFP0 port
   assign QSFP0_TX_ENABLE = 4'b1111;
+
+  //assign test output for base ref clock
+  assign BASE_REF_CLK_OUT_TMP = base_ref_clk;
 `endif
 
   // Clocking and sync signals for RFDC
