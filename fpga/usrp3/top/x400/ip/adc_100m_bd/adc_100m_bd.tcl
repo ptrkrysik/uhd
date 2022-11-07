@@ -229,12 +229,12 @@ proc create_root_design { parentCell } {
   # Create interface ports
   set adc_data_out [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_data_out ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {122880000} \
+   CONFIG.FREQ_HZ {170666667} \
    ] $adc_data_out
 
   set adc_i_data_in [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 adc_i_data_in ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {256000000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -248,7 +248,7 @@ proc create_root_design { parentCell } {
 
   set adc_q_data_in [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 adc_q_data_in ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {256000000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -263,14 +263,14 @@ proc create_root_design { parentCell } {
 
   # Create ports
   set adc_data_out_resetn_dclk [ create_bd_port -dir I -type rst adc_data_out_resetn_dclk ]
-  set data_clk [ create_bd_port -dir I -type clk -freq_hz 122880000 data_clk ]
+  set data_clk [ create_bd_port -dir I -type clk -freq_hz 170666667 data_clk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {adc_data_out} \
  ] $data_clk
   set enable_data_to_fir_rclk [ create_bd_port -dir I enable_data_to_fir_rclk ]
   set fir_resetn_rclk2x [ create_bd_port -dir I -type rst fir_resetn_rclk2x ]
   set rfdc_adc_axi_resetn_rclk [ create_bd_port -dir I -type rst rfdc_adc_axi_resetn_rclk ]
-  set rfdc_clk [ create_bd_port -dir I -type clk -freq_hz 184320000 rfdc_clk ]
+  set rfdc_clk [ create_bd_port -dir I -type clk -freq_hz 256000000 rfdc_clk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {adc_i_data_in:adc_q_data_in} \
    CONFIG.ASSOCIATED_RESET {adc_gearbox_resetn_rclk:rfdc_adc_axi_resetn_rclk} \
@@ -339,7 +339,7 @@ proc create_root_design { parentCell } {
   # Create instance: fir_compiler_0, and set properties
   set fir_compiler_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:fir_compiler:7.2 fir_compiler_0 ]
   set_property -dict [ list \
-   CONFIG.Clock_Frequency {384} \
+   CONFIG.Clock_Frequency {512} \
    CONFIG.CoefficientVector {-2,0,8,12,0,-26,-36,0,63,81,0,-130,-161,0,241,291,0,-415,-491,0,676,788,0,-1059,-1223,0,1621,1864,0,-2473,-2860,0,3892,4607,0,-6820,-8705,0,17900,36048,43690,36048,17900,0,-8705,-6820,0,4607,3892,0,-2860,-2473,0,1864,1621,0,-1223,-1059,0,788,676,0,-491,-415,0,291,241,0,-161,-130,0,81,63,0,-36,-26,0,12,8,0,-2}\
    CONFIG.Coefficient_Fractional_Bits {0} \
    CONFIG.Coefficient_Sets {1} \
@@ -363,7 +363,7 @@ proc create_root_design { parentCell } {
    CONFIG.RateSpecification {Frequency_Specification} \
    CONFIG.Reset_Data_Vector {true} \
    CONFIG.S_DATA_Has_FIFO {false} \
-   CONFIG.Sample_Frequency {384} \
+   CONFIG.Sample_Frequency {512} \
    CONFIG.Zero_Pack_Factor {1} \
  ] $fir_compiler_0
 

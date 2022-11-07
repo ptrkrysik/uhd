@@ -18,7 +18,7 @@ create_clock -name ref_clk     -period $ref_clk_period     [get_ports BASE_REFCL
 # PLL Reference Clock. Used to derive data clocks.
 # Constrain to the fastest possible clock rate supported in the driver.
 # MPM supports 61.44 / 62.5 / 64.0 MHz.
-set pll_ref_clk_period 15.625
+set pll_ref_clk_period 12
 create_clock -name pll_ref_clk -period $pll_ref_clk_period [get_ports PLL_REFCLK_FPGA_P]
 
 # MGT Clocks

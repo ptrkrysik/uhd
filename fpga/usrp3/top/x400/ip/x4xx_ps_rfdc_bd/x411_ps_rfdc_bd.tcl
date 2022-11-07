@@ -808,13 +808,13 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    }
   
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {61440000} \
+   CONFIG.FREQ_HZ {85333333} \
    CONFIG.PHASE {0} \
    CONFIG.CLK_DOMAIN {x4xx_ps_rfdc_bd_pll_ref_clk_in} \
  ] [get_bd_pins /rfdc/capture_sysref/pll_ref_clk]
 
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    CONFIG.PHASE {0} \
    CONFIG.CLK_DOMAIN {x4xx_ps_rfdc_bd_pll_ref_clk_in} \
  ] [get_bd_pins /rfdc/capture_sysref/rfdc_clk]
@@ -837,30 +837,30 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   set data_clock_mmcm [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 data_clock_mmcm ]
   set_property -dict [ list \
    CONFIG.AXI_DRP {true} \
-   CONFIG.CLKIN1_JITTER_PS {162.76} \
+   CONFIG.CLKIN1_JITTER_PS {117.18} \
    CONFIG.CLKOUT1_DRIVES {Buffer} \
-   CONFIG.CLKOUT1_JITTER {116.960} \
-   CONFIG.CLKOUT1_PHASE_ERROR {124.626} \
-   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {61.44} \
+   CONFIG.CLKOUT1_JITTER {137.566} \
+   CONFIG.CLKOUT1_PHASE_ERROR {98.689} \
+   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {85.33333} \
    CONFIG.CLKOUT2_DRIVES {Buffer} \
-   CONFIG.CLKOUT2_JITTER {104.559} \
-   CONFIG.CLKOUT2_PHASE_ERROR {124.626} \
-   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {122.88} \
+   CONFIG.CLKOUT2_JITTER {120.445} \
+   CONFIG.CLKOUT2_PHASE_ERROR {98.689} \
+   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {170.66667} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {Buffer} \
-   CONFIG.CLKOUT3_JITTER {98.017} \
-   CONFIG.CLKOUT3_PHASE_ERROR {124.626} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {184.32} \
+   CONFIG.CLKOUT3_JITTER {111.944} \
+   CONFIG.CLKOUT3_PHASE_ERROR {98.689} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {256} \
    CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLKOUT4_DRIVES {Buffer} \
-   CONFIG.CLKOUT4_JITTER {93.671} \
-   CONFIG.CLKOUT4_PHASE_ERROR {124.626} \
-   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {245.76} \
+   CONFIG.CLKOUT4_JITTER {106.309} \
+   CONFIG.CLKOUT4_PHASE_ERROR {98.689} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {341.33333} \
    CONFIG.CLKOUT4_USED {true} \
    CONFIG.CLKOUT5_DRIVES {Buffer} \
-   CONFIG.CLKOUT5_JITTER {87.938} \
-   CONFIG.CLKOUT5_PHASE_ERROR {124.626} \
-   CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {368.64} \
+   CONFIG.CLKOUT5_JITTER {98.891} \
+   CONFIG.CLKOUT5_PHASE_ERROR {98.689} \
+   CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {512} \
    CONFIG.CLKOUT5_USED {true} \
    CONFIG.CLKOUT6_DRIVES {Buffer} \
    CONFIG.CLKOUT7_DRIVES {Buffer} \
@@ -871,19 +871,19 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.CLK_OUT5_PORT {rfdc_clk_2x} \
    CONFIG.ENABLE_CLOCK_MONITOR {false} \
    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {24.000} \
-   CONFIG.MMCM_CLKIN1_PERIOD {16.276} \
-   CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {24.000} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {12} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {8} \
-   CONFIG.MMCM_CLKOUT3_DIVIDE {6} \
-   CONFIG.MMCM_CLKOUT4_DIVIDE {4} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {12.000} \
+   CONFIG.MMCM_CLKIN1_PERIOD {11.719} \
+   CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {12.000} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {6} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {4} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {3} \
+   CONFIG.MMCM_CLKOUT4_DIVIDE {2} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {5} \
    CONFIG.PHASE_DUTY_CONFIG {false} \
    CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.PRIM_IN_FREQ {61.44} \
+   CONFIG.PRIM_IN_FREQ {85.333333} \
    CONFIG.PRIM_SOURCE {No_buffer} \
    CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.USE_CLKFB_STOPPED {false} \
@@ -944,17 +944,17 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   set rf_data_converter [ create_bd_cell -type ip -vlnv xilinx.com:ip:usp_rf_data_converter:2.5 rf_data_converter ]
   set_property -dict [ list \
    CONFIG.ADC0_Enable {1} \
-   CONFIG.ADC0_Fabric_Freq {184.320} \
+   CONFIG.ADC0_Fabric_Freq {256.000} \
    CONFIG.ADC0_Multi_Tile_Sync {true} \
-   CONFIG.ADC0_Outclk_Freq {184.320} \
-   CONFIG.ADC0_Refclk_Freq {2949.120} \
-   CONFIG.ADC0_Sampling_Rate {2.94912} \
+   CONFIG.ADC0_Outclk_Freq {256.000} \
+   CONFIG.ADC0_Refclk_Freq {4096.000} \
+   CONFIG.ADC0_Sampling_Rate {4.096} \
    CONFIG.ADC1_Enable {1} \
-   CONFIG.ADC1_Fabric_Freq {184.320} \
+   CONFIG.ADC1_Fabric_Freq {256.000} \
    CONFIG.ADC1_Multi_Tile_Sync {true} \
-   CONFIG.ADC1_Outclk_Freq {184.320} \
-   CONFIG.ADC1_Refclk_Freq {2949.120} \
-   CONFIG.ADC1_Sampling_Rate {2.94912} \
+   CONFIG.ADC1_Outclk_Freq {256.000} \
+   CONFIG.ADC1_Refclk_Freq {4096.000} \
+   CONFIG.ADC1_Sampling_Rate {4.096} \
    CONFIG.ADC224_En {true} \
    CONFIG.ADC225_En {false} \
    CONFIG.ADC2_Enable {0} \
@@ -1069,17 +1069,17 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.Converter_Setup {1} \
    CONFIG.DAC0_Band {0} \
    CONFIG.DAC0_Enable {1} \
-   CONFIG.DAC0_Fabric_Freq {184.320} \
+   CONFIG.DAC0_Fabric_Freq {256.000} \
    CONFIG.DAC0_Multi_Tile_Sync {true} \
-   CONFIG.DAC0_Outclk_Freq {184.320} \
-   CONFIG.DAC0_Refclk_Freq {2949.120} \
-   CONFIG.DAC0_Sampling_Rate {2.94912} \
+   CONFIG.DAC0_Outclk_Freq {256.000} \
+   CONFIG.DAC0_Refclk_Freq {4096.000} \
+   CONFIG.DAC0_Sampling_Rate {4.096} \
    CONFIG.DAC1_Enable {1} \
-   CONFIG.DAC1_Fabric_Freq {184.320} \
+   CONFIG.DAC1_Fabric_Freq {256.000} \
    CONFIG.DAC1_Multi_Tile_Sync {true} \
-   CONFIG.DAC1_Outclk_Freq {184.320} \
-   CONFIG.DAC1_Refclk_Freq {2949.120} \
-   CONFIG.DAC1_Sampling_Rate {2.94912} \
+   CONFIG.DAC1_Outclk_Freq {256.000} \
+   CONFIG.DAC1_Refclk_Freq {4096.000} \
+   CONFIG.DAC1_Sampling_Rate {4.096} \
    CONFIG.DAC228_En {true} \
    CONFIG.DAC_Data_Type00 {0} \
    CONFIG.DAC_Data_Type01 {0} \
@@ -1166,12 +1166,12 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.mDAC_Band {0} \
    CONFIG.mDAC_Data_Type00 {0} \
    CONFIG.mDAC_Data_Type01 {0} \
-   CONFIG.mDAC_Data_Width00 {2} \
-   CONFIG.mDAC_Data_Width01 {2} \
+   CONFIG.mDAC_Data_Width00 {4} \
+   CONFIG.mDAC_Data_Width01 {4} \
    CONFIG.mDAC_Data_Width02 {16} \
    CONFIG.mDAC_Data_Width03 {16} \
    CONFIG.mDAC_Enable {1} \
-   CONFIG.mDAC_Fabric_Freq {368.640} \
+   CONFIG.mDAC_Fabric_Freq {512.000} \
    CONFIG.mDAC_Interpolation_Mode00 {8} \
    CONFIG.mDAC_Interpolation_Mode01 {8} \
    CONFIG.mDAC_Interpolation_Mode02 {0} \
@@ -1187,9 +1187,9 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.mDAC_Mixer_Type03 {3} \
    CONFIG.mDAC_Multi_Tile_Sync {false} \
    CONFIG.mDAC_NCO_Freq01 {0} \
-   CONFIG.mDAC_Outclk_Freq {184.320} \
-   CONFIG.mDAC_Refclk_Freq {2949.120} \
-   CONFIG.mDAC_Sampling_Rate {2.94912} \
+   CONFIG.mDAC_Outclk_Freq {256.000} \
+   CONFIG.mDAC_Refclk_Freq {4096.000} \
+   CONFIG.mDAC_Sampling_Rate {4.096} \
    CONFIG.mDAC_Slice00_Enable {true} \
    CONFIG.mDAC_Slice01_Enable {true} \
    CONFIG.mDAC_Slice02_Enable {false} \
@@ -2260,48 +2260,48 @@ proc create_root_design { parentCell } {
 
   set adc_tile224_ch0_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch0_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile224_ch0_dout_i
 
   set adc_tile224_ch0_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch0_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile224_ch0_dout_q
 
   set adc_tile224_ch0_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile224_ch0_vin ]
 
   set adc_tile224_ch1_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch1_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile224_ch1_dout_i
 
   set adc_tile224_ch1_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch1_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile224_ch1_dout_q
 
   set adc_tile224_ch1_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile224_ch1_vin ]
 
   set adc_tile226_ch0_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch0_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile226_ch0_dout_i
 
   set adc_tile226_ch0_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch0_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile226_ch0_dout_q
 
   set adc_tile226_ch0_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile226_ch0_vin ]
 
   set adc_tile226_ch1_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch1_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile226_ch1_dout_i
 
   set adc_tile226_ch1_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch1_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    ] $adc_tile226_ch1_dout_q
 
   set adc_tile226_ch1_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile226_ch1_vin ]
@@ -2312,7 +2312,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile228_ch0_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile228_ch0_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2328,7 +2328,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile228_ch1_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile228_ch1_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2344,7 +2344,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile229_ch0_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile229_ch0_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2360,7 +2360,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile229_ch1_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile229_ch1_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2660,10 +2660,10 @@ proc create_root_design { parentCell } {
   set pl_resetn1 [ create_bd_port -dir O -type rst pl_resetn1 ]
   set pl_resetn2 [ create_bd_port -dir O -type rst pl_resetn2 ]
   set pl_resetn3 [ create_bd_port -dir O -type rst pl_resetn3 ]
-  set pll_ref_clk_in [ create_bd_port -dir I -type clk -freq_hz 61440000 pll_ref_clk_in ]
+  set pll_ref_clk_in [ create_bd_port -dir I -type clk -freq_hz 85333333 pll_ref_clk_in ]
   set pll_ref_clk_out [ create_bd_port -dir O -type clk pll_ref_clk_out ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {61440000} \
+   CONFIG.FREQ_HZ {85333333} \
  ] $pll_ref_clk_out
   set rf_axi_status_clk40 [ create_bd_port -dir I -from 31 -to 0 rf_axi_status_clk40 ]
   set rf_dsp_info_clk40 [ create_bd_port -dir I -from 31 -to 0 rf_dsp_info_clk40 ]
@@ -2671,11 +2671,11 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {adc_tile224_ch0_dout_i:adc_tile224_ch1_dout_i:adc_tile224_ch1_dout_q:adc_tile224_ch0_dout_q:dac_tile228_ch0_din:dac_tile228_ch1_din:dac_tile229_ch0_din:dac_tile229_ch1_din:adc_tile226_ch0_dout_i:adc_tile226_ch0_dout_q:adc_tile226_ch1_dout_i:adc_tile226_ch1_dout_q} \
    CONFIG.ASSOCIATED_RESET {adc_tile224_axis_resetn_rclk:adc_tile226_axis_resetn_rclk:dac_tile228_axis_resetn_rclk:dac_tile229_axis_resetn_rclk} \
-   CONFIG.FREQ_HZ {184320000} \
+   CONFIG.FREQ_HZ {255999999} \
  ] $rfdc_clk
   set rfdc_clk_2x [ create_bd_port -dir O -from 0 -to 0 -type clk rfdc_clk_2x ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {368640000} \
+   CONFIG.FREQ_HZ {511999998} \
  ] $rfdc_clk_2x
   set rfdc_irq [ create_bd_port -dir O -type intr rfdc_irq ]
   set s_axi_hp0_aclk [ create_bd_port -dir I -type clk -freq_hz 40000000 s_axi_hp0_aclk ]

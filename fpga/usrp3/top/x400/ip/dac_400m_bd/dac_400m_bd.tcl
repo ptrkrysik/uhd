@@ -232,12 +232,12 @@ proc create_root_design { parentCell } {
   set dac_data_out_tdata [ create_bd_port -dir O -from 255 -to 0 -type data dac_data_out_tdata ]
   set dac_data_out_tready [ create_bd_port -dir I -type data dac_data_out_tready ]
   set dac_data_out_tvalid [ create_bd_port -dir O -type data dac_data_out_tvalid ]
-  set data_clk [ create_bd_port -dir I -type clk -freq_hz 122880000 data_clk ]
-  set data_clk_2x [ create_bd_port -dir I -type clk -freq_hz 245760000 data_clk_2x ]
+  set data_clk [ create_bd_port -dir I -type clk -freq_hz 170666667 data_clk ]
+  set data_clk_2x [ create_bd_port -dir I -type clk -freq_hz 341333333 data_clk_2x ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {dac_data_in_resetn_dclk2x} \
  ] $data_clk_2x
-  set rfdc_clk [ create_bd_port -dir I -type clk -freq_hz 184320000 rfdc_clk ]
+  set rfdc_clk [ create_bd_port -dir I -type clk -freq_hz 256000000 rfdc_clk ]
 
   # Create instance: dac_gearbox_4x2_0, and set properties
   set block_name dac_gearbox_4x2
@@ -264,7 +264,7 @@ proc create_root_design { parentCell } {
   # Create instance: dac_interpolator, and set properties
   set dac_interpolator [ create_bd_cell -type ip -vlnv xilinx.com:ip:fir_compiler:7.2 dac_interpolator ]
   set_property -dict [ list \
-   CONFIG.Clock_Frequency {245.76} \
+   CONFIG.Clock_Frequency {341.33} \
    CONFIG.CoefficientVector {-7,0,24,37,0,-78,-107,0,189,244,0,-389,-484,0,723,873,0,-1245,-1473,0,2029,2364,0,-3177,-3668,0,4862,5592,0,-7418,-8579,0,11675,13820,0,-20461,-26115,0,53699,108144,131069,108144,53699,0,-26115,-20461,0,13820,11675,0,-8579,-7418,0,5592,4862,0,-3668,-3177,0,2364,2029,0,-1473,-1245,0,873,723,0,-484,-389,0,244,189,0,-107,-78,0,37,24,0,-7}\
    CONFIG.Coefficient_Fractional_Bits {0} \
    CONFIG.Coefficient_Sets {1} \
@@ -285,7 +285,7 @@ proc create_root_design { parentCell } {
    CONFIG.RateSpecification {Frequency_Specification} \
    CONFIG.Reset_Data_Vector {false} \
    CONFIG.S_DATA_Has_FIFO {false} \
-   CONFIG.Sample_Frequency {491.52} \
+   CONFIG.Sample_Frequency {682.67} \
    CONFIG.Zero_Pack_Factor {1} \
  ] $dac_interpolator
 

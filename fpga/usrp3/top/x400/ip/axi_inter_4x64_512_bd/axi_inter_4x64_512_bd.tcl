@@ -197,7 +197,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {32} \
    CONFIG.DATA_WIDTH {512} \
-   CONFIG.FREQ_HZ {350000000} \
+   CONFIG.FREQ_HZ {512000000} \
    CONFIG.NUM_READ_OUTSTANDING {2} \
    CONFIG.NUM_WRITE_OUTSTANDING {2} \
    CONFIG.PROTOCOL {AXI4} \
@@ -210,7 +210,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {350000000} \
+   CONFIG.FREQ_HZ {512000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -242,7 +242,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {350000000} \
+   CONFIG.FREQ_HZ {512000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -274,7 +274,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {350000000} \
+   CONFIG.FREQ_HZ {512000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -306,7 +306,7 @@ proc create_root_design { parentCell } {
    CONFIG.AWUSER_WIDTH {0} \
    CONFIG.BUSER_WIDTH {0} \
    CONFIG.DATA_WIDTH {64} \
-   CONFIG.FREQ_HZ {350000000} \
+   CONFIG.FREQ_HZ {512000000} \
    CONFIG.HAS_BRESP {1} \
    CONFIG.HAS_BURST {1} \
    CONFIG.HAS_CACHE {1} \
@@ -333,7 +333,7 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
-  set M0_AXI_ACLK [ create_bd_port -dir I -type clk -freq_hz 350000000 M0_AXI_ACLK ]
+  set M0_AXI_ACLK [ create_bd_port -dir I -type clk -freq_hz 512000000 M0_AXI_ACLK ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {M0_AXI} \
    CONFIG.ASSOCIATED_RESET {M0_AXI_ARESETN} \
@@ -342,7 +342,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.POLARITY {ACTIVE_LOW} \
  ] $M0_AXI_ARESETN
-  set S0_AXI_ACLK [ create_bd_port -dir I -type clk -freq_hz 350000000 S0_AXI_ACLK ]
+  set S0_AXI_ACLK [ create_bd_port -dir I -type clk -freq_hz 512000000 S0_AXI_ACLK ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {S0_AXI:S1_AXI:S2_AXI:S3_AXI} \
    CONFIG.ASSOCIATED_RESET {S0_AXI_ARESETN} \
