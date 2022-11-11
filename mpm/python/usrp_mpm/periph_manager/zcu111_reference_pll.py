@@ -48,6 +48,8 @@ class LMK04208X4xx(LMK04208):
         """
         Returns PLL lock for both PLL1 and PLL2
         """
+        if self._prepare_for_read_cb is not None:
+            self._prepare_for_read_cb()
         return self.check_plls_locked()
 
     def config(self):#, ref_select=2, brc_rate=25e6, usr_clk_rate=156.25e6, brc_select='PLL'):
