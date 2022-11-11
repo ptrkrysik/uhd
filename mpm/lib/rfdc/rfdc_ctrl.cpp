@@ -747,4 +747,25 @@ std::vector<uint32_t> rfdc_ctrl::get_adc_cal_coefficients(uint32_t tile_id, uint
     return result;
 }
 
+std::vector<uint32_t> rfdc_ctrl::get_enabled_tiles(bool is_dac)
+{
+    XRFdc_Config* config_ptr;
+    std::vector<uint32_t> enabled_tiles;
+
+    config_ptr = &this->rfdc_inst_ptr->RFdc_Config;
+
+    for (int tile_id = 0; tile_id <= XRFDC_TILE_ID_MAX; tile_id++) {
+        if (is_dac) {
+            if (config_ptr->DACTile_Config[tile_id].Enable) {
+                enabled_tiles.push_back(tile_id);
+            }
+        } else {
+            if (config_ptr->ADCTile_Config[tile_id].Enable) {
+                enabled_tiles.push_back(tile_id);
+            }
+        }
+    }
+    return enabled_tiles;
+}
+
 }} // namespace mpm::rfdc

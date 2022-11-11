@@ -89,16 +89,27 @@ class X4xxRfdcCtrl:
         self._cal_freeze_cache = {}
 
         if mboard_type == "x411":
-            self.RFDC_DB_MAP = [
-                {
-                    'adc': [(0, 0), (0, 1)],
-                    'dac': [(0, 0), (0, 1)],
-                },
-                {
-                    'adc': [(2, 0), (2, 1)],
-                    'dac': [(1, 0), (1, 1)],
-                },
-            ]
+            # For x411 there are no daughterboards grouping DACs and ADCs
+            # together. Only grouping that exists is inside of ADC and DAC
+            # tiles. Anyway keep DB map for the sake of minimalizing changes in
+            # relation to X410, but generate it automatically. Currently rest
+            # of the code supports only 2x pair of DACs and 2x pair of ADCs
+            # configuration. But this can be changed in case there is need for
+            # that.
+
+            self.RFDC_DB_MAP = []
+            enabled_adc_tiles = self._rfdc_ctrl.get_enabled_tiles(False)
+            enabled_dac_tiles = self._rfdc_ctrl.get_enabled_tiles(True)
+            for adc_tile_id in enabled_adc_tiles:
+                self.RFDC_DB_MAP.append({'adc': [(adc_tile_id, 0), (adc_tile_id, 1)]})
+
+            for db_num in range(0, len(enabled_dac_tiles)):
+                dac_tile_id = enabled_dac_tiles[db_num]
+                if db_num >= len(self.RFDC_DB_MAP):
+                    self.RFDC_DB_MAP.append({})
+                self.RFDC_DB_MAP[db_num]['dac'] = [(dac_tile_id, 0), (dac_tile_id, 1)]
+            self.log.warning(str(self.RFDC_DB_MAP))
+
         self._mboard_type = mboard_type
     @no_rpc
     def tear_down(self):

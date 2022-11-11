@@ -628,6 +628,15 @@ public:
      */
     bool reset_mixer_settings( uint32_t tile_id, uint32_t block_id, bool is_dac);
 
+    /**
+     * Get list of enabled tiles
+     *
+     * @param    is_dac whether the tile is a DAC (true) or ADC (false)
+     *
+     * @return   vector with enabled tiles
+     */
+    std::vector<uint32_t> get_enabled_tiles(bool is_dac);
+
 private:
     /* Indicates whether libmetal was initialized successfully and can
      * be safely deinitialized.
@@ -693,7 +702,8 @@ void export_rfdc(py::module& top_module)
         .def("set_cal_frozen", &rfdc_ctrl::set_cal_frozen)
         .def("get_cal_frozen", &rfdc_ctrl::get_cal_frozen)
         .def("set_adc_cal_coefficients", &rfdc_ctrl::set_adc_cal_coefficients)
-        .def("get_adc_cal_coefficients", &rfdc_ctrl::get_adc_cal_coefficients);
+        .def("get_adc_cal_coefficients", &rfdc_ctrl::get_adc_cal_coefficients)
+        .def("get_enabled_tiles", &rfdc_ctrl::get_enabled_tiles);
 
     py::enum_<mpm::rfdc::rfdc_ctrl::threshold_id_options>(m, "threshold_id_options")
         .value("THRESHOLD_0", mpm::rfdc::rfdc_ctrl::THRESHOLD_0)
