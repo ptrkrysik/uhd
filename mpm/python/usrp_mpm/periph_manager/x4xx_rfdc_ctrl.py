@@ -225,14 +225,14 @@ class X4xxRfdcCtrl:
             adc_tile_latency_set.add(
                 self._rfdc_ctrl.get_tile_latency(tile, False))
         if len(adc_tile_latency_set) != 1:
-            raise RuntimeError("ADC tiles failed to sync properly")
+            self.log.warning("ADC tiles failed to sync properly")
 
         dac_tile_latency_set = set()
         for tile in dac_tiles_to_sync:
             dac_tile_latency_set.add(
                 self._rfdc_ctrl.get_tile_latency(tile, True))
         if len(dac_tile_latency_set) != 1:
-            raise RuntimeError("DAC tiles failed to sync properly")
+            self.log.warning("DAC tiles failed to sync properly")
 
     @no_rpc
     def get_default_mcr(self):
