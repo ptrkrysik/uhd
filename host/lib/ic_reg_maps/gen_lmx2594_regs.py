@@ -643,7 +643,7 @@ def get_reg(self, addr):
     % endfor
     return reg
 
-def get_regs(self, reg):
+def get_regs(self):
     reg = 0
     % for addr in sorted(set(map(lambda r: r.get_addr(), regs))):
     <% if_state = 'if' if loop.index == 0 else 'elif' %>
@@ -658,22 +658,20 @@ def get_regs(self, reg):
     % endfor
     return regs
 
-def set_reg(self, reg):
-    addr = (reg >> 16) & 0x7f
+def set_reg(self, addr, val):
     % for addr in sorted(set(map(lambda r: r.get_addr(), regs))):
     <% if_state = 'if' if loop.index == 0 else 'elif' %>
     ${if_state} addr == ${addr}:
         % for reg in filter(lambda r: r.get_addr() == addr, regs):
         % if "Required" not in reg.get_name():
         % if reg.get_enums():
-        self.${reg.get_name()} = self.${reg.get_type()}((reg >> ${reg.get_shift()}) & ${reg.get_mask()})
+        self.${reg.get_name()} = self.${reg.get_type()}((val >> ${reg.get_shift()}) & ${reg.get_mask()})
         % else:
-        self.${reg.get_name()} = (reg >> ${reg.get_shift()}) & ${reg.get_mask()}
+        self.${reg.get_name()} = (val >> ${reg.get_shift()}) & ${reg.get_mask()}
         % endif
         % endif
         % endfor
     % endfor
-    return reg
 
 def print_changed_fields(self):
     if self._state is None:

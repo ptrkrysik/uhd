@@ -152,6 +152,7 @@ class LMX2594(object):
         pokes16((0,1),(0,2)) is the same as calling poke16(0,1), poke16(0,2).
         """
         for addr, val in addr_vals:
+            self._lmx2594_regs.set_reg(addr, val)
             self.poke16(addr, val)
 
     def _set_output_a_enable(self, enable_output):
