@@ -365,7 +365,7 @@ class ZCU111ClockMgr:
         # # Reset downstream clocks (excluding RPLL)
         # self._reset_clocks(value=True, reset_list=('db_clock', 'cpld', 'rfdc', 'spll'))
         # self._set_brc_source(clock_source)
-        return self.SetSyncRetVal.OK
+        return self.SetSyncRetVal.NOP
 
     @no_rpc
     def set_clock_source_out(self, enable=True):

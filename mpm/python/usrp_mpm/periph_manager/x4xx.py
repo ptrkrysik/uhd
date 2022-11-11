@@ -907,7 +907,7 @@ class x4xx(ZynqComponents, PeriphManagerBase):
             # Re-set master clock rate. If this doesn't work, it will time out
             # and throw an exception. We need to put the device back into a safe
             # state in that case.
-            self.set_master_clock_rate(self._master_clock_rate)
+            self.set_master_clock_rate(self._master_clock_rate, reset=True)
             # Restore the nco frequency to the same values as before the sync source
             # was changed, to ensure the device transmission/acquisition continues at
             # the requested frequency.
@@ -925,29 +925,31 @@ class x4xx(ZynqComponents, PeriphManagerBase):
                 self.set_sync_source({**self._safe_sync_source, '__noretry__': True})
             raise
 
-    def set_master_clock_rate(self, master_clock_rate):
+    def set_master_clock_rate(self, master_clock_rate, reset=False):
         """
         Sets the master clock rate by configuring the RFDC decimation and SPLL,
         and then resetting downstream clocks.
         """
-        if master_clock_rate not in self.rfdc.master_to_sample_clk:
-            self.log.error('Unsupported master clock rate selection {}'
-                           .format(master_clock_rate))
-            raise RuntimeError('Unsupported master clock rate selection')
-        sample_clock_freq, decimation, is_legacy_mode, halfband = \
-                self.rfdc.master_to_sample_clk[master_clock_rate]
-        for db_idx, _ in enumerate(self.dboards):
-            db_rfdc_resamp, db_halfband = self.rfdc.get_rfdc_resampling_factor(db_idx)
-            if db_rfdc_resamp != decimation or db_halfband != halfband:
-                msg = (f'master_clock_rate {master_clock_rate} is not compatible '
-                       f'with FPGA which expected decimation {db_rfdc_resamp}')
-                self.log.error(msg)
-                raise RuntimeError(msg)
-        self.log.trace(f"Set master clock rate (SPLL) to: {master_clock_rate}")
-        self._clk_mgr.set_spll_rate(sample_clock_freq, is_legacy_mode)
-        self._master_clock_rate = master_clock_rate
-        self.rfdc.sync()
-        self._clk_mgr.config_pps_to_timekeeper(master_clock_rate)
+        if self._master_clock_rate != master_clock_rate or reset:
+            self.log.warning('Ustawiam Master Clock Rate ' + str(master_clock_rate))
+            if master_clock_rate not in self.rfdc.master_to_sample_clk:
+                self.log.error('Unsupported master clock rate selection {}'
+                            .format(master_clock_rate))
+                raise RuntimeError('Unsupported master clock rate selection')
+            sample_clock_freq, decimation, is_legacy_mode, halfband = \
+                    self.rfdc.master_to_sample_clk[master_clock_rate]
+            for db_idx, _ in enumerate(self.dboards):
+                db_rfdc_resamp, db_halfband = self.rfdc.get_rfdc_resampling_factor(db_idx)
+                if db_rfdc_resamp != decimation or db_halfband != halfband:
+                    msg = (f'master_clock_rate {master_clock_rate} is not compatible '
+                        f'with FPGA which expected decimation {db_rfdc_resamp}')
+                    self.log.error(msg)
+                    raise RuntimeError(msg)
+            self.log.trace(f"Set master clock rate (SPLL) to: {master_clock_rate}")
+            self._clk_mgr.set_spll_rate(sample_clock_freq, is_legacy_mode)
+            self._master_clock_rate = master_clock_rate
+            self.rfdc.sync()
+            self._clk_mgr.config_pps_to_timekeeper(master_clock_rate)
 
     def set_trigger_io(self, direction):
         """
