@@ -60,6 +60,8 @@ class X4xxRfdcCtrl:
         125e6*2:       (3.00000e9, 2, False, True),  # RF (1M-8G)
         125e6*4:       (3.00000e9, 2, False, False), # RF (1M-8G)
         200e6:         (3.00000e9, 4, True,  False), # RF (Legacy Mode)
+        128e6*2:       (3.07200e9, 2, False, True),
+        2*153.6e6:     (3.68640e9, 2, False, True),
     })
 
 
@@ -191,8 +193,10 @@ class X4xxRfdcCtrl:
             # For DAC constant value 16 is added.
             # For ADC I didn't know, so I added 16 to the result
             # and it worked.
-            adc_latency = 632   # ADC delay in sample clocks
-            dac_latency = 864   # DAC delay in sample clocks
+            # adc_latency = 632   # ADC delay in sample clocks
+            # dac_latency = 864   # DAC delay in sample clocks
+            adc_latency = 664   # ADC delay in sample clocks
+            dac_latency = 800   # DAC delay in sample clocks
         else:
             adc_latency = 1228  # ADC delay in sample clocks
             dac_latency = 800   # DAC delay in sample clocks
@@ -323,20 +327,6 @@ class X4xxRfdcCtrl:
         return self._rfdc_ctrl.get_nco_freq(tile_id, block_id, is_dac)
 
     ### ADC cal ###############################################################
-    def set_calibration_mode(self, slot_id, channel, mode):
-        """
-        Set RFDC calibration mode
-        """
-        MODES = {
-            "calib_mode1": lib.rfdc.calibration_mode_options.CALIB_MODE1,
-            "calib_mode2": lib.rfdc.calibration_mode_options.CALIB_MODE2,
-        }
-        if mode not in MODES:
-            raise RuntimeError(
-                 f"Mode {mode} is not one of the allowable modes {list(MODES.keys())}")
-        for tile_id, block_id, _ in self._find_converters(slot_id, "rx", channel):
-            self._rfdc_ctrl.set_calibration_mode(tile_id, block_id, MODES[mode])
-
     def set_cal_frozen(self, frozen, slot_id, channel):
         """
         Set the freeze state for the ADC cal blocks

@@ -66,6 +66,13 @@ class ZCU111ClockMgr:
     #     (CLOCK_SOURCE_NSYNC, TIME_SOURCE_INTERNAL),
     }
 
+    PRC_CLOCK_MAP = {
+        2.94912e9: 61.44e6,
+        3.00000e9: 62.5e6,
+        3.07200e9: 64e6,
+        3.68640e9: 76.8e6,
+    }
+
     class SetSyncRetVal(Enum):
         OK = 'OK'
         NOP = 'nop'
@@ -228,7 +235,7 @@ class ZCU111ClockMgr:
         #     self._set_brc_source(clock_source)
         # if ref_clock_freq is not None:
         #     self._set_ref_clock_freq(ref_clock_freq)
-        self._config_rpll()
+        self._config_rpll(self.PRC_CLOCK_MAP[sample_clock_freq])
             # X400_DEFAULT_MGT_CLOCK_RATE,
             # X400_DEFAULT_INT_CLOCK_FREQ)
             # X400_DEFAULT_RPLL_REF_SOURCE)
@@ -291,17 +298,17 @@ class ZCU111ClockMgr:
         " Returns list of valid time sources "
         return self._avail_time_sources
 
-    # @no_rpc
-    # def get_ref_clock_freq(self):
-    #     " Returns the currently active reference clock frequency (BRC) "
-    #     # clock_source = self.get_clock_source()
-    #     # if clock_source == self.CLOCK_SOURCE_MBOARD:
-    #     #     return self._int_clock_freq
-    #     # if clock_source == self.CLOCK_SOURCE_GPSDO:
-    #     #     return X400_GPSDO_OCXO_CLOCK_FREQ
-    #     # # clock_source == "external":
-    #     # return self._ext_clock_freq
-    #     return self._int_clock_freq
+    @no_rpc
+    def get_ref_clock_freq(self):
+        " Returns the currently active reference clock frequency (BRC) "
+        # clock_source = self.get_clock_source()
+        # if clock_source == self.CLOCK_SOURCE_MBOARD:
+        #     return self._int_clock_freq
+        # if clock_source == self.CLOCK_SOURCE_GPSDO:
+        #     return X400_GPSDO_OCXO_CLOCK_FREQ
+        # # clock_source == "external":
+        # return self._ext_clock_freq
+        return self._int_clock_freq
 
     @no_rpc
     def get_ref_locked(self):
@@ -324,6 +331,7 @@ class ZCU111ClockMgr:
         """
         # self._reset_clocks(value=True, reset_list=('rfdc', 'cpld', 'db_clock'))
         self._reset_clocks(value=True, reset_list=('rfdc'))
+        self._config_rpll(self.PRC_CLOCK_MAP[sample_clock_freq])
         self._config_rf_plls(sample_clock_freq)#, is_legacy_mode)
         # self._reset_clocks(value=False, reset_list=('rfdc', 'cpld', 'db_clock'))
         self._reset_clocks(value=False, reset_list=('rfdc'))
@@ -487,13 +495,8 @@ class ZCU111ClockMgr:
         Note: The ref clock will change if the sample clock frequency
         is modified.
         """
-        # prc_clock_map = {
-        #     2.94912e9:  61.44e6,
-        #     3e9:        62.5e6,
-        #     # 3e9:      50e6, RF Legacy mode will be checked separately
-        #     3.072e9:    64e6,
 
-        return 61.44e6
+        return self.PRC_CLOCK_MAP[self.get_spll_freq()]
 
     # def set_ref_clk_tuning_word(self, tuning_word, out_select=0):
     #     """
@@ -567,7 +570,7 @@ class ZCU111ClockMgr:
             # if 'db_clock' in reset_list:
             #     self._set_reset_db_clocks(value)
 
-    def _config_rpll(self):#, usr_clk_rate, internal_brc_rate):#, internal_brc_source):
+    def _config_rpll(self, prc_rate):#, usr_clk_rate, internal_brc_rate):#, internal_brc_source):
     #     """
     #     Configures the LMK03328 to generate the desired MGT reference clocks
     #     and internal BRC rate.
@@ -593,7 +596,7 @@ class ZCU111ClockMgr:
     #     else:
     #         brc_select = 'PLL'
         self._reference_pll.init()
-        self._reference_pll.config()
+        self._reference_pll.config(prc_rate)
     #        ref_select, internal_brc_rate, usr_clk_rate, brc_select)
     #     # The internal BRC rate will only change when _config_rpll is called
     #     # with a new internal BRC rate
