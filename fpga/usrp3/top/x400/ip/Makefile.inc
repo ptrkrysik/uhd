@@ -5,7 +5,11 @@
 #
 
 include $(IP_DIR)/xge_pcs_pma/Makefile.inc
+ifdef X411
+include $(IP_DIR)/x411_ps_rfdc_bd/Makefile.inc
+else
 include $(IP_DIR)/x4xx_ps_rfdc_bd/Makefile.inc
+endif
 include $(IP_DIR)/axi_interconnect_app_bd/Makefile.inc
 include $(IP_DIR)/axi_interconnect_eth_bd/Makefile.inc
 include $(IP_DIR)/axi_interconnect_dma_bd/Makefile.inc

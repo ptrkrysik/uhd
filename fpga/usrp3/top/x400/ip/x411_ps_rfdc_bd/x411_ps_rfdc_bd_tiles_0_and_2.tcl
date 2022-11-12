@@ -808,13 +808,13 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    }
   
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {85333333} \
+   CONFIG.FREQ_HZ {61440000} \
    CONFIG.PHASE {0} \
    CONFIG.CLK_DOMAIN {x4xx_ps_rfdc_bd_pll_ref_clk_in} \
  ] [get_bd_pins /rfdc/capture_sysref/pll_ref_clk]
 
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    CONFIG.PHASE {0} \
    CONFIG.CLK_DOMAIN {x4xx_ps_rfdc_bd_pll_ref_clk_in} \
  ] [get_bd_pins /rfdc/capture_sysref/rfdc_clk]
@@ -837,30 +837,30 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   set data_clock_mmcm [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 data_clock_mmcm ]
   set_property -dict [ list \
    CONFIG.AXI_DRP {true} \
-   CONFIG.CLKIN1_JITTER_PS {117.18} \
+   CONFIG.CLKIN1_JITTER_PS {162.76} \
    CONFIG.CLKOUT1_DRIVES {Buffer} \
-   CONFIG.CLKOUT1_JITTER {137.566} \
-   CONFIG.CLKOUT1_PHASE_ERROR {98.689} \
-   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {85.33333} \
+   CONFIG.CLKOUT1_JITTER {116.960} \
+   CONFIG.CLKOUT1_PHASE_ERROR {124.626} \
+   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {61.44} \
    CONFIG.CLKOUT2_DRIVES {Buffer} \
-   CONFIG.CLKOUT2_JITTER {120.445} \
-   CONFIG.CLKOUT2_PHASE_ERROR {98.689} \
-   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {170.66667} \
+   CONFIG.CLKOUT2_JITTER {104.559} \
+   CONFIG.CLKOUT2_PHASE_ERROR {124.626} \
+   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {122.88} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {Buffer} \
-   CONFIG.CLKOUT3_JITTER {111.944} \
-   CONFIG.CLKOUT3_PHASE_ERROR {98.689} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {256} \
+   CONFIG.CLKOUT3_JITTER {98.017} \
+   CONFIG.CLKOUT3_PHASE_ERROR {124.626} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {184.32} \
    CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLKOUT4_DRIVES {Buffer} \
-   CONFIG.CLKOUT4_JITTER {106.309} \
-   CONFIG.CLKOUT4_PHASE_ERROR {98.689} \
-   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {341.33333} \
+   CONFIG.CLKOUT4_JITTER {93.671} \
+   CONFIG.CLKOUT4_PHASE_ERROR {124.626} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {245.76} \
    CONFIG.CLKOUT4_USED {true} \
    CONFIG.CLKOUT5_DRIVES {Buffer} \
-   CONFIG.CLKOUT5_JITTER {98.891} \
-   CONFIG.CLKOUT5_PHASE_ERROR {98.689} \
-   CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {512} \
+   CONFIG.CLKOUT5_JITTER {87.938} \
+   CONFIG.CLKOUT5_PHASE_ERROR {124.626} \
+   CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {368.64} \
    CONFIG.CLKOUT5_USED {true} \
    CONFIG.CLKOUT6_DRIVES {Buffer} \
    CONFIG.CLKOUT7_DRIVES {Buffer} \
@@ -871,19 +871,19 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.CLK_OUT5_PORT {rfdc_clk_2x} \
    CONFIG.ENABLE_CLOCK_MONITOR {false} \
    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {12.000} \
-   CONFIG.MMCM_CLKIN1_PERIOD {11.719} \
-   CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {12.000} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {6} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {4} \
-   CONFIG.MMCM_CLKOUT3_DIVIDE {3} \
-   CONFIG.MMCM_CLKOUT4_DIVIDE {2} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {24.000} \
+   CONFIG.MMCM_CLKIN1_PERIOD {16.276} \
+   CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {24.000} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {12} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {8} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {6} \
+   CONFIG.MMCM_CLKOUT4_DIVIDE {4} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {5} \
    CONFIG.PHASE_DUTY_CONFIG {false} \
    CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.PRIM_IN_FREQ {85.333333} \
+   CONFIG.PRIM_IN_FREQ {61.44} \
    CONFIG.PRIM_SOURCE {No_buffer} \
    CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.USE_CLKFB_STOPPED {false} \
@@ -944,22 +944,22 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   set rf_data_converter [ create_bd_cell -type ip -vlnv xilinx.com:ip:usp_rf_data_converter:2.5 rf_data_converter ]
   set_property -dict [ list \
    CONFIG.ADC0_Enable {1} \
-   CONFIG.ADC0_Fabric_Freq {256.000} \
+   CONFIG.ADC0_Fabric_Freq {184.320} \
    CONFIG.ADC0_Multi_Tile_Sync {true} \
-   CONFIG.ADC0_Outclk_Freq {256.000} \
-   CONFIG.ADC0_Refclk_Freq {4096.000} \
-   CONFIG.ADC0_Sampling_Rate {4.096} \
-   CONFIG.ADC1_Enable {1} \
-   CONFIG.ADC1_Fabric_Freq {256.000} \
-   CONFIG.ADC1_Multi_Tile_Sync {true} \
-   CONFIG.ADC1_Outclk_Freq {256.000} \
-   CONFIG.ADC1_Refclk_Freq {4096.000} \
-   CONFIG.ADC1_Sampling_Rate {4.096} \
+   CONFIG.ADC0_Outclk_Freq {184.320} \
+   CONFIG.ADC0_Refclk_Freq {2949.120} \
+   CONFIG.ADC0_Sampling_Rate {2.94912} \
+   CONFIG.ADC1_Enable {0} \
+   CONFIG.ADC1_Fabric_Freq {0.0} \
+   CONFIG.ADC1_Multi_Tile_Sync {false} \
+   CONFIG.ADC1_Outclk_Freq {15.625} \
+   CONFIG.ADC1_Refclk_Freq {2000.000} \
+   CONFIG.ADC1_Sampling_Rate {2.0} \
    CONFIG.ADC224_En {true} \
    CONFIG.ADC225_En {false} \
-   CONFIG.ADC2_Enable {0} \
-   CONFIG.ADC2_Fabric_Freq {0.0} \
-   CONFIG.ADC2_Multi_Tile_Sync {false} \
+   CONFIG.ADC2_Enable {1} \
+   CONFIG.ADC2_Fabric_Freq {184.320} \
+   CONFIG.ADC2_Multi_Tile_Sync {true} \
    CONFIG.ADC2_Outclk_Freq {184.320} \
    CONFIG.ADC2_Refclk_Freq {2949.120} \
    CONFIG.ADC2_Sampling_Rate {2.94912} \
@@ -967,14 +967,14 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.ADC_Data_Type01 {1} \
    CONFIG.ADC_Data_Type02 {1} \
    CONFIG.ADC_Data_Type03 {1} \
-   CONFIG.ADC_Data_Type10 {1} \
-   CONFIG.ADC_Data_Type11 {1} \
-   CONFIG.ADC_Data_Type12 {1} \
-   CONFIG.ADC_Data_Type13 {1} \
-   CONFIG.ADC_Data_Type20 {0} \
-   CONFIG.ADC_Data_Type21 {0} \
-   CONFIG.ADC_Data_Type22 {0} \
-   CONFIG.ADC_Data_Type23 {0} \
+   CONFIG.ADC_Data_Type10 {0} \
+   CONFIG.ADC_Data_Type11 {0} \
+   CONFIG.ADC_Data_Type12 {0} \
+   CONFIG.ADC_Data_Type13 {0} \
+   CONFIG.ADC_Data_Type20 {1} \
+   CONFIG.ADC_Data_Type21 {1} \
+   CONFIG.ADC_Data_Type22 {1} \
+   CONFIG.ADC_Data_Type23 {1} \
    CONFIG.ADC_Data_Width00 {8} \
    CONFIG.ADC_Data_Width01 {8} \
    CONFIG.ADC_Data_Width02 {8} \
@@ -992,22 +992,22 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.ADC_Decimation_Mode01 {2} \
    CONFIG.ADC_Decimation_Mode02 {2} \
    CONFIG.ADC_Decimation_Mode03 {2} \
-   CONFIG.ADC_Decimation_Mode10 {2} \
-   CONFIG.ADC_Decimation_Mode11 {2} \
-   CONFIG.ADC_Decimation_Mode12 {2} \
-   CONFIG.ADC_Decimation_Mode13 {2} \
-   CONFIG.ADC_Decimation_Mode20 {0} \
-   CONFIG.ADC_Decimation_Mode21 {0} \
-   CONFIG.ADC_Decimation_Mode22 {0} \
-   CONFIG.ADC_Decimation_Mode23 {0} \
+   CONFIG.ADC_Decimation_Mode10 {0} \
+   CONFIG.ADC_Decimation_Mode11 {0} \
+   CONFIG.ADC_Decimation_Mode12 {0} \
+   CONFIG.ADC_Decimation_Mode13 {0} \
+   CONFIG.ADC_Decimation_Mode20 {2} \
+   CONFIG.ADC_Decimation_Mode21 {2} \
+   CONFIG.ADC_Decimation_Mode22 {2} \
+   CONFIG.ADC_Decimation_Mode23 {2} \
    CONFIG.ADC_Dither00 {false} \
    CONFIG.ADC_Dither01 {false} \
    CONFIG.ADC_Dither02 {false} \
    CONFIG.ADC_Dither03 {false} \
-   CONFIG.ADC_Dither10 {false} \
-   CONFIG.ADC_Dither11 {false} \
-   CONFIG.ADC_Dither12 {false} \
-   CONFIG.ADC_Dither13 {false} \
+   CONFIG.ADC_Dither10 {true} \
+   CONFIG.ADC_Dither11 {true} \
+   CONFIG.ADC_Dither12 {true} \
+   CONFIG.ADC_Dither13 {true} \
    CONFIG.ADC_Dither20 {false} \
    CONFIG.ADC_Dither21 {false} \
    CONFIG.ADC_Dither22 {false} \
@@ -1016,10 +1016,10 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.ADC_Mixer_Mode01 {0} \
    CONFIG.ADC_Mixer_Mode02 {0} \
    CONFIG.ADC_Mixer_Mode03 {0} \
-   CONFIG.ADC_Mixer_Mode10 {0} \
-   CONFIG.ADC_Mixer_Mode11 {0} \
-   CONFIG.ADC_Mixer_Mode12 {0} \
-   CONFIG.ADC_Mixer_Mode13 {0} \
+   CONFIG.ADC_Mixer_Mode10 {2} \
+   CONFIG.ADC_Mixer_Mode11 {2} \
+   CONFIG.ADC_Mixer_Mode12 {2} \
+   CONFIG.ADC_Mixer_Mode13 {2} \
    CONFIG.ADC_Mixer_Mode20 {0} \
    CONFIG.ADC_Mixer_Mode21 {0} \
    CONFIG.ADC_Mixer_Mode22 {0} \
@@ -1028,22 +1028,22 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.ADC_Mixer_Type01 {2} \
    CONFIG.ADC_Mixer_Type02 {2} \
    CONFIG.ADC_Mixer_Type03 {2} \
-   CONFIG.ADC_Mixer_Type10 {2} \
-   CONFIG.ADC_Mixer_Type11 {2} \
-   CONFIG.ADC_Mixer_Type12 {2} \
-   CONFIG.ADC_Mixer_Type13 {2} \
-   CONFIG.ADC_Mixer_Type20 {3} \
-   CONFIG.ADC_Mixer_Type21 {3} \
-   CONFIG.ADC_Mixer_Type22 {3} \
-   CONFIG.ADC_Mixer_Type23 {3} \
+   CONFIG.ADC_Mixer_Type10 {3} \
+   CONFIG.ADC_Mixer_Type11 {3} \
+   CONFIG.ADC_Mixer_Type12 {3} \
+   CONFIG.ADC_Mixer_Type13 {3} \
+   CONFIG.ADC_Mixer_Type20 {2} \
+   CONFIG.ADC_Mixer_Type21 {2} \
+   CONFIG.ADC_Mixer_Type22 {2} \
+   CONFIG.ADC_Mixer_Type23 {2} \
    CONFIG.ADC_NCO_Freq00 {0.200} \
    CONFIG.ADC_NCO_Freq01 {0.200} \
    CONFIG.ADC_NCO_Freq02 {0.200} \
    CONFIG.ADC_NCO_Freq03 {0.200} \
-   CONFIG.ADC_NCO_Freq10 {0.200} \
-   CONFIG.ADC_NCO_Freq11 {0.200} \
-   CONFIG.ADC_NCO_Freq12 {0.200} \
-   CONFIG.ADC_NCO_Freq13 {0.200} \
+   CONFIG.ADC_NCO_Freq10 {0.0} \
+   CONFIG.ADC_NCO_Freq11 {0.0} \
+   CONFIG.ADC_NCO_Freq12 {0.0} \
+   CONFIG.ADC_NCO_Freq13 {0.0} \
    CONFIG.ADC_NCO_Freq20 {0.200} \
    CONFIG.ADC_NCO_Freq21 {0.200} \
    CONFIG.ADC_NCO_Freq22 {0.200} \
@@ -1056,30 +1056,30 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.ADC_Slice01_Enable {true} \
    CONFIG.ADC_Slice02_Enable {true} \
    CONFIG.ADC_Slice03_Enable {true} \
-   CONFIG.ADC_Slice10_Enable {true} \
-   CONFIG.ADC_Slice11_Enable {true} \
-   CONFIG.ADC_Slice12_Enable {true} \
-   CONFIG.ADC_Slice13_Enable {true} \
-   CONFIG.ADC_Slice20_Enable {false} \
-   CONFIG.ADC_Slice21_Enable {false} \
-   CONFIG.ADC_Slice22_Enable {false} \
-   CONFIG.ADC_Slice23_Enable {false} \
+   CONFIG.ADC_Slice10_Enable {false} \
+   CONFIG.ADC_Slice11_Enable {false} \
+   CONFIG.ADC_Slice12_Enable {false} \
+   CONFIG.ADC_Slice13_Enable {false} \
+   CONFIG.ADC_Slice20_Enable {true} \
+   CONFIG.ADC_Slice21_Enable {true} \
+   CONFIG.ADC_Slice22_Enable {true} \
+   CONFIG.ADC_Slice23_Enable {true} \
    CONFIG.Axiclk_Freq {40} \
    CONFIG.Calibration_Freeze {true} \
    CONFIG.Converter_Setup {1} \
    CONFIG.DAC0_Band {0} \
    CONFIG.DAC0_Enable {1} \
-   CONFIG.DAC0_Fabric_Freq {256.000} \
+   CONFIG.DAC0_Fabric_Freq {184.320} \
    CONFIG.DAC0_Multi_Tile_Sync {true} \
-   CONFIG.DAC0_Outclk_Freq {256.000} \
-   CONFIG.DAC0_Refclk_Freq {4096.000} \
-   CONFIG.DAC0_Sampling_Rate {4.096} \
+   CONFIG.DAC0_Outclk_Freq {184.320} \
+   CONFIG.DAC0_Refclk_Freq {2949.120} \
+   CONFIG.DAC0_Sampling_Rate {2.94912} \
    CONFIG.DAC1_Enable {1} \
-   CONFIG.DAC1_Fabric_Freq {256.000} \
+   CONFIG.DAC1_Fabric_Freq {184.320} \
    CONFIG.DAC1_Multi_Tile_Sync {true} \
-   CONFIG.DAC1_Outclk_Freq {256.000} \
-   CONFIG.DAC1_Refclk_Freq {4096.000} \
-   CONFIG.DAC1_Sampling_Rate {4.096} \
+   CONFIG.DAC1_Outclk_Freq {184.320} \
+   CONFIG.DAC1_Refclk_Freq {2949.120} \
+   CONFIG.DAC1_Sampling_Rate {2.94912} \
    CONFIG.DAC228_En {true} \
    CONFIG.DAC_Data_Type00 {0} \
    CONFIG.DAC_Data_Type01 {0} \
@@ -1166,12 +1166,12 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.mDAC_Band {0} \
    CONFIG.mDAC_Data_Type00 {0} \
    CONFIG.mDAC_Data_Type01 {0} \
-   CONFIG.mDAC_Data_Width00 {4} \
-   CONFIG.mDAC_Data_Width01 {4} \
+   CONFIG.mDAC_Data_Width00 {2} \
+   CONFIG.mDAC_Data_Width01 {2} \
    CONFIG.mDAC_Data_Width02 {16} \
    CONFIG.mDAC_Data_Width03 {16} \
    CONFIG.mDAC_Enable {1} \
-   CONFIG.mDAC_Fabric_Freq {512.000} \
+   CONFIG.mDAC_Fabric_Freq {368.640} \
    CONFIG.mDAC_Interpolation_Mode00 {8} \
    CONFIG.mDAC_Interpolation_Mode01 {8} \
    CONFIG.mDAC_Interpolation_Mode02 {0} \
@@ -1187,9 +1187,9 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
    CONFIG.mDAC_Mixer_Type03 {3} \
    CONFIG.mDAC_Multi_Tile_Sync {false} \
    CONFIG.mDAC_NCO_Freq01 {0} \
-   CONFIG.mDAC_Outclk_Freq {256.000} \
-   CONFIG.mDAC_Refclk_Freq {4096.000} \
-   CONFIG.mDAC_Sampling_Rate {4.096} \
+   CONFIG.mDAC_Outclk_Freq {184.320} \
+   CONFIG.mDAC_Refclk_Freq {2949.120} \
+   CONFIG.mDAC_Sampling_Rate {2.94912} \
    CONFIG.mDAC_Slice00_Enable {true} \
    CONFIG.mDAC_Slice01_Enable {true} \
    CONFIG.mDAC_Slice02_Enable {false} \
@@ -1236,7 +1236,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   # Create interface connections
   connect_bd_intf_net -intf_net S_AXI_1_1 [get_bd_intf_pins axi_interconnect_rf/M06_AXI] [get_bd_intf_pins calibration_muxes/S_AXI_1]
   connect_bd_intf_net -intf_net adc0_clk_0_1 [get_bd_intf_pins adc0_clk] [get_bd_intf_pins rf_data_converter/adc0_clk]
-  connect_bd_intf_net -intf_net adc2_clk_0_1 [get_bd_intf_pins adc2_clk] [get_bd_intf_pins rf_data_converter/adc1_clk]
+  connect_bd_intf_net -intf_net adc2_clk_0_1 [get_bd_intf_pins adc2_clk] [get_bd_intf_pins rf_data_converter/adc2_clk]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_rf/M00_AXI] [get_bd_intf_pins rf_data_converter/s_axi]
   connect_bd_intf_net -intf_net axi_interconnect_rf_M01_AXI [get_bd_intf_pins axi_interconnect_rf/M01_AXI] [get_bd_intf_pins data_clock_mmcm/s_axi_lite]
   connect_bd_intf_net -intf_net axi_interconnect_rf_M02_AXI [get_bd_intf_pins axi_interconnect_rf/M02_AXI] [get_bd_intf_pins reg_invert_iq/S_AXI]
@@ -1259,10 +1259,10 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   connect_bd_intf_net -intf_net rf_data_converter_m01_axis [get_bd_intf_pins adc_tile224_ch0_dout_q] [get_bd_intf_pins rf_data_converter/m01_axis]
   connect_bd_intf_net -intf_net rf_data_converter_m02_axis [get_bd_intf_pins adc_tile224_ch1_dout_i] [get_bd_intf_pins rf_data_converter/m02_axis]
   connect_bd_intf_net -intf_net rf_data_converter_m03_axis [get_bd_intf_pins adc_tile224_ch1_dout_q] [get_bd_intf_pins rf_data_converter/m03_axis]
-  connect_bd_intf_net -intf_net rf_data_converter_m20_axis [get_bd_intf_pins adc_tile226_ch0_dout_i] [get_bd_intf_pins rf_data_converter/m10_axis]
-  connect_bd_intf_net -intf_net rf_data_converter_m21_axis [get_bd_intf_pins adc_tile226_ch0_dout_q] [get_bd_intf_pins rf_data_converter/m11_axis]
-  connect_bd_intf_net -intf_net rf_data_converter_m22_axis [get_bd_intf_pins adc_tile226_ch1_dout_i] [get_bd_intf_pins rf_data_converter/m12_axis]
-  connect_bd_intf_net -intf_net rf_data_converter_m23_axis [get_bd_intf_pins adc_tile226_ch1_dout_q] [get_bd_intf_pins rf_data_converter/m13_axis]
+  connect_bd_intf_net -intf_net rf_data_converter_m20_axis [get_bd_intf_pins adc_tile226_ch0_dout_i] [get_bd_intf_pins rf_data_converter/m20_axis]
+  connect_bd_intf_net -intf_net rf_data_converter_m21_axis [get_bd_intf_pins adc_tile226_ch0_dout_q] [get_bd_intf_pins rf_data_converter/m21_axis]
+  connect_bd_intf_net -intf_net rf_data_converter_m22_axis [get_bd_intf_pins adc_tile226_ch1_dout_i] [get_bd_intf_pins rf_data_converter/m22_axis]
+  connect_bd_intf_net -intf_net rf_data_converter_m23_axis [get_bd_intf_pins adc_tile226_ch1_dout_q] [get_bd_intf_pins rf_data_converter/m23_axis]
   connect_bd_intf_net -intf_net rf_data_converter_vout00 [get_bd_intf_pins dac_tile228_ch0_vout] [get_bd_intf_pins rf_data_converter/vout00]
   connect_bd_intf_net -intf_net rf_data_converter_vout01 [get_bd_intf_pins dac_tile228_ch1_vout] [get_bd_intf_pins rf_data_converter/vout01]
   connect_bd_intf_net -intf_net rf_data_converter_vout10 [get_bd_intf_pins dac_tile229_ch0_vout] [get_bd_intf_pins rf_data_converter/vout10]
@@ -1271,8 +1271,8 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   connect_bd_intf_net -intf_net sysref_in_0_1 [get_bd_intf_pins sysref_rf_in] [get_bd_intf_pins rf_data_converter/sysref_in]
   connect_bd_intf_net -intf_net vin0_01_0_1 [get_bd_intf_pins adc_tile224_ch0_vin] [get_bd_intf_pins rf_data_converter/vin0_01]
   connect_bd_intf_net -intf_net vin0_23_0_1 [get_bd_intf_pins adc_tile224_ch1_vin] [get_bd_intf_pins rf_data_converter/vin0_23]
-  connect_bd_intf_net -intf_net vin2_01_0_1 [get_bd_intf_pins adc_tile226_ch0_vin] [get_bd_intf_pins rf_data_converter/vin1_01]
-  connect_bd_intf_net -intf_net vin2_23_0_1 [get_bd_intf_pins adc_tile226_ch1_vin] [get_bd_intf_pins rf_data_converter/vin1_23]
+  connect_bd_intf_net -intf_net vin2_01_0_1 [get_bd_intf_pins adc_tile226_ch0_vin] [get_bd_intf_pins rf_data_converter/vin2_01]
+  connect_bd_intf_net -intf_net vin2_23_0_1 [get_bd_intf_pins adc_tile226_ch1_vin] [get_bd_intf_pins rf_data_converter/vin2_23]
 
   # Create port connections
   connect_bd_net -net M02_ARESETN_1 [get_bd_pins axi_interconnect_rf/M02_ARESETN] [get_bd_pins const_1/dout] [get_bd_pins reg_invert_iq/s_axi_aresetn]
@@ -1291,7 +1291,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   connect_bd_net -net data_clock_mmcm_data_clk1 [get_bd_pins clock_gates_0/DataClk1xPll] [get_bd_pins data_clock_mmcm/data_clk]
   connect_bd_net -net data_clock_mmcm_data_clk_2x [get_bd_pins data_clk_2x] [get_bd_pins clock_gates_0/DataClk2x] [get_bd_pins rf_reset_controller_0/DataClk2x]
   connect_bd_net -net data_clock_mmcm_locked [get_bd_pins clock_gates_0/aPllLocked] [get_bd_pins data_clock_mmcm/locked]
-  connect_bd_net -net data_clock_mmcm_rfdc_clk [get_bd_pins rfdc_clk] [get_bd_pins calibration_muxes/s_axi_aclk_0] [get_bd_pins capture_sysref/rfdc_clk] [get_bd_pins rf_clock_buffers/rfdc_clk] [get_bd_pins rf_data_converter/m0_axis_aclk] [get_bd_pins rf_data_converter/m1_axis_aclk] [get_bd_pins rf_data_converter/s0_axis_aclk] [get_bd_pins rf_data_converter/s1_axis_aclk] [get_bd_pins rf_reset_controller_0/RfClk]
+  connect_bd_net -net data_clock_mmcm_rfdc_clk [get_bd_pins rfdc_clk] [get_bd_pins calibration_muxes/s_axi_aclk_0] [get_bd_pins capture_sysref/rfdc_clk] [get_bd_pins rf_clock_buffers/rfdc_clk] [get_bd_pins rf_data_converter/m0_axis_aclk] [get_bd_pins rf_data_converter/m2_axis_aclk] [get_bd_pins rf_data_converter/s0_axis_aclk] [get_bd_pins rf_data_converter/s1_axis_aclk] [get_bd_pins rf_reset_controller_0/RfClk]
   connect_bd_net -net data_clock_mmcm_rfdc_clk1 [get_bd_pins data_clock_mmcm/rfdc_clk] [get_bd_pins rf_clock_buffers/rfdc_clk_pll]
   connect_bd_net -net data_clock_mmcm_rfdc_clk_2x [get_bd_pins rfdc_clk_2x] [get_bd_pins axi_interconnect_rf/M02_ACLK] [get_bd_pins reg_invert_iq/s_axi_aclk] [get_bd_pins rf_clock_buffers/rfdc_clk_2x] [get_bd_pins rf_reset_controller_0/RfClk2x]
   connect_bd_net -net data_clock_mmcm_rfdc_clk_2x1 [get_bd_pins data_clock_mmcm/rfdc_clk_2x] [get_bd_pins rf_clock_buffers/rfdc_clk_2x_pll]
@@ -1308,22 +1308,22 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   connect_bd_net -net rf_data_converter_adc0_23_over_threshold1 [get_bd_pins ThresholdRegister/In2] [get_bd_pins rf_data_converter/adc0_23_over_threshold1]
   connect_bd_net -net rf_data_converter_adc0_23_over_threshold2 [get_bd_pins ThresholdRegister/In3] [get_bd_pins rf_data_converter/adc0_23_over_threshold2]
   connect_bd_net -net rf_data_converter_adc0_nco_update_busy [get_bd_pins rf_data_converter/adc0_nco_update_busy] [get_bd_pins rf_nco_reset_0/cAdc0xNcoUpdateBusy]
-  connect_bd_net -net rf_data_converter_adc2_01_over_threshold1 [get_bd_pins ThresholdRegister/In5] [get_bd_pins rf_data_converter/adc1_01_over_threshold1]
-  connect_bd_net -net rf_data_converter_adc2_01_over_threshold2 [get_bd_pins ThresholdRegister/In6] [get_bd_pins rf_data_converter/adc1_01_over_threshold2]
-  connect_bd_net -net rf_data_converter_adc2_23_over_threshold1 [get_bd_pins ThresholdRegister/In7] [get_bd_pins rf_data_converter/adc1_23_over_threshold1]
-  connect_bd_net -net rf_data_converter_adc2_23_over_threshold2 [get_bd_pins ThresholdRegister/In8] [get_bd_pins rf_data_converter/adc1_23_over_threshold2]
-  connect_bd_net -net rf_data_converter_adc2_nco_update_busy [get_bd_pins rf_data_converter/adc1_nco_update_busy] [get_bd_pins rf_nco_reset_0/cAdc2xNcoUpdateBusy]
+  connect_bd_net -net rf_data_converter_adc2_01_over_threshold1 [get_bd_pins ThresholdRegister/In5] [get_bd_pins rf_data_converter/adc2_01_over_threshold1]
+  connect_bd_net -net rf_data_converter_adc2_01_over_threshold2 [get_bd_pins ThresholdRegister/In6] [get_bd_pins rf_data_converter/adc2_01_over_threshold2]
+  connect_bd_net -net rf_data_converter_adc2_23_over_threshold1 [get_bd_pins ThresholdRegister/In7] [get_bd_pins rf_data_converter/adc2_23_over_threshold1]
+  connect_bd_net -net rf_data_converter_adc2_23_over_threshold2 [get_bd_pins ThresholdRegister/In8] [get_bd_pins rf_data_converter/adc2_23_over_threshold2]
+  connect_bd_net -net rf_data_converter_adc2_nco_update_busy [get_bd_pins rf_data_converter/adc2_nco_update_busy] [get_bd_pins rf_nco_reset_0/cAdc2xNcoUpdateBusy]
   connect_bd_net -net rf_data_converter_dac0_nco_update_busy [get_bd_pins rf_data_converter/dac0_nco_update_busy] [get_bd_pins rf_nco_reset_0/cDac0xNcoUpdateBusy]
   connect_bd_net -net rf_data_converter_dac1_nco_update_busy [get_bd_pins rf_data_converter/dac1_nco_update_busy] [get_bd_pins rf_nco_reset_0/cDac1xNcoUpdateBusy]
   connect_bd_net -net rf_data_converter_irq [get_bd_pins rfdc_irq] [get_bd_pins rf_data_converter/irq]
   connect_bd_net -net rf_nco_reset_0_cAdc0xNcoUpdateReq [get_bd_pins rf_data_converter/adc0_nco_update_req] [get_bd_pins rf_nco_reset_0/cAdc0xNcoUpdateReq]
-  connect_bd_net -net rf_nco_reset_0_cAdc2xNcoUpdateReq [get_bd_pins rf_data_converter/adc1_nco_update_req] [get_bd_pins rf_nco_reset_0/cAdc2xNcoUpdateReq]
+  connect_bd_net -net rf_nco_reset_0_cAdc2xNcoUpdateReq [get_bd_pins rf_data_converter/adc2_nco_update_req] [get_bd_pins rf_nco_reset_0/cAdc2xNcoUpdateReq]
   connect_bd_net -net rf_nco_reset_0_cDac0xNcoUpdateReq [get_bd_pins rf_data_converter/dac0_nco_update_req] [get_bd_pins rf_nco_reset_0/cDac0xNcoUpdateReq]
   connect_bd_net -net rf_nco_reset_0_cDac0xSysrefIntGating [get_bd_pins rf_data_converter/dac0_sysref_int_gating] [get_bd_pins rf_nco_reset_0/cDac0xSysrefIntGating]
   connect_bd_net -net rf_nco_reset_0_cDac0xSysrefIntReenable [get_bd_pins rf_data_converter/dac0_sysref_int_reenable] [get_bd_pins rf_nco_reset_0/cDac0xSysrefIntReenable]
   connect_bd_net -net rf_nco_reset_0_cDac1xNcoUpdateReq [get_bd_pins rf_data_converter/dac1_nco_update_req] [get_bd_pins rf_nco_reset_0/cDac1xNcoUpdateReq]
-  connect_bd_net -net rf_nco_reset_0_cNcoPhaseRst [get_bd_pins rf_data_converter/adc0_01_nco_phase_rst] [get_bd_pins rf_data_converter/adc0_23_nco_phase_rst] [get_bd_pins rf_data_converter/adc1_01_nco_phase_rst] [get_bd_pins rf_data_converter/adc1_23_nco_phase_rst] [get_bd_pins rf_data_converter/dac00_nco_phase_rst] [get_bd_pins rf_data_converter/dac01_nco_phase_rst] [get_bd_pins rf_data_converter/dac10_nco_phase_rst] [get_bd_pins rf_data_converter/dac11_nco_phase_rst] [get_bd_pins rf_nco_reset_0/cNcoPhaseRst]
-  connect_bd_net -net rf_nco_reset_0_cNcoUpdateEn [get_bd_pins rf_data_converter/adc0_01_nco_update_en] [get_bd_pins rf_data_converter/adc0_23_nco_update_en] [get_bd_pins rf_data_converter/adc1_01_nco_update_en] [get_bd_pins rf_data_converter/adc1_23_nco_update_en] [get_bd_pins rf_data_converter/dac00_nco_update_en] [get_bd_pins rf_data_converter/dac01_nco_update_en] [get_bd_pins rf_data_converter/dac10_nco_update_en] [get_bd_pins rf_data_converter/dac11_nco_update_en] [get_bd_pins rf_nco_reset_0/cNcoUpdateEn]
+  connect_bd_net -net rf_nco_reset_0_cNcoPhaseRst [get_bd_pins rf_data_converter/adc0_01_nco_phase_rst] [get_bd_pins rf_data_converter/adc0_23_nco_phase_rst] [get_bd_pins rf_data_converter/adc2_01_nco_phase_rst] [get_bd_pins rf_data_converter/adc2_23_nco_phase_rst] [get_bd_pins rf_data_converter/dac00_nco_phase_rst] [get_bd_pins rf_data_converter/dac01_nco_phase_rst] [get_bd_pins rf_data_converter/dac10_nco_phase_rst] [get_bd_pins rf_data_converter/dac11_nco_phase_rst] [get_bd_pins rf_nco_reset_0/cNcoPhaseRst]
+  connect_bd_net -net rf_nco_reset_0_cNcoUpdateEn [get_bd_pins rf_data_converter/adc0_01_nco_update_en] [get_bd_pins rf_data_converter/adc0_23_nco_update_en] [get_bd_pins rf_data_converter/adc2_01_nco_update_en] [get_bd_pins rf_data_converter/adc2_23_nco_update_en] [get_bd_pins rf_data_converter/dac00_nco_update_en] [get_bd_pins rf_data_converter/dac01_nco_update_en] [get_bd_pins rf_data_converter/dac10_nco_update_en] [get_bd_pins rf_data_converter/dac11_nco_update_en] [get_bd_pins rf_nco_reset_0/cNcoUpdateEn]
   connect_bd_net -net rf_nco_reset_0_dNcoResetDone [get_bd_pins nco_reset_done_dclk] [get_bd_pins rf_nco_reset_0/dNcoResetDone]
   connect_bd_net -net rf_reset_controller_0_cSoftwareStatus [get_bd_pins reg_rf_reset_control/gpio2_io_i] [get_bd_pins rf_reset_controller_0/cSoftwareStatus]
   connect_bd_net -net rf_reset_controller_0_d2DacFirReset_n [get_bd_pins dac_data_in_resetn_dclk2x] [get_bd_pins rf_reset_controller_0/d2DacFirReset_n]
@@ -1333,7 +1333,7 @@ proc create_hier_cell_rfdc { parentCell nameHier } {
   connect_bd_net -net rf_reset_controller_0_r2DacFirReset_n [get_bd_pins dac_data_in_resetn_rclk2x] [get_bd_pins rf_reset_controller_0/r2DacFirReset_n]
   connect_bd_net -net rf_reset_controller_0_rAdcEnableData [get_bd_pins adc_enable_data_rclk] [get_bd_pins rf_reset_controller_0/rAdcEnableData]
   connect_bd_net -net rf_reset_controller_0_rAdcGearboxReset_n [get_bd_pins adc_rfdc_axi_resetn_rclk] [get_bd_pins rf_reset_controller_0/rAdcGearboxReset_n]
-  connect_bd_net -net rf_reset_controller_0_rAdcRfdcAxiReset_n [get_bd_pins rf_data_converter/m0_axis_aresetn] [get_bd_pins rf_data_converter/m1_axis_aresetn] [get_bd_pins rf_reset_controller_0/rAdcRfdcAxiReset_n]
+  connect_bd_net -net rf_reset_controller_0_rAdcRfdcAxiReset_n [get_bd_pins rf_data_converter/m0_axis_aresetn] [get_bd_pins rf_data_converter/m2_axis_aresetn] [get_bd_pins rf_reset_controller_0/rAdcRfdcAxiReset_n]
   connect_bd_net -net rf_reset_controller_0_rDacGearboxReset_n [get_bd_pins dac_data_in_resetn_rclk] [get_bd_pins rf_reset_controller_0/rDacGearboxReset_n]
   connect_bd_net -net rf_reset_controller_0_rDacRfdcAxiReset_n [get_bd_pins rf_data_converter/s0_axis_aresetn] [get_bd_pins rf_data_converter/s1_axis_aresetn] [get_bd_pins rf_reset_controller_0/rDacRfdcAxiReset_n]
   connect_bd_net -net rfdc_regs_gpio_io_o [get_bd_pins reg_invert_iq/gpio_io_o] [get_bd_pins slice_15_8/Din] [get_bd_pins slice_7_0/Din]
@@ -2260,48 +2260,48 @@ proc create_root_design { parentCell } {
 
   set adc_tile224_ch0_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch0_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile224_ch0_dout_i
 
   set adc_tile224_ch0_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch0_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile224_ch0_dout_q
 
   set adc_tile224_ch0_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile224_ch0_vin ]
 
   set adc_tile224_ch1_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch1_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile224_ch1_dout_i
 
   set adc_tile224_ch1_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile224_ch1_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile224_ch1_dout_q
 
   set adc_tile224_ch1_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile224_ch1_vin ]
 
   set adc_tile226_ch0_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch0_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile226_ch0_dout_i
 
   set adc_tile226_ch0_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch0_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile226_ch0_dout_q
 
   set adc_tile226_ch0_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile226_ch0_vin ]
 
   set adc_tile226_ch1_dout_i [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch1_dout_i ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile226_ch1_dout_i
 
   set adc_tile226_ch1_dout_q [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 adc_tile226_ch1_dout_q ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    ] $adc_tile226_ch1_dout_q
 
   set adc_tile226_ch1_vin [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_analog_io_rtl:1.0 adc_tile226_ch1_vin ]
@@ -2312,7 +2312,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile228_ch0_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile228_ch0_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2328,7 +2328,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile228_ch1_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile228_ch1_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2344,7 +2344,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile229_ch0_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile229_ch0_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2360,7 +2360,7 @@ proc create_root_design { parentCell } {
 
   set dac_tile229_ch1_din [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 dac_tile229_ch1_din ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
    CONFIG.HAS_TKEEP {0} \
    CONFIG.HAS_TLAST {0} \
    CONFIG.HAS_TREADY {1} \
@@ -2660,10 +2660,10 @@ proc create_root_design { parentCell } {
   set pl_resetn1 [ create_bd_port -dir O -type rst pl_resetn1 ]
   set pl_resetn2 [ create_bd_port -dir O -type rst pl_resetn2 ]
   set pl_resetn3 [ create_bd_port -dir O -type rst pl_resetn3 ]
-  set pll_ref_clk_in [ create_bd_port -dir I -type clk -freq_hz 85333333 pll_ref_clk_in ]
+  set pll_ref_clk_in [ create_bd_port -dir I -type clk -freq_hz 61440000 pll_ref_clk_in ]
   set pll_ref_clk_out [ create_bd_port -dir O -type clk pll_ref_clk_out ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {85333333} \
+   CONFIG.FREQ_HZ {61440000} \
  ] $pll_ref_clk_out
   set rf_axi_status_clk40 [ create_bd_port -dir I -from 31 -to 0 rf_axi_status_clk40 ]
   set rf_dsp_info_clk40 [ create_bd_port -dir I -from 31 -to 0 rf_dsp_info_clk40 ]
@@ -2671,11 +2671,11 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {adc_tile224_ch0_dout_i:adc_tile224_ch1_dout_i:adc_tile224_ch1_dout_q:adc_tile224_ch0_dout_q:dac_tile228_ch0_din:dac_tile228_ch1_din:dac_tile229_ch0_din:dac_tile229_ch1_din:adc_tile226_ch0_dout_i:adc_tile226_ch0_dout_q:adc_tile226_ch1_dout_i:adc_tile226_ch1_dout_q} \
    CONFIG.ASSOCIATED_RESET {adc_tile224_axis_resetn_rclk:adc_tile226_axis_resetn_rclk:dac_tile228_axis_resetn_rclk:dac_tile229_axis_resetn_rclk} \
-   CONFIG.FREQ_HZ {255999999} \
+   CONFIG.FREQ_HZ {184320000} \
  ] $rfdc_clk
   set rfdc_clk_2x [ create_bd_port -dir O -from 0 -to 0 -type clk rfdc_clk_2x ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {511999998} \
+   CONFIG.FREQ_HZ {368640000} \
  ] $rfdc_clk_2x
   set rfdc_irq [ create_bd_port -dir O -type intr rfdc_irq ]
   set s_axi_hp0_aclk [ create_bd_port -dir I -type clk -freq_hz 40000000 s_axi_hp0_aclk ]

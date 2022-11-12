@@ -6,8 +6,8 @@
 
 include $(TOOLS_DIR)/make/viv_ip_builder.mak
 
-IP_X4XX_PS_RFDC_ORIG_SRCS = $(addprefix $(IP_DIR)/x4xx_ps_rfdc_bd/, \
-x4xx_ps_rfdc_bd.tcl \
+IP_X4XX_PS_RFDC_ORIG_SRCS = $(addprefix $(IP_DIR)/x411_ps_rfdc_bd/, \
+x411_ps_rfdc_bd.tcl \
 )
 
 IP_X4XX_PS_RFDC_HDL_SRCS = $(addprefix $(BASE_DIR)/x400/rf/common/, \
@@ -26,18 +26,18 @@ synchronizer_impl.v \
 ) \
 $(addprefix $(BASE_DIR)/x400/regmap/, PkgRFDC_REGS_REGMAP.vhd )
 
-IP_X4XX_PS_RFDC_BDTCL_SRCS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
-x4xx_ps_rfdc_bd.tcl \
+IP_X4XX_PS_RFDC_BDTCL_SRCS = $(addprefix $(IP_BUILD_DIR)/x411_ps_rfdc_bd/, \
+x411_ps_rfdc_bd.tcl \
 )
 
-IP_X4XX_PS_RFDC_BD_SRCS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
-x4xx_ps_rfdc_bd/x4xx_ps_rfdc_bd.bd \
+IP_X4XX_PS_RFDC_BD_SRCS = $(addprefix $(IP_BUILD_DIR)/x411_ps_rfdc_bd/, \
+x411_ps_rfdc_bd/x411_ps_rfdc_bd.bd \
 )
 
-BD_X4XX_PS_RFDC_BD_OUTS = $(addprefix $(IP_BUILD_DIR)/x4xx_ps_rfdc_bd/, \
-x4xx_ps_rfdc_bd.bd.out \
-x4xx_ps_rfdc_bd/x4xx_ps_rfdc_bd_ooc.xdc \
-x4xx_ps_rfdc_bd/synth/x4xx_ps_rfdc_bd.v \
+BD_X4XX_PS_RFDC_BD_OUTS = $(addprefix $(IP_BUILD_DIR)/x411_ps_rfdc_bd/, \
+x411_ps_rfdc_bd.bd.out \
+x411_ps_rfdc_bd/x411_ps_rfdc_bd_ooc.xdc \
+x411_ps_rfdc_bd/synth/x411_ps_rfdc_bd.v \
 )
 
 EMPTY_IP_SRCS =
@@ -47,4 +47,4 @@ $(IP_X4XX_PS_RFDC_BD_SRCS) $(BD_X4XX_PS_RFDC_BD_OUTS) $(IP_X4XX_PS_RFDC_BDTCL_SR
 	@:
 
 IP_X4XX_PS_RFDC_BD_TRGT: $(IP_X4XX_PS_RFDC_ORIG_SRCS)
-	$(call BUILD_VIVADO_BDTCL,x4xx_ps_rfdc_bd,$(ARCH),$(PART_ID),$(IP_DIR),$(IP_BUILD_DIR),$(LIB_DIR)/vivado_ipi,$(IP_X4XX_PS_RFDC_HDL_SRCS))
+	$(call BUILD_VIVADO_BDTCL,x411_ps_rfdc_bd,$(ARCH),$(PART_ID),$(IP_DIR),$(IP_BUILD_DIR),$(LIB_DIR)/vivado_ipi,$(IP_X4XX_PS_RFDC_HDL_SRCS))

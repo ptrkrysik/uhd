@@ -816,7 +816,11 @@ module x4xx (
   assign ps_gpio_ddr_b = gpio_0_tri_t[55:44];
   assign ps_gpio_out_b = gpio_0_tri_o[55:44];
 
+`ifdef X411
+  x411_ps_rfdc_bd x4xx_ps_rfdc_bd_i (
+`else
   x4xx_ps_rfdc_bd x4xx_ps_rfdc_bd_i (
+`endif
     .adc_data_out_resetn_dclk      (adc_data_out_resetn_dclk),
     .adc_enable_data_rclk          (adc_enable_data_rclk),
     .adc_reset_pulse_dclk          (adc_reset_pulse),
