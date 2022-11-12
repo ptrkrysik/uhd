@@ -15,7 +15,7 @@ LMX2594 chips.
 from enum import Enum
 
 from usrp_mpm import lib  # Pulls in everything from C++-land
-# from usrp_mpm.periph_manager.x4xx_periphs import MboardRegsControl
+from usrp_mpm.periph_manager.x4xx_periphs import MboardRegsControl
 # from usrp_mpm.periph_manager.x4xx_sample_pll import LMK04832X4xx
 from usrp_mpm.periph_manager.zcu111_reference_pll import LMK04208X4xx
 from usrp_mpm.periph_manager.zcu111_sample_pll import LMX2594X4xx
@@ -33,7 +33,7 @@ from usrp_mpm.sys_utils.udev import dt_symbol_get_spidev
 # X400_RPLL_I2C_LABEL = 'rpll_i2c'
 # X400_DEFAULT_RPLL_REF_SOURCE = '100M_reliable_clk'
 # X400_DEFAULT_MGT_CLOCK_RATE = 156.25e6
-# X400_DEFAULT_INT_CLOCK_FREQ = 25e6
+X400_DEFAULT_INT_CLOCK_FREQ = 10e6
 
 class ZCU111ClockMgr:
     """
@@ -46,12 +46,12 @@ class ZCU111ClockMgr:
     """
     CLOCK_SOURCE_MBOARD = "mboard"
     # CLOCK_SOURCE_INTERNAL = ClockingAuxBrdControl.SOURCE_INTERNAL
-    # CLOCK_SOURCE_EXTERNAL = ClockingAuxBrdControl.SOURCE_EXTERNAL
+    CLOCK_SOURCE_EXTERNAL = "external"
     # CLOCK_SOURCE_GPSDO = ClockingAuxBrdControl.SOURCE_GPSDO
     # CLOCK_SOURCE_NSYNC = ClockingAuxBrdControl.SOURCE_NSYNC
 
     TIME_SOURCE_INTERNAL = "internal"
-    # TIME_SOURCE_EXTERNAL = "external"
+    TIME_SOURCE_EXTERNAL = "external"
     # TIME_SOURCE_GPSDO = "gpsdo"
     # TIME_SOURCE_QSFP0 = "qsfp0"
 
@@ -59,7 +59,7 @@ class ZCU111ClockMgr:
     valid_sync_sources = {
         (CLOCK_SOURCE_MBOARD, TIME_SOURCE_INTERNAL),
     #     (CLOCK_SOURCE_INTERNAL, TIME_SOURCE_INTERNAL),
-    #     (CLOCK_SOURCE_EXTERNAL, TIME_SOURCE_EXTERNAL),
+        (CLOCK_SOURCE_EXTERNAL, TIME_SOURCE_EXTERNAL),
     #     (CLOCK_SOURCE_EXTERNAL, TIME_SOURCE_INTERNAL),
     #     (CLOCK_SOURCE_GPSDO, TIME_SOURCE_GPSDO),
     #     (CLOCK_SOURCE_GPSDO, TIME_SOURCE_INTERNAL),
@@ -103,10 +103,10 @@ class ZCU111ClockMgr:
         self.log = log.getChild("ClkMgr")
         self._time_source = time_source
         self._clock_source = clock_source
-        # self._int_clock_freq = X400_DEFAULT_INT_CLOCK_FREQ
+        self._int_clock_freq = X400_DEFAULT_INT_CLOCK_FREQ
         # self._ext_clock_freq = ref_clock_freq
         # Preallocate other objects to satisfy linter
-        # self.mboard_regs_control = None
+        self.mboard_regs_control = None
         self._reference_pll = None
         self._adc01_pll = None
         self._adc23_pll = None
@@ -134,7 +134,7 @@ class ZCU111ClockMgr:
         Initialize the available clock and time sources.
         """
         # has_gps = self._clocking_auxbrd and self._clocking_auxbrd.is_gps_supported()
-        self._avail_clk_sources = [self.CLOCK_SOURCE_MBOARD]
+        self._avail_clk_sources = [self.CLOCK_SOURCE_MBOARD, self.CLOCK_SOURCE_EXTERNAL]
         # if self._clocking_auxbrd:
         #     self._avail_clk_sources.extend([
         #         self.CLOCK_SOURCE_INTERNAL,
@@ -145,8 +145,9 @@ class ZCU111ClockMgr:
         #         self._avail_clk_sources.append(self.CLOCK_SOURCE_GPSDO)
         self.log.trace(f"Available clock sources are: {self._avail_clk_sources}")
         self._avail_time_sources = [
-            self.TIME_SOURCE_INTERNAL]
-            # , self.TIME_SOURCE_EXTERNAL, self.TIME_SOURCE_QSFP0]
+            self.TIME_SOURCE_INTERNAL
+            , self.TIME_SOURCE_EXTERNAL]
+            #, self.TIME_SOURCE_QSFP0]
         # if has_gps:
         #     self._avail_time_sources.append(self.TIME_SOURCE_GPSDO)
         self.log.trace("Available time sources are: {}".format(self._avail_time_sources))
@@ -280,10 +281,11 @@ class ZCU111ClockMgr:
     @no_rpc
     def config_pps_to_timekeeper(self, master_clock_rate):
         """ Configures the path from the PPS to the timekeeper"""
+        pps_source = "external_pps"
         # pps_source = "internal_pps" \
         #     if self._time_source == self.TIME_SOURCE_INTERNAL \
         #     else "external_pps"
-        # self._sync_spll_clocks(pps_source)
+        self._sync_spll_clocks(pps_source)
         self._configure_pps_forwarding(True, master_clock_rate)
 
     @no_rpc
@@ -657,56 +659,58 @@ class ZCU111ClockMgr:
     #     self._clock_source = clock_source
     #     self.log.debug(f"Base reference clock source is: {clock_source}")
 
-    # def _sync_spll_clocks(self, pps_source="internal_pps"):
-    #     """
-    #     Synchronize base reference clock (BRC) and PLL reference clock (PRC)
-    #     at start of PPS trigger.
+    def _sync_spll_clocks(self, pps_source="internal_pps"):
+        """
+        Synchronize base reference clock (BRC) and PLL reference clock (PRC)
+        at start of PPS trigger.
 
-    #     Uses the LMK 04832 pll1_r_divider_sync to synchronize BRC with PRC.
-    #     This sync method uses a callback to actual trigger the sync. Before
-    #     the trigger is pulled (CLOCK_CTRL_PLL_SYNC_TRIGGER) PPS source is
-    #     configured base on current reference clock and pps_source. After sync
-    #     trigger the method waits for 1sec for the CLOCK_CTRL_PLL_SYNC_DONE
-    #     to go high.
+        Uses the LMK 04832 pll1_r_divider_sync to synchronize BRC with PRC.
+        This sync method uses a callback to actual trigger the sync. Before
+        the trigger is pulled (CLOCK_CTRL_PLL_SYNC_TRIGGER) PPS source is
+        configured base on current reference clock and pps_source. After sync
+        trigger the method waits for 1sec for the CLOCK_CTRL_PLL_SYNC_DONE
+        to go high.
 
-    #     :param pps_source: select whether internal ("internal_pps") or external
-    #                        ("external_pps") PPS should be used. This parameter
-    #                        is taken into account when the current clock source
-    #                        is external. If the current clock source is set to
-    #                        internal then this parameter is not taken into
-    #                        account.
-    #     :return:           success state of sync call
-    #     :raises RuntimeError: for invalid combinations of reference clock and
-    #                           pps_source
-    #     """
-    #     def select_pps():
-    #         """
-    #         Select PPS source based on current clock source and pps_source.
+        :param pps_source: select whether internal ("internal_pps") or external
+                           ("external_pps") PPS should be used. This parameter
+                           is taken into account when the current clock source
+                           is external. If the current clock source is set to
+                           internal then this parameter is not taken into
+                           account.
+        :return:           success state of sync call
+        :raises RuntimeError: for invalid combinations of reference clock and
+                              pps_source
+        """
+        def select_pps():
+            """
+            Select PPS source based on current clock source and pps_source.
 
-    #         This returns the bits for the motherboard CLOCK_CTRL register that
-    #         control the PPS source.
-    #         """
-    #         EXT_PPS = "external_pps"
-    #         INT_PPS = "internal_pps"
-    #         PPS_SOURCES = (EXT_PPS, INT_PPS)
-    #         assert pps_source in PPS_SOURCES, \
-    #             "%s not in %s" % (pps_source, PPS_SOURCES)
+            This returns the bits for the motherboard CLOCK_CTRL register that
+            control the PPS source.
+            """
+            EXT_PPS = "external_pps"
+            INT_PPS = "internal_pps"
+            PPS_SOURCES = (EXT_PPS, INT_PPS)
+            assert pps_source in PPS_SOURCES, \
+                "%s not in %s" % (pps_source, PPS_SOURCES)
 
-    #         supported_configs = {
-    #             (10E6, EXT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_EXT,
-    #             (10E6, INT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_INT_10MHz,
-    #             (25E6, INT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_INT_25MHz
-    #         }
+            supported_configs = {
+                (10E6, EXT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_EXT,
+                (10E6, INT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_INT_10MHz,
+                # (25E6, INT_PPS): MboardRegsControl.CLOCK_CTRL_PPS_INT_25MHz
+            }
 
-    #         config = (self.get_ref_clock_freq(), pps_source)
-    #         if config not in supported_configs:
-    #             raise RuntimeError("Unsupported combination of reference clock "
-    #                                "(%.2E) and PPS source (%s) for PPS sync." %
-    #                                config)
-    #         return supported_configs[config]
+            config = (self.get_ref_clock_freq(), pps_source)
+            if config not in supported_configs:
+                raise RuntimeError("Unsupported combination of reference clock "
+                                   "(%.2E) and PPS source (%s) for PPS sync." %
+                                   config)
+            return supported_configs[config]
 
-    #     return self._sample_pll.pll1_r_divider_sync(
-    #         lambda: self.mboard_regs_control.pll_sync_trigger(select_pps()))
+        self.mboard_regs_control.pll_sync_trigger(select_pps())
+        return True
+        # return self._sample_pll.pll1_r_divider_sync(
+        #     lambda: self.mboard_regs_control.pll_sync_trigger(select_pps()))
 
     def _configure_pps_forwarding(self, enable, master_clock_rate, delay=1.0):
         """
