@@ -317,12 +317,13 @@ class ZCU111ClockMgr:
         """
         # Return lock status both RPLL and SPLL.
         # """
-        return all([
-            self._reference_pll.get_status(),
-            self._adc01_pll.get_status(),
-            self._adc23_pll.get_status(),
-            self._dac_pll.get_status(),
-        ])
+        return True
+        # return all([
+        #     # self._reference_pll.get_status(),
+        #     # self._adc01_pll.get_status(),
+        #     # self._adc23_pll.get_status(),
+        #     # self._dac_pll.get_status(),
+        # ])
 
     @no_rpc
     def set_spll_rate(self, sample_clock_freq, is_legacy_mode):
