@@ -116,9 +116,9 @@ set_property PACKAGE_PIN V32 [get_ports {MGT_REFCLK_LMK0_N}]
 # #set_property IOSTANDARD LVCMOS18 [get_ports {DB0_SYNTH_SYNC}]
 # set_property IOSTANDARD LVCMOS12 [get_ports {DB0_SYNTH_SYNC}] ; #zmiana napiecia by pozbyc sie errora
 
-# set_property PACKAGE_PIN H17   [get_ports {LMK_SYNC}] ; #PMOD0_3_LS - already used for BASE_REFCLK
-# set_property IOB         TRUE [get_ports {LMK_SYNC}]
-# set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC}]
+set_property PACKAGE_PIN N15   [get_ports {LMK_SYNC}] ; #PMOD1_5_LS
+set_property IOB         TRUE [get_ports {LMK_SYNC}]
+set_property IOSTANDARD LVCMOS12 [get_ports {LMK_SYNC}]
 
 set_property PACKAGE_PIN N14 [get_ports {TRIG_IO}] ; #PMOD1_7
 set_property PACKAGE_PIN AP14  [get_ports {PPS_IN}] ; #AMS_FPGA_REF_CLK
