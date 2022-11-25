@@ -81,6 +81,7 @@ x4xx.v \
 x4xx_qsfp_wrapper_temp.sv \
 x4xx_qsfp_wrapper.sv \
 x4xx_mgt_io_core.sv \
+x4xx_samples_to_gpio.v \
 x4xx_core.v \
 x4xx_core_common.v \
 x4xx_global_regs.v \

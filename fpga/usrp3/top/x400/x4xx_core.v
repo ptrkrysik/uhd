@@ -201,6 +201,22 @@ module x4xx_core #(
 );
 
   //---------------------------------------------------------------------------
+  // Custom GPIO driver extracting driving signal from samples
+  //---------------------------------------------------------------------------
+  wire sample_driven_gpio;
+
+  x4xx_samples_to_gpio #(
+    .NUM_CHANNELS (NUM_CHANNELS),
+    .RADIO_SPC    (RADIO_SPC)
+  ) samples_to_gpio_i (
+    .radio_clk(radio_clk),
+    .radio_rst(radio_rst),
+    .tx_data(tx_data),
+    .tx_stb(tx_stb),
+    .gpio_out(sample_driven_gpio)
+  );
+
+  //---------------------------------------------------------------------------
   // AXI-Lite to CtrlPort Bridge
   //---------------------------------------------------------------------------
 
@@ -334,7 +350,7 @@ module x4xx_core #(
     .gpio_en_b                        (gpio_en_b),
     .gpio_in_fabric_a                 (),
     .gpio_in_fabric_b                 (),
-    .gpio_out_fabric_a                (12'b0),
+    .gpio_out_fabric_a                ({11'b0, sample_driven_gpio}),
     .gpio_out_fabric_b                (12'b0),
     .ps_gpio_out_a                    (ps_gpio_out_a),
     .ps_gpio_in_a                     (ps_gpio_in_a),
