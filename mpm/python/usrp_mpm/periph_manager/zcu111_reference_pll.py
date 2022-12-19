@@ -102,4 +102,4 @@ class LMK04208X4xx(LMK04208):
         self.pokes32(addr_vals)
 
         #set holdover_mux to default as spi output
-        self._set_holdover_mux()
+        #self._set_holdover_mux()
