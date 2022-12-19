@@ -195,8 +195,13 @@ class X4xxRfdcCtrl:
             # and it worked.
             # adc_latency = 632   # ADC delay in sample clocks
             # dac_latency = 864   # DAC delay in sample clocks
-            adc_latency = 664   # ADC delay in sample clocks
-            dac_latency = 800   # DAC delay in sample clocks
+
+            #po przesunieciu
+            # adc_latency = 664   # ADC delay in sample clocks
+            # dac_latency = 800   # DAC delay in sample clocks
+            #10MHz ?
+            adc_latency = 640   # ADC delay in sample clocks
+            dac_latency = 864   # DAC delay in sample clocks
         else:
             adc_latency = 1228  # ADC delay in sample clocks
             dac_latency = 800   # DAC delay in sample clocks
