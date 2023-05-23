@@ -49,11 +49,13 @@ X410_X4_100:  DEFS += $(QSFP0_4X10GBE)                 RFBW_100M=1 DRAM_CH=4*$(D
 X410_X4C_100: DEFS += $(QSFP0_4X10GBE) $(QSFP1_100GBE) RFBW_100M=1 DRAM_CH=0
 X410_C1_100:  DEFS += $(QSFP0_100GBE)                  RFBW_100M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_C1_200:  DEFS += $(QSFP0_100GBE)                  RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
+X411_C1_200:  DEFS += $(QSFP0_100GBE)                  RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_X1_200:  DEFS += $(QSFP0_10GBE)                   RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_XG_200:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_X4_200:  DEFS += $(QSFP0_4X10GBE)                 RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X411_X4_200:  DEFS += $(QSFP0_4X10GBE)                 RFBW_200M=1 DRAM_CH=4*$(DRAM) DRAM_W=64
 X410_X4C_200: DEFS += $(QSFP0_4X10GBE) $(QSFP1_100GBE) RFBW_200M=1 DRAM_CH=0
+X411_X4C_200: DEFS += $(QSFP0_4X10GBE) $(QSFP1_100GBE) RFBW_200M=1 DRAM_CH=0
 X410_X1_400:  DEFS += $(QSFP0_10GBE)                   RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_XG_400:  DEFS += $(QSFP0_10GBE)   $(QSFP1_10GBE)  RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
 X410_X4_400:  DEFS += $(QSFP0_4X10GBE)                 RFBW_400M=1 DRAM_CH=4*$(DRAM) DRAM_W=128
@@ -203,13 +205,21 @@ X410_C1_100: X410_IP build/usrp_x410_fpga_CG_100.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_100_DEFAULTS))
 	$(call post_build,X410,CG_100)
 
-X410_C1_200: X410_IP build/usrp_x410_fpga_CG_200.dts
+X410_C1_200: X410_IP build/usrp_x410_fpga_C1_200.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_200_DEFAULTS))
 	$(call post_build,X410,CG_200)
+
+X411_C1_200: X411_IP build/usrp_x411_fpga_C1_200.dts
+	$(call vivado_build,X411,$(DEFS) X411=1,$(X411_200_DEFAULTS))
+	$(call post_build,X411,CG_200)
 
 X410_X4C_200: X410_IP build/usrp_x410_fpga_X4C_200.dts
 	$(call vivado_build,X410,$(DEFS) X410=1,$(X410_200_DEFAULTS))
 	$(call post_build,X410,X4C_200)
+
+X411_X4C_200: X411_IP build/usrp_x411_fpga_X4C_200.dts
+	$(call vivado_build,X411,$(DEFS) X411=1,$(X411_200_DEFAULTS))
+	$(call post_build,X411,X4C_200)
 
 ##
 ##Other Make Targets
