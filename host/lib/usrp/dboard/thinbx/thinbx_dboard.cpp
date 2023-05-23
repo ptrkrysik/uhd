@@ -412,6 +412,14 @@ std::string thinbx_dboard_impl::get_dboard_fe_from_chan(
 }
 
 /*********************************************************************
+ * ADC Self Cal API
+ **********************************************************************/
+bool thinbx_dboard_impl::select_adc_self_cal_gain(size_t chan)
+{
+    return true;
+}
+
+/*********************************************************************
  *   Private misc/calculative helper functions
  **********************************************************************/
 

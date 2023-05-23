@@ -104,6 +104,8 @@ public:
         };
     }
 
+    bool select_adc_self_cal_gain(size_t chan) override;
+
     rf_control::gain_profile_iface::sptr get_tx_gain_profile_api() override
     {
         return _tx_gain_profile_api;
