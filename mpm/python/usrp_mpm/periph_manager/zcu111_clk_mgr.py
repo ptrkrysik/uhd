@@ -29,7 +29,7 @@ from usrp_mpm.sys_utils.udev import dt_symbol_get_spidev
 # this is not the frequency out of the GPSDO(GPS Lite, 20MHz) itself but
 # the GPSDO on the CLKAUX board is used to fine tune the OCXO via EFC
 # which is running at 10MHz
-# X400_GPSDO_OCXO_CLOCK_FREQ = 10e6
+X400_GPSDO_OCXO_CLOCK_FREQ = 10e6
 # X400_RPLL_I2C_LABEL = 'rpll_i2c'
 # X400_DEFAULT_RPLL_REF_SOURCE = '100M_reliable_clk'
 # X400_DEFAULT_MGT_CLOCK_RATE = 156.25e6
@@ -47,12 +47,12 @@ class ZCU111ClockMgr:
     CLOCK_SOURCE_MBOARD = "mboard"
     # CLOCK_SOURCE_INTERNAL = ClockingAuxBrdControl.SOURCE_INTERNAL
     CLOCK_SOURCE_EXTERNAL = "external"
-    # CLOCK_SOURCE_GPSDO = ClockingAuxBrdControl.SOURCE_GPSDO
+    CLOCK_SOURCE_GPSDO = "gpsdo"
     # CLOCK_SOURCE_NSYNC = ClockingAuxBrdControl.SOURCE_NSYNC
 
     TIME_SOURCE_INTERNAL = "internal"
     TIME_SOURCE_EXTERNAL = "external"
-    # TIME_SOURCE_GPSDO = "gpsdo"
+    TIME_SOURCE_GPSDO = "gpsdo"
     # TIME_SOURCE_QSFP0 = "qsfp0"
 
     # All valid sync_sources for X4xx in the form of (clock_source, time_source)
@@ -61,7 +61,7 @@ class ZCU111ClockMgr:
     #     (CLOCK_SOURCE_INTERNAL, TIME_SOURCE_INTERNAL),
         (CLOCK_SOURCE_EXTERNAL, TIME_SOURCE_EXTERNAL),
     #     (CLOCK_SOURCE_EXTERNAL, TIME_SOURCE_INTERNAL),
-    #     (CLOCK_SOURCE_GPSDO, TIME_SOURCE_GPSDO),
+        (CLOCK_SOURCE_GPSDO, TIME_SOURCE_GPSDO),
     #     (CLOCK_SOURCE_GPSDO, TIME_SOURCE_INTERNAL),
     #     (CLOCK_SOURCE_NSYNC, TIME_SOURCE_INTERNAL),
     }
@@ -133,7 +133,8 @@ class ZCU111ClockMgr:
         """
         Initialize the available clock and time sources.
         """
-        # has_gps = self._clocking_auxbrd and self._clocking_auxbrd.is_gps_supported()
+        has_gps = True #TODO PK: maybe try to check it somehow
+        #self._clocking_auxbrd and self._clocking_auxbrd.is_gps_supported()
         self._avail_clk_sources = [self.CLOCK_SOURCE_MBOARD, self.CLOCK_SOURCE_EXTERNAL]
         # if self._clocking_auxbrd:
         #     self._avail_clk_sources.extend([
@@ -143,13 +144,15 @@ class ZCU111ClockMgr:
         #         self._avail_clk_sources.append(self.CLOCK_SOURCE_NSYNC)
         #     if has_gps:
         #         self._avail_clk_sources.append(self.CLOCK_SOURCE_GPSDO)
+        if has_gps:
+            self._avail_clk_sources.append(self.CLOCK_SOURCE_GPSDO)
         self.log.trace(f"Available clock sources are: {self._avail_clk_sources}")
         self._avail_time_sources = [
             self.TIME_SOURCE_INTERNAL
             , self.TIME_SOURCE_EXTERNAL]
             #, self.TIME_SOURCE_QSFP0]
-        # if has_gps:
-        #     self._avail_time_sources.append(self.TIME_SOURCE_GPSDO)
+        if has_gps:
+            self._avail_time_sources.append(self.TIME_SOURCE_GPSDO)
         self.log.trace("Available time sources are: {}".format(self._avail_time_sources))
 
     def _init_clk_peripherals(self):

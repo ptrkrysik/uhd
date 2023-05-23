@@ -34,6 +34,7 @@ from usrp_mpm.periph_manager.x4xx_mb_cpld import MboardCPLD
 from usrp_mpm.periph_manager.x4xx_clk_aux import ClockingAuxBrdControl
 from usrp_mpm.periph_manager.x4xx_clk_mgr import X4xxClockMgr
 from usrp_mpm.periph_manager.zcu111_clk_mgr import ZCU111ClockMgr
+from usrp_mpm.periph_manager.zcu111_gps_mgr import ZCU111GPSMgr
 from usrp_mpm.periph_manager.x4xx_gps_mgr import X4xxGPSMgr
 from usrp_mpm.periph_manager.x4xx_rfdc_ctrl import X4xxRfdcCtrl
 from usrp_mpm.periph_manager.zcu111_dio_control import ZCU111DioControl
@@ -392,7 +393,10 @@ class x4xx(ZynqComponents, PeriphManagerBase):
         is pushed into the GPS manager class.
         """
         self.log.debug("Found GPS, adding sensors.")
-        gps_mgr = X4xxGPSMgr(self._clocking_auxbrd, self.log)
+        if self.mboard_info.get('product') == 'x411':
+            gps_mgr = ZCU111GPSMgr(self.log)
+        else:
+            gps_mgr = X4xxGPSMgr(self._clocking_auxbrd, self.log)
         # We can't use _add_public_methods(), because we only want a subset of
         # the public methods. Also, we want to know which sensors were added so
         # we can also add them to mboard_sensor_callback_map.
@@ -469,6 +473,9 @@ class x4xx(ZynqComponents, PeriphManagerBase):
                 self.log.warning(
                     "GPIO I2C bus could not be found for the Clocking Aux Board, "
                     "disabling Clocking Aux Board functionality.")
+        else:
+            has_gps = True
+
         self._clocking_auxbrd = None
         self._safe_sync_source = {
             'clock_source': X4xxClockMgr.CLOCK_SOURCE_MBOARD,
@@ -1361,10 +1368,13 @@ class x4xx(ZynqComponents, PeriphManagerBase):
         """
         assert self._gps_mgr
         self.log.trace("Reading all GPS status pins")
-        return f"""
-            {self.get_gps_lock_sensor()}
-            {self.get_gps_alarm_sensor()}
-            {self.get_gps_warmup_sensor()}
-            {self.get_gps_survey_sensor()}
-            {self.get_gps_phase_lock_sensor()}
-        """
+        if (self.mboard_info.get('product') == 'x411'):
+            return ""
+        else:
+            return f"""
+                {self.get_gps_lock_sensor()}
+                {self.get_gps_alarm_sensor()}
+                {self.get_gps_warmup_sensor()}
+                {self.get_gps_survey_sensor()}
+                {self.get_gps_phase_lock_sensor()}
+            """

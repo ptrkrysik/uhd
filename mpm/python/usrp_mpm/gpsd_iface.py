@@ -130,6 +130,7 @@ class GPSDIface:
         # Make a socket to connect to GPSD
         self.gpsd_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.gpsd_sockfile = self.gpsd_socket.makefile(encoding='ascii')
+        self.gps_available = False
 
     def __enter__(self):
         self.open()
@@ -155,8 +156,15 @@ class GPSDIface:
     def enable_watch(self):
         """Send a WATCH command, which starts operation"""
         self.gpsd_socket.sendall(b'?WATCH={"enable":true};')
-        self.log.trace(self.read_class("DEVICES"))
-        self.log.trace(self.read_class("WATCH"))
+        devices = self.read_class("DEVICES")
+        self.log.info(devices)
+        self.log.info(self.read_class("WATCH"))
+        if devices["devices"] is not None:
+            self.gps_available = True
+        else:
+            self.gps_available = False
+    def is_gps_enabled(self):
+        return self.gps_available
 
     def poll_request(self, socket_timeout=60, num_retry=10):
         """Send a POLL command
@@ -413,6 +421,9 @@ class GPSDIfaceExtension:
         # https://gpsd.gitlab.io/gpsd/gpsd_json.html
         return gps_info.get("mode", 0) >= 2
 
+    def is_gps_enabled(self):
+        self._log.info("GPS enabled "+str(self._gpsd_iface.is_gps_enabled()))
+        return self._gpsd_iface.is_gps_enabled()
 
 def main():
     """Test functionality of the GPSDIface class"""
