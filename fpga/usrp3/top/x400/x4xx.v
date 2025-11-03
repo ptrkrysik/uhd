@@ -139,9 +139,9 @@ module x4xx (
   output wire        DB1_SYNTH_SYNC,
 
   output wire        LMK_SYNC,
-`endif
+//`endif
   input  wire        PPS_IN,
-`ifndef X411
+//`ifndef X411
   output wire        PL_CPLD_SCLK,    // Dual-purpose CPLD JTAG TCK
   output wire        PL_CPLD_MOSI,    // Dual-purpose CPLD JTAG TDI
   input  wire        PL_CPLD_MISO,    // Dual-purpose CPLD JTAG TDO
@@ -168,6 +168,7 @@ module x4xx (
 
   input  wire        PLL_REFCLK_FPGA_P,
   input  wire        PLL_REFCLK_FPGA_N,
+
   input  wire        BASE_REFCLK_FPGA_P,
   input  wire        BASE_REFCLK_FPGA_N,
 
@@ -187,12 +188,12 @@ module x4xx (
 
   output wire        CPLD_JTAG_OE_n,
 `else
-  inout wire [11:0]               DIOA_FPGA,
+//  inout wire [11:0]               DIOA_FPGA,
 `endif
 
   output wire        PPS_LED,
-  inout  wire        TRIG_IO,
 `ifndef X411
+  inout  wire        TRIG_IO,
   output wire        PL_CPLD_JTAGEN,
   output wire        PL_CPLD_CS0_n,    // Dual-purpose CPLD JTAG TMS
   output wire        PL_CPLD_CS1_n,
@@ -252,8 +253,8 @@ module x4xx (
   // output wire       TDC_SPARE_0,
   // output wire       TDC_SPARE_1
 `ifdef X411
-  output wire [3:0] QSFP0_TX_ENABLE,
-  output wire       BASE_REF_CLK_OUT_TMP
+  output wire [3:0] QSFP0_TX_ENABLE
+//  output wire       BASE_REF_CLK_OUT_TMP
 `endif
 );
 
@@ -327,11 +328,13 @@ module x4xx (
   wire DB0_SYNTH_SYNC;
   wire DB1_SYNTH_SYNC;
 
-  // wire [11:0] DIOA_FPGA;
+  wire [11:0] DIOA_FPGA;
   wire [11:0] DIOB_FPGA;
 
+  wire        PPS_IN;
+  assign PPS_IN = 1'b0;
   wire LMK_SYNC;
-  // wire TRIG_IO;
+  wire TRIG_IO;
 
   wire QSFP0_MODPRS_n;
   wire QSFP1_MODPRS_n;
@@ -346,7 +349,7 @@ module x4xx (
   assign QSFP0_TX_ENABLE = 4'b1111;
 
   //assign test output for base ref clock
-  assign BASE_REF_CLK_OUT_TMP = base_ref_clk;
+//  assign BASE_REF_CLK_OUT_TMP = base_ref_clk;
 `endif
 
   // Clocking and sync signals for RFDC
